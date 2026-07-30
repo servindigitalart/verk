@@ -1,0 +1,281 @@
+/*
+ * Verk — Motion
+ *
+ * Animation keyframes, motion utility classes, reveal system,
+ * marquee, and reduced-motion accessibility overrides.
+ *
+ * Motion principles (doc 11, Part 8):
+ * The senior architect moving through their completed obra.
+ * Deliberate. No rush. No performance. Every motion is chosen.
+ *
+ * Rule (doc 11, Rule 5):
+ * Motion never completes in less than 300ms.
+ */
+
+/* ─── Keyframes ─────────────────────────────────────────────── */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-entrance-y));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--motion-entrance-y) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Marquee — horizontal continuous scroll */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Isotipo loader — shapes breathing */
+@keyframes isotipoBreath {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* ─── Scroll-Triggered Reveal System ───────────────────────── */
+/*
+ * Elements with [data-reveal] start hidden and transition to
+ * visible when .is-visible is added by the IntersectionObserver
+ * in src/scripts/reveal.ts (Phase 4).
+ *
+ * In Phase 1, elements are always visible — the reveal system
+ * is scaffolded but not yet activated.
+ */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--motion-entrance-y));
+  transition:
+    opacity   var(--duration-slow) var(--ease-out-expo),
+    transform var(--duration-slow) var(--ease-out-expo);
+  will-change: opacity, transform;
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Variant: fade only (no vertical movement) */
+[data-reveal='fade'] {
+  opacity: 0;
+  transform: none;
+}
+
+[data-reveal='fade'].is-visible {
+  opacity: 1;
+}
+
+/* Variant: scale in */
+[data-reveal='scale'] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+[data-reveal='scale'].is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ─── Nav Entrance ──────────────────────────────────────────── */
+/*
+ * The nav starts hidden and fades in after page load.
+ * Delay applied via JS (400ms from doc 04).
+ */
+
+.nav-hidden {
+  opacity: 0;
+  transform: translateY(-8px) translateX(-50%);
+}
+
+.nav-visible {
+  opacity: 1;
+  transform: translateY(0) translateX(-50%);
+  transition:
+    opacity   var(--duration-slow) var(--ease-out-expo),
+    transform var(--duration-slow) var(--ease-out-expo);
+}
+
+/* ─── Marquee ───────────────────────────────────────────────── */
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-inner {
+  display: inline-flex;
+  gap: var(--space-12);
+  /* Two copies of content make the loop seamless.
+     The animation moves exactly 50% to loop back to start. */
+  animation: marquee var(--motion-marquee-speed) linear infinite;
+}
+
+.marquee-inner:hover {
+  animation-play-state: paused;
+}
+
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-12);
+  flex-shrink: 0;
+}
+
+/* ─── View Transition Animations ───────────────────────────── */
+/*
+ * Custom page transition for Astro ViewTransitions.
+ * Content slides up on exit, slides in from below on entry.
+ * Duration matches --duration-page token.
+ */
+
+@keyframes pageSlideOut {
+  to {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+::view-transition-old(root) {
+  animation: var(--duration-page) var(--ease-in-expo) both pageSlideOut;
+}
+
+::view-transition-new(root) {
+  animation: var(--duration-page) var(--ease-out-expo) both pageSlideIn;
+}
+
+/* ─── Link Hover States ─────────────────────────────────────── */
+
+/* Underline that grows from left to right */
+.link-line {
+  position: relative;
+  display: inline-block;
+}
+
+.link-line::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width var(--duration-normal) var(--ease-out-expo);
+}
+
+.link-line:hover::after,
+.link-line:focus-visible::after {
+  width: 100%;
+}
+
+/* ─── Button Hover ──────────────────────────────────────────── */
+
+.btn-hover {
+  transition:
+    background-color var(--duration-normal) var(--ease-out-expo),
+    color            var(--duration-normal) var(--ease-out-expo),
+    border-color     var(--duration-normal) var(--ease-out-expo),
+    transform        var(--duration-fast)   var(--ease-out-expo);
+}
+
+.btn-hover:active {
+  transform: scale(0.97);
+}
+
+/* ─── Image Zoom on Hover ───────────────────────────────────── */
+
+.image-zoom {
+  overflow: hidden;
+}
+
+.image-zoom img,
+.image-zoom video {
+  transition: transform var(--duration-slow) var(--ease-out-expo);
+  will-change: transform;
+}
+
+.image-zoom:hover img,
+.image-zoom:hover video {
+  transform: scale(1.04);
+}
+
+/* ─── Reduced Motion ────────────────────────────────────────── */
+/*
+ * Rule (doc 11): Accessibility is non-negotiable.
+ * When prefers-reduced-motion is set, all reveals are immediately
+ * visible, all transitions are instant, marquee stops.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Ensure all reveal elements are visible without animation */
+  [data-reveal],
+  [data-reveal='fade'],
+  [data-reveal='scale'] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  /* Stop marquee */
+  .marquee-inner {
+    animation: none;
+    /* Keep the first copy visible without scrolling */
+    overflow: visible;
+    white-space: normal;
+    flex-wrap: wrap;
+  }
+
+  /* Disable page transitions */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

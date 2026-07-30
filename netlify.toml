@@ -1,0 +1,44 @@
+# Netlify build & deploy configuration for Verk (Astro static site).
+# https://docs.netlify.com/configure-builds/file-based-configuration/
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22.16.0"
+  # Keep in sync with .nvmrc and package.json "engines".
+
+# ── Security headers (safe defaults for a static Astro site) ──
+# No CSP yet: future integrations (Supabase, Stripe, analytics, fonts)
+# aren't finalized. A strict CSP here would likely break them on
+# arrival. Revisit once those services are chosen — see docs/deployment.md.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+
+# ── Long-term caching for hashed, immutable build assets ──
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Un-hashed static files (favicons, root images) — cache but allow revalidation.
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, must-revalidate"
+
+[[headers]]
+  for = "/project-logos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, must-revalidate"

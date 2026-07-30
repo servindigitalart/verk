@@ -1,0 +1,412 @@
+---
+/**
+ * SystemEntry.astro — Phase 4B
+ *
+ * One system, one row. Reuses the Services/Method precedent: full-width,
+ * hairline-separated, one entry (Sonoro, rank 1) given a dark-inset treatment
+ * for hierarchy — the same device Services used for its IA row.
+ *
+ * Three variants, not nine bespoke layouts (brief: "design reusable components"):
+ *   - featured    — Sonoro only. Dark inset, always-expanded content, largest frame.
+ *   - standard     — the default row. Collapsed detail behind a <details> disclosure.
+ *   - conceptual  — UX Analyzer only. No logo (isotipo stands in), narrower measure,
+ *                   centered as an interlude between two production systems.
+ *
+ * Progressive disclosure (brief: "do not expose everything simultaneously") is
+ * native <details>/<summary> — zero JS, keyboard- and screen-reader-accessible by
+ * default, and the always-visible summary line still gives every system a genuine
+ * one-line pitch even if a reader never expands anything.
+ *
+ * `size` (xl/lg/md/sm) drives type scale and logo-frame size — this is what makes
+ * Sonoro feel larger than Bloom Undies without a different component for each.
+ *
+ * data-reveal is intentionally omitted, matching the Services/Method precedent —
+ * the IntersectionObserver activation is still pending in the generic Phase 4 queue.
+ */
+
+import ProjectPreview from './ProjectPreview.astro';
+import ProjectStatus from './ProjectStatus.astro';
+import CapabilityLabel from './CapabilityLabel.astro';
+import ArchitectureStrip from './ArchitectureStrip.astro';
+
+interface Layer {
+  layer: string;
+  detail: string;
+}
+
+interface Capability {
+  label: string;
+  kind?: 'ai' | 'default';
+}
+
+interface Props {
+  rank: number;
+  name: string;
+  status: 'Operativo' | 'En Evolución' | 'Investigación' | 'Desarrollo Activo';
+  problem: string;
+  system: string;
+  howItWorks: string;
+  whyItMatters: string;
+  capabilities: Capability[];
+  layers: Layer[];
+  logoSrc?: string;
+  logoAlt?: string;
+  url?: string;
+  variant?: 'featured' | 'standard' | 'conceptual';
+  size?: 'xl' | 'lg' | 'md' | 'sm';
+  closing?: boolean;
+}
+
+const {
+  rank,
+  name,
+  status,
+  problem,
+  system,
+  howItWorks,
+  whyItMatters,
+  capabilities,
+  layers,
+  logoSrc,
+  logoAlt = `${name} — isotipo`,
+  url,
+  variant = 'standard',
+  size = 'md',
+  closing = false,
+} = Astro.props;
+
+const rankLabel = String(rank).padStart(2, '0');
+const isFeatured = variant === 'featured';
+const isConceptual = variant === 'conceptual';
+const tone = isFeatured ? 'dark' : 'light';
+---
+
+<article
+  class:list={[
+    'system-entry',
+    `entry-${variant}`,
+    `entry-${size}`,
+    closing && 'entry-closing',
+  ]}
+>
+  {isFeatured && (
+    <div class="entry-featured-mark" aria-hidden="true">
+      <img src="/images/isotipo.png" alt="" loading="lazy" decoding="async" draggable="false" />
+    </div>
+  )}
+
+  <div class="entry-head">
+    <span class="entry-rank text-mono" aria-hidden="true">{rankLabel}</span>
+    <ProjectPreview src={logoSrc} alt={logoAlt} size={size} tone={tone} />
+    <div class="entry-heading">
+      <h3 class="entry-name">
+        {url ? (
+          <a href={url} target="_blank" rel="noopener noreferrer" class="entry-name-link">
+            {name}
+            <svg class="entry-name-arrow" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        ) : (
+          name
+        )}
+      </h3>
+      <ProjectStatus state={status} />
+    </div>
+  </div>
+
+  <p class="entry-problem">{problem}</p>
+
+  <div class="entry-capabilities">
+    {capabilities.map((c) => (
+      <CapabilityLabel label={c.label} kind={c.kind} />
+    ))}
+  </div>
+
+  {isFeatured ? (
+    <div class="entry-detail entry-detail--open">
+      <p class="entry-system">{system}</p>
+      <p class="entry-how">{howItWorks}</p>
+      <ArchitectureStrip layers={layers} tone={tone} />
+      <p class="entry-why">{whyItMatters}</p>
+    </div>
+  ) : (
+    <details class="entry-detail">
+      <summary class="entry-toggle">
+        {isConceptual ? 'Qué hace' : 'Cómo funciona'}
+      </summary>
+      <div class="entry-detail-body">
+        <p class="entry-system">{system}</p>
+        <p class="entry-how">{howItWorks}</p>
+        <ArchitectureStrip layers={layers} tone={tone} />
+        <p class="entry-why">{whyItMatters}</p>
+      </div>
+    </details>
+  )}
+</article>
+
+<style>
+  /* ── Base row ───────────────────────────────────────────────── */
+
+  .system-entry {
+    border-top: 1px solid var(--color-border-medium);
+    padding-block: var(--space-10);
+  }
+
+  .entry-closing {
+    border-bottom: 1px solid var(--color-border-medium);
+  }
+
+  .entry-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    margin-bottom: var(--space-5);
+  }
+
+  .entry-rank {
+    font-size: var(--text-sm);
+    color: var(--color-grey-light);
+    flex-shrink: 0;
+    width: 2ch;
+  }
+
+  .entry-heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .entry-name {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .entry-name-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: inherit;
+  }
+
+  .entry-name-arrow {
+    flex-shrink: 0;
+    color: var(--color-grey-soft);
+    transition: transform var(--duration-normal) var(--ease-out-expo);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .entry-name-link:hover .entry-name-arrow {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  .entry-problem {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-grey-mid);
+    max-width: 62ch;
+    margin: 0 0 var(--space-4);
+  }
+
+  .entry-capabilities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+  }
+
+  /* ── Disclosure ─────────────────────────────────────────────── */
+
+  .entry-toggle {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-grey-soft);
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+
+  .entry-toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .entry-toggle::before {
+    content: '+';
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    transition: transform var(--duration-normal) var(--ease-out-expo);
+  }
+
+  details[open] .entry-toggle::before {
+    transform: rotate(45deg);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .entry-toggle:hover {
+      color: var(--color-ink);
+    }
+  }
+
+  .entry-detail-body,
+  .entry-detail--open {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-top: var(--space-4);
+    max-width: 68ch;
+  }
+
+  .entry-system,
+  .entry-how {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-grey-mid);
+    margin: 0;
+  }
+
+  .entry-why {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-relaxed);
+    color: var(--color-ink);
+    margin: 0;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border-light);
+  }
+
+  /* ── Size scale — type weight, not just logo size ───────────── */
+
+  .entry-xl .entry-name { font-size: clamp(1.875rem, 1.3rem + 2vw, 2.75rem); }
+  .entry-lg .entry-name { font-size: var(--text-2xl); }
+  .entry-md .entry-name { font-size: var(--text-xl); }
+  .entry-sm .entry-name { font-size: var(--text-lg); }
+
+  .entry-sm .entry-problem,
+  .entry-sm .entry-system,
+  .entry-sm .entry-how {
+    font-size: var(--text-xs);
+  }
+
+  /* ── Featured variant — Sonoro's dark inset ──────────────────── */
+
+  .entry-featured {
+    position: relative;
+    background-color: var(--color-surface-dark);
+    border-top: none;
+    border-radius: var(--radius-lg);
+    padding: var(--space-10) var(--space-10) var(--space-12);
+    margin-block: var(--space-3) var(--space-6);
+    overflow: hidden;
+  }
+
+  /* Isotipo as structural anchor — marks Sonoro as the section's featured
+     system and doubles as the transition point into the row list below. */
+  .entry-featured-mark {
+    position: absolute;
+    bottom: -8%;
+    right: -6%;
+    width: clamp(220px, 26vw, 380px);
+    opacity: 0.06;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .entry-featured-mark img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .entry-featured .entry-head,
+  .entry-featured .entry-problem,
+  .entry-featured .entry-capabilities,
+  .entry-featured .entry-detail--open {
+    position: relative;
+    z-index: 1;
+  }
+
+  .entry-featured .entry-name {
+    color: var(--color-cream);
+  }
+
+  .entry-featured .entry-rank {
+    color: var(--color-grey-dim-dark);
+  }
+
+  .entry-featured .entry-problem {
+    color: var(--color-grey-mid-dark);
+  }
+
+  .entry-featured .entry-system,
+  .entry-featured .entry-how {
+    color: var(--color-grey-mid-dark);
+  }
+
+  .entry-featured .entry-why {
+    color: var(--color-cream);
+    border-top-color: var(--color-border-dark);
+  }
+
+  /* ── Conceptual variant — UX Analyzer's interlude ────────────── */
+
+  .entry-conceptual {
+    max-width: 640px;
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  .entry-conceptual .entry-name {
+    font-size: var(--text-xl);
+  }
+
+  .entry-conceptual .entry-problem {
+    font-size: var(--text-lg);
+    color: var(--color-grey-dark);
+  }
+
+  .entry-conceptual .entry-toggle {
+    color: var(--color-violet);
+  }
+
+  /* ── Mobile — recompose, don't just stack ────────────────────── */
+
+  @media (max-width: 640px) {
+    .system-entry {
+      padding-block: var(--space-8);
+    }
+
+    .entry-featured {
+      padding: var(--space-8) var(--space-6) var(--space-10);
+    }
+
+    .entry-head {
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+
+    .entry-rank {
+      display: none;
+    }
+
+    .entry-conceptual {
+      max-width: 100%;
+    }
+
+    .entry-xl .entry-name { font-size: clamp(1.75rem, 1.4rem + 2vw, 2.25rem); }
+  }
+</style>

@@ -1,0 +1,23 @@
+# Neue Haas Grotesk — Font Files Required
+#
+# Place the following licensed font files in this directory:
+#
+# Display cut (for headlines, hero text, section titles):
+#   NHaasGroteskDSPro-45Lt.woff2    weight: 300
+#   NHaasGroteskDSPro-55Rg.woff2    weight: 400
+#   NHaasGroteskDSPro-65Md.woff2    weight: 500
+#   NHaasGroteskDSPro-75Bd.woff2    weight: 700
+#   NHaasGroteskDSPro-95Bl.woff2    weight: 900
+#
+# Text cut (for body copy, descriptions):
+#   NHaasGroteskTXPro-45Lt.woff2    weight: 300
+#   NHaasGroteskTXPro-55Rg.woff2    weight: 400
+#   NHaasGroteskTXPro-65Md.woff2    weight: 500
+#   NHaasGroteskTXPro-75Bd.woff2    weight: 700
+#
+# Source: https://www.linotype.com/1245/neue-haas-grotesk-family.html
+# Or via MyFonts / Adobe Fonts (desktop + web license required)
+#
+# Until files are present, the system falls back to:
+# 'Helvetica Neue', 'Arial', sans-serif
+# (adequate on macOS, acceptable elsewhere)

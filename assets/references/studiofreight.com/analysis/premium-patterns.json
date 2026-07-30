@@ -1,0 +1,19 @@
+{
+  "detected_patterns": [
+    "floating-navbar",
+    "full-width-sections",
+    "blend-mode-effects",
+    "generous-whitespace",
+    "dark-theme",
+    "section-dividers"
+  ],
+  "navigation_pattern": "floating-transparent",
+  "typography_pattern": "uppercase-headings",
+  "card_patterns": [
+    "standard-cards"
+  ],
+  "cta_style": "standard",
+  "footer_style": "minimal-social",
+  "special_effects": [],
+  "premium_score": 56
+}

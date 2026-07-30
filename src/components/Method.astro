@@ -1,0 +1,269 @@
+---
+/**
+ * Method.astro — Phase 3
+ *
+ * Layout: editorial step list, dark section (depth mode per doc 11).
+ * Four steps maximum — per brief. Process feels inevitable.
+ *
+ * Step numbering: Geist Mono (technical register, doc 11 Part 6).
+ * Step names: Neue Haas Grotesk Display (structural register).
+ * Step copy: Neue Haas Grotesk Text (body register).
+ *
+ * The step numbers earn their place: the method IS a sequence.
+ * Order carries information the reader needs. This is the exception
+ * to taste-skill's numbering caution — not section markers, process steps.
+ *
+ * Label rule (doc 11, Rule 6): label above every headline.
+ * Rule 4 (doc 11): no centered headlines on dark sections. Flush left.
+ *
+ * Isotipo (doc 11, Part 5): structural background presence at bottom-right.
+ * On dark surface: opacity only, no blend mode — white areas contribute
+ * barely-perceptible brightness at 5% opacity (below the "visible" threshold).
+ *
+ * data-reveal: intentionally omitted in Phase 3.
+ * Phase 4 adds IntersectionObserver — attributes added then.
+ */
+---
+
+<section class="method section section-dark" id="metodo" aria-label="Método">
+
+  <!-- Isotipo — bottom-right structural mark on dark section -->
+  <div class="method-isotipo" aria-hidden="true">
+    <img
+      src="/images/isotipo.png"
+      alt=""
+      width="600"
+      height="600"
+      draggable="false"
+      decoding="async"
+    />
+  </div>
+
+  <div class="container method-container">
+
+    <!-- Section header — label above headline per Rule 6 -->
+    <header class="method-header">
+      <p class="text-label method-lbl">Método</p>
+      <h2 class="method-headline">Cómo funciona.</h2>
+      <p class="method-intro">
+        No empezamos con diseños. Empezamos por entender cómo opera tu negocio.
+      </p>
+    </header>
+
+    <!-- Steps — ordered list: sequence matters, order carries information -->
+    <ol class="method-steps" role="list">
+
+      <li class="method-step">
+        <span class="step-num text-mono" aria-hidden="true">01</span>
+        <div class="step-content">
+          <h3 class="step-name">Entendemos</h3>
+          <p class="step-body">
+            Antes de diseñar, preguntamos. ¿Dónde se pierden los clientes? ¿Qué tarea se repite más? ¿Qué herramientas ya tienes y cuáles no están conectadas?
+          </p>
+        </div>
+      </li>
+
+      <li class="method-step">
+        <span class="step-num text-mono" aria-hidden="true">02</span>
+        <div class="step-content">
+          <h3 class="step-name">Diseñamos</h3>
+          <p class="step-body">
+            Diseñamos el sistema completo antes de escribir código. El sitio, las automatizaciones, las integraciones: todo conectado desde el principio.
+          </p>
+        </div>
+      </li>
+
+      <li class="method-step">
+        <span class="step-num text-mono" aria-hidden="true">03</span>
+        <div class="step-content">
+          <h3 class="step-name">Construimos</h3>
+          <p class="step-body">
+            Construimos el sitio y todo lo que lo conecta a tu operación. No entregamos piezas sueltas, entregamos el sistema completo.
+          </p>
+        </div>
+      </li>
+
+      <li class="method-step">
+        <span class="step-num text-mono" aria-hidden="true">04</span>
+        <div class="step-content">
+          <h3 class="step-name">Verificamos</h3>
+          <p class="step-body">
+            El sistema funciona antes de que lo llamemos terminado. Probamos cada flujo, cada integración, cada punto de contacto con el cliente.
+          </p>
+        </div>
+      </li>
+
+    </ol>
+
+  </div>
+
+</section>
+
+<style>
+  /* ── Section ────────────────────────────────────────────────── */
+
+  .method {
+    overflow: hidden;
+  }
+
+  /* ── Isotipo ────────────────────────────────────────────────── */
+  /*
+   * Override: .section-dark > * applies position:relative; z-index:1
+   * globally. Astro's scoped attribute increases specificity of this
+   * rule, so position:absolute and z-index:0 win here.
+   *
+   * z-index:0 places the isotipo behind content (z-index:1) but
+   * above the noise grain pseudo-element (also z-index:0, but
+   * ::after renders after regular elements, so grain is on top —
+   * acceptable since grain is at 3.5% opacity and essentially invisible).
+   */
+
+  .method-isotipo {
+    position: absolute;
+    bottom: -6%;
+    right: -5%;
+    width: clamp(260px, 32vw, 480px);
+    opacity: 0.05;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .method-isotipo img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ── Container ──────────────────────────────────────────────── */
+  /*
+   * Explicit z-index:1 ensures content sits above noise grain
+   * and the isotipo background mark.
+   */
+
+  .method-container {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────── */
+
+  .method-header {
+    max-width: 580px;
+    margin-bottom: var(--space-16);
+  }
+
+  .method-lbl {
+    display: block;
+    margin-bottom: var(--space-5);
+    color: var(--color-grey-dim-dark);
+  }
+
+  /* Item 7 (doc 11): 20–24px gap between label and headline */
+
+  .method-headline {
+    margin: 0 0 var(--space-8);
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 1.2rem + 4.5vw, 5.5rem);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-cream);
+  }
+
+  .method-intro {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-grey-mid-dark);
+    margin: 0;
+    max-width: 480px;
+  }
+
+  /* ── Steps ──────────────────────────────────────────────────── */
+
+  .method-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ── Step row ───────────────────────────────────────────────── */
+  /*
+   * Grid: [step number fixed] [step content fills remaining width]
+   * Step number: Geist Mono, muted, technical register.
+   * This column stays at 56px on desktop — number is a coordinate,
+   * not a headline. It should not compete with the step name.
+   */
+
+  .method-step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: var(--space-8);
+    padding-block: var(--space-10);
+    border-top: 1px solid var(--color-border-dark);
+    align-items: start;
+  }
+
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-regular);
+    color: var(--color-grey-dim-dark);
+    line-height: 1;
+    padding-top: 5px;
+    /* optical alignment with first line of step-name */
+  }
+
+  .step-name {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-cream);
+    margin: 0 0 var(--space-4);
+  }
+
+  .step-body {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-grey-mid-dark);
+    margin: 0;
+    max-width: 52ch;
+  }
+
+  /* ── Mobile — 768px and below ───────────────────────────────── */
+  /*
+   * Narrower number column, tighter gap.
+   * Step content remains full-width — reads well single-column.
+   */
+
+  @media (max-width: 768px) {
+    .method-step {
+      grid-template-columns: 40px 1fr;
+      gap: var(--space-5);
+      padding-block: var(--space-8);
+    }
+
+    .method-isotipo {
+      width: 68vw;
+      bottom: -4%;
+      right: -18%;
+      opacity: 0.04;
+    }
+
+    .method-intro {
+      max-width: 100%;
+    }
+  }
+
+  /* ── Small mobile ───────────────────────────────────────────── */
+
+  @media (max-width: 480px) {
+    .method-isotipo {
+      display: none;
+    }
+  }
+</style>

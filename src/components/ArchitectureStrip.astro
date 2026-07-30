@@ -1,0 +1,135 @@
+---
+/**
+ * ArchitectureStrip.astro — Phase 4B
+ *
+ * The "engineering drawing" — not colorful technology badges (doc 11, doc 16 Part 5).
+ *
+ * Deliberately dynamic: takes any ordered list of { layer, detail } pairs, of any
+ * length and any label. Stage 1 proposed a fixed six-name vocabulary with gaps
+ * ("Presentation / Logic / Processing / Storage / Infrastructure / AI", blank where
+ * a system had no such layer). Phase 4B's brief correctly rejects that — a gap in a
+ * fixed template is still a template. Sonoro's flow and WATERLÜ's flow are different
+ * sentences, not the same sentence with words missing, so each system supplies its
+ * own layer names (see docs/16-systems-architecture.md Part 5 for the full mapping).
+ *
+ * Reading order: left to right on desktop (a request moving through the system),
+ * top to bottom on mobile. Connector glyph swaps between "→" and "↓" via CSS only —
+ * no JS, no duplicate markup beyond the two glyph spans.
+ */
+
+interface Layer {
+  layer: string;
+  detail: string;
+}
+
+interface Props {
+  layers: Layer[];
+  tone?: 'light' | 'dark';
+}
+
+const { layers, tone = 'light' } = Astro.props;
+---
+
+<div class:list={['arch-strip', `arch-${tone}`]} role="list" aria-label="Arquitectura del sistema">
+  {layers.map((item, i) => (
+    <Fragment>
+      <div class="arch-cell" role="listitem">
+        <div class="arch-layer text-mono">{item.layer}</div>
+        <div class="arch-detail">{item.detail}</div>
+      </div>
+      {i < layers.length - 1 && (
+        <span class="arch-connector" aria-hidden="true">
+          <span class="connector-h">&rarr;</span>
+          <span class="connector-v">&darr;</span>
+        </span>
+      )}
+    </Fragment>
+  ))}
+</div>
+
+<style>
+  .arch-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .arch-cell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+    max-width: 22ch;
+  }
+
+  .arch-layer {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    color: var(--color-grey-soft);
+    white-space: nowrap;
+  }
+
+  .arch-detail {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-grey-mid);
+  }
+
+  .arch-connector {
+    align-self: center;
+    margin-top: 2px;
+    color: var(--color-grey-light);
+    font-size: var(--text-sm);
+    line-height: 1;
+  }
+
+  .connector-v {
+    display: none;
+  }
+
+  /* ── Dark tone — used inside the Sonoro featured row ─────────── */
+
+  .arch-dark .arch-layer {
+    color: var(--color-grey-dim-dark);
+  }
+
+  .arch-dark .arch-detail {
+    color: var(--color-grey-mid-dark);
+  }
+
+  .arch-dark .arch-connector {
+    color: var(--color-border-dark-strong);
+  }
+
+  /* ── Mobile — vertical flow, ↓ connector ─────────────────────── */
+
+  @media (max-width: 640px) {
+    .arch-strip {
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .arch-cell {
+      max-width: 100%;
+    }
+
+    .arch-connector {
+      align-self: flex-start;
+      margin-top: 0;
+      margin-left: 2px;
+    }
+
+    .connector-h {
+      display: none;
+    }
+
+    .connector-v {
+      display: inline;
+    }
+  }
+</style>

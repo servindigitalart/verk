@@ -1,0 +1,39 @@
+---
+/**
+ * ProjectStatus.astro — Phase 4B
+ *
+ * State pill for a system: Operativo / En Evolución / Investigación / Desarrollo Activo.
+ * Doc 16, Part 4 (updated Phase 4B — "En Construcción" renamed to "Desarrollo Activo").
+ *
+ * Color rule (doc 11): lime = action only, violet = intelligence only.
+ * "Investigación" is the one state that legitimately earns violet — it IS the
+ * intelligence/research register, not a borrowed color. The other three states
+ * use the neutral dark pill — status is information, not action or intelligence.
+ */
+
+interface Props {
+  state: 'Operativo' | 'En Evolución' | 'Investigación' | 'Desarrollo Activo';
+}
+
+const { state } = Astro.props;
+const isResearch = state === 'Investigación';
+---
+
+<span class:list={['pill', isResearch ? 'pill-violet' : 'pill-dark', 'project-status']}>
+  <span class="status-dot" aria-hidden="true"></span>
+  {state}
+</span>
+
+<style>
+  .project-status {
+    text-transform: none;
+  }
+
+  .status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: currentColor;
+    flex-shrink: 0;
+  }
+</style>

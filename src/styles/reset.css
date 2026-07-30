@@ -1,0 +1,96 @@
+/*
+ * Verk — Reset
+ * Minimal, opinionated. Removes browser defaults that conflict
+ * with the design system without overriding things unnecessarily.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent font size inflation on mobile */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /* Consistent tab size for code blocks */
+  tab-size: 4;
+
+  /* Disable native smooth scroll — Lenis handles this */
+  scroll-behavior: auto;
+}
+
+body {
+  min-height: 100dvh;
+  /* Inherit from body, not from UA stylesheet */
+  line-height: inherit;
+}
+
+/* Media elements */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Form controls inherit font from body */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Avoid overflow on long words */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* Lists — only reset when using semantic list role */
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+}
+
+/* Remove default button styles */
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Remove default anchor decoration */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Remove default fieldset */
+fieldset {
+  border: none;
+}
+
+/* Remove default table spacing */
+table {
+  border-collapse: collapse;
+}
+
+/* Stack context for the Astro app root */
+#app,
+[data-astro-source-loc] {
+  isolation: isolate;
+}

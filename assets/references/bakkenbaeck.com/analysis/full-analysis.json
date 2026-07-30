@@ -1,0 +1,1246 @@
+{
+  "url": "https://bakkenbaeck.com/",
+  "site_name": "Bakken &amp; B\u00e6ck is a design and technology studio. We build digital products, ",
+  "design_style": {
+    "primary_style": "minimal luxury",
+    "secondary_style": "",
+    "visual_density": "sparse",
+    "whitespace_usage": "generous",
+    "typography_prominence": "balanced",
+    "color_contrast": "high-contrast",
+    "layout_complexity": "complex",
+    "mood": "calm sophistication",
+    "design_era": "contemporary"
+  },
+  "animation_strategy": {
+    "overall_approach": "rich multi-layered motion design",
+    "detected_techniques": [
+      "scroll-reveal",
+      "css-keyframe-animations",
+      "custom-cursor",
+      "marquee-ticker"
+    ],
+    "detected_libraries": [
+      "Animate.css"
+    ],
+    "scroll_behavior": "standard",
+    "entrance_animations": [
+      "none-detected"
+    ],
+    "hover_interactions": [
+      "standard-transitions"
+    ],
+    "transition_style": "smooth-elegant",
+    "motion_intensity": "dramatic"
+  },
+  "imagery_strategy": {
+    "primary_approach": "product-focused with high-quality renders",
+    "image_types": [
+      "hero-photography",
+      "product-renders",
+      "svg-icons",
+      "illustration-heavy",
+      "video-content"
+    ],
+    "hero_imagery": "video-background",
+    "background_treatment": "video-background",
+    "icon_style": "font-awesome",
+    "media_density": "image-heavy",
+    "visual_effects": [
+      "blur-backdrop",
+      "noise-texture"
+    ]
+  },
+  "layout_rhythm": {
+    "hero_type": "large-centered",
+    "section_sequence": [
+      "content",
+      "video-section",
+      "content",
+      "cta",
+      "content",
+      "footer",
+      "video-section",
+      "content"
+    ],
+    "spacing_rhythm": "dramatic-variation",
+    "content_width_pattern": "mixed-widths",
+    "section_count": 15,
+    "vertical_rhythm": "generous-breathing",
+    "page_flow_narrative": "Page flow: content \u2192 video-section \u2192 content \u2192 cta \u2192 content \u2192 footer \u2192 video-section \u2192 content. Presenting core content, featuring video content for engagement, presenting core content, culminating in a clear call-to-action, presenting core content, closing with navigation and contact information, featuring video content for engagement, presenting core content."
+  },
+  "premium_signals": {
+    "detected_patterns": [
+      "full-width-sections",
+      "glassmorphism",
+      "custom-cursor",
+      "marquee-text",
+      "generous-whitespace"
+    ],
+    "navigation_pattern": "standard",
+    "typography_pattern": "large-bold-headings",
+    "card_patterns": [
+      "standard-cards"
+    ],
+    "cta_style": "standard",
+    "footer_style": "mega-footer",
+    "special_effects": [
+      "custom-cursor"
+    ],
+    "premium_score": 58
+  },
+  "executive_summary": "Bakken &amp; B\u00e6ck is a design and technology studio. We build digital products,  features a minimal luxury design with a calm sophistication feel. The layout uses generous whitespace and employs full-width-sections, glassmorphism, custom-cursor. Overall premium design score: 58/100.",
+  "inspiration_takeaways": [
+    "Study the minimal luxury aesthetic approach and how it creates cohesion",
+    "Replicate the rich multi-layered motion design motion strategy",
+    "Apply the product-focused with high-quality renders approach to visual content",
+    "Adopt the large-bold-headings typography approach"
+  ],
+  "replication_notes": "To replicate this minimal luxury aesthetic, start with generous spacing and high-contrast color contrast. Use bbSans, \"bbSans Fallback\" for headings and bbSans, \"bbSans Fallback\" for body text. Typography should be balanced in visual weight. Pay attention to the section rhythm and ensure consistent vertical spacing throughout the layout.",
+  "section_screenshots": [
+    {
+      "name": "section-01.png",
+      "type": "section-01",
+      "index": 0,
+      "width": 1440,
+      "height": 226
+    },
+    {
+      "name": "gallery.png",
+      "type": "gallery",
+      "index": 1,
+      "width": 1440,
+      "height": 1605
+    },
+    {
+      "name": "section-03.png",
+      "type": "section-03",
+      "index": 2,
+      "width": 1440,
+      "height": 390
+    },
+    {
+      "name": "gallery-2.png",
+      "type": "gallery",
+      "index": 3,
+      "width": 1440,
+      "height": 300
+    },
+    {
+      "name": "section-05.png",
+      "type": "section-05",
+      "index": 4,
+      "width": 1440,
+      "height": 112
+    },
+    {
+      "name": "gallery-3.png",
+      "type": "gallery",
+      "index": 6,
+      "width": 1408,
+      "height": 88
+    },
+    {
+      "name": "footer.png",
+      "type": "footer",
+      "index": 7,
+      "width": 1440,
+      "height": 390
+    },
+    {
+      "name": "section-09.png",
+      "type": "section-09",
+      "index": 8,
+      "width": 1440,
+      "height": 3494
+    },
+    {
+      "name": "section-10.png",
+      "type": "section-10",
+      "index": 9,
+      "width": 464,
+      "height": 687
+    },
+    {
+      "name": "section-11.png",
+      "type": "section-11",
+      "index": 10,
+      "width": 464,
+      "height": 687
+    },
+    {
+      "name": "section-12.png",
+      "type": "section-12",
+      "index": 11,
+      "width": 464,
+      "height": 687
+    },
+    {
+      "name": "section-13.png",
+      "type": "section-13",
+      "index": 12,
+      "width": 464,
+      "height": 687
+    },
+    {
+      "name": "section-14.png",
+      "type": "section-14",
+      "index": 13,
+      "width": 464,
+      "height": 687
+    },
+    {
+      "name": "section-15.png",
+      "type": "section-15",
+      "index": 14,
+      "width": 464,
+      "height": 687
+    }
+  ],
+  "animation_timeline": {
+    "pattern": "stagger",
+    "total_animated_elements": 60,
+    "elements_with_delay": 6,
+    "timing_groups": [
+      {
+        "delay_ms": 0.0,
+        "count": 54,
+        "elements": [
+          "a.font-label-2 pointer-events-none absolute -top-8 left-[50%] z-30 inline-flex h-10 w-auto -translate-x-[50%] items-center rounded-sm bg-gray-800 p-4 text-white opacity-0 outline-hidden transition-[top,opacity] duration-200 hover:bg-gray-900 focus:pointer-events-auto focus-visible:top-3 focus-visible:opacity-100 focus-visible:outline-solid focus-visible:outline-green lg:focus-visible:top-4 xl:px-12",
+          "div.mb-2 flex flex-col items-center rounded-sm py-3 pl-[11px] pr-4 backdrop-blur-xl duration-400 md:h-10 md:flex-row md:gap-4 md:py-0 bg-gray-400/50",
+          "a.rounded-sm outline-hidden transition-[color] hover:text-gray-900/40 focus-visible:outline-solid focus-visible:outline-green active:text-gray-900/40 hover:dark:text-gray-900/40",
+          "a.outline-hidden transition-[color] hover:text-gray-900/40 focus-visible:outline-solid focus-visible:outline-green active:text-gray-900/40 hover:dark:text-white/60 font-label-2 items-center gap-2 pr-4 md:hidden rounded-none block",
+          "a.rounded-sm outline-hidden transition-[color] hover:text-gray-900/40 focus-visible:outline-solid focus-visible:outline-green active:text-gray-900/40 group/link font-label-2 flex items-center gap-1 hover:dark:text-gray-900/40",
+          "a.rounded-sm outline-hidden transition-[color] hover:text-gray-900/40 focus-visible:outline-solid focus-visible:outline-green active:text-gray-900/40 group/link font-label-2 flex items-center gap-1 hover:dark:text-gray-900/40",
+          "a.rounded-sm outline-hidden transition-[color] hover:text-gray-900/40 focus-visible:outline-solid focus-visible:outline-green active:text-gray-900/40 group/link font-label-2 flex items-center gap-1 hover:dark:text-gray-900/40",
+          "a.rounded-sm outline-hidden transition-[color] hover:text-gray-900/40 focus-visible:outline-solid focus-visible:outline-green active:text-gray-900/40 group/link font-label-2 flex items-center gap-1 hover:dark:text-gray-900/40"
+        ]
+      },
+      {
+        "delay_ms": 200.0,
+        "count": 1,
+        "elements": [
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[200ms] opacity-100"
+        ]
+      },
+      {
+        "delay_ms": 400.0,
+        "count": 1,
+        "elements": [
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[400ms] opacity-100"
+        ]
+      },
+      {
+        "delay_ms": 600.0,
+        "count": 1,
+        "elements": [
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[600ms] opacity-100"
+        ]
+      },
+      {
+        "delay_ms": 800.0,
+        "count": 1,
+        "elements": [
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[800ms] opacity-100"
+        ]
+      },
+      {
+        "delay_ms": 1000.0,
+        "count": 1,
+        "elements": [
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[1000ms] opacity-100"
+        ]
+      },
+      {
+        "delay_ms": 1200.0,
+        "count": 1,
+        "elements": [
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[1200ms] opacity-100"
+        ]
+      }
+    ],
+    "stagger_sequences": [
+      {
+        "element_count": 6,
+        "start_delay_ms": 200.0,
+        "end_delay_ms": 1200.0,
+        "avg_step_ms": 200.0,
+        "selectors": [
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[200ms] opacity-100",
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[400ms] opacity-100",
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[600ms] opacity-100",
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[800ms] opacity-100",
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[1000ms] opacity-100",
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[1200ms] opacity-100"
+        ]
+      }
+    ],
+    "min_delay_ms": 200.0,
+    "max_delay_ms": 1200.0,
+    "avg_delay_ms": 700.0
+  },
+  "navigation_style": {
+    "style": "transparent-static",
+    "behavior": "static",
+    "is_fixed": false,
+    "is_transparent": true,
+    "has_backdrop_blur": false,
+    "has_shadow": false,
+    "has_logo": true,
+    "link_count": 13,
+    "height_px": 48,
+    "background_color": "rgba(0, 0, 0, 0)",
+    "backdrop_filter": "",
+    "box_shadow": "",
+    "z_index": "auto"
+  },
+  "visual_density": {
+    "density_score": 29,
+    "density_label": "moderate-sparse",
+    "whitespace_ratio": 0.79,
+    "elements_per_viewport": 4.2,
+    "avg_section_height_px": 766.0,
+    "content_width_pct": 72.7,
+    "section_count": 15,
+    "total_page_height_px": 10727.0
+  },
+  "design_notes_md": "# \ud83c\udfa8 Design Notes \u2014 Bakken &amp; B\u00e6ck is a design and technology studio. We build digital products, \n\n> **URL:** https://bakkenbaeck.com/  \n> **Style:** minimal luxury  \n> **Premium Score:** 58/100 (\ud83d\udc4d Above Average)\n\n## Quick Profile\n\n| Trait | Value |\n|---|---|\n| Mood | calm sophistication |\n| Era | contemporary |\n| Contrast | high-contrast |\n| Whitespace | generous |\n| Complexity | complex |\n| Density | moderate-sparse (29/100) |\n| Whitespace Ratio | 0.79 |\n\n## Typography & Colour\n\n- **Typography prominence:** balanced\n- **Typography pattern:** large-bold-headings\n- **Colour contrast:** high-contrast\n\n## Layout & Rhythm\n\n- **Hero type:** large-centered\n- **Section count:** 15\n- **Spacing rhythm:** dramatic-variation\n- **Content width:** mixed-widths\n- **Vertical rhythm:** generous-breathing\n\n**Section flow:** `content \u2192 video-section \u2192 content \u2192 cta \u2192 content \u2192 footer \u2192 video-section \u2192 content`\n\n> Page flow: content \u2192 video-section \u2192 content \u2192 cta \u2192 content \u2192 footer \u2192 video-section \u2192 content. Presenting core content, featuring video content for engagement, presenting core content, culminating in a clear call-to-action, presenting core content, closing with navigation and contact information, featuring video content for engagement, presenting core content.\n\n### Captured Sections\n\n- `section-01.png` \u2014 *section-01* (1440\u00d7226)\n- `gallery.png` \u2014 *gallery* (1440\u00d71605)\n- `section-03.png` \u2014 *section-03* (1440\u00d7390)\n- `gallery-2.png` \u2014 *gallery* (1440\u00d7300)\n- `section-05.png` \u2014 *section-05* (1440\u00d7112)\n- `gallery-3.png` \u2014 *gallery* (1408\u00d788)\n- `footer.png` \u2014 *footer* (1440\u00d7390)\n- `section-09.png` \u2014 *section-09* (1440\u00d73494)\n- `section-10.png` \u2014 *section-10* (464\u00d7687)\n- `section-11.png` \u2014 *section-11* (464\u00d7687)\n- `section-12.png` \u2014 *section-12* (464\u00d7687)\n- `section-13.png` \u2014 *section-13* (464\u00d7687)\n- `section-14.png` \u2014 *section-14* (464\u00d7687)\n- `section-15.png` \u2014 *section-15* (464\u00d7687)\n\n## Navigation\n\n- **Pattern (basic):** standard\n- **Style:** transparent-static\n- **Behaviour:** static\n- **Fixed:** no\n- **Backdrop blur:** no\n- **Shadow:** no\n- **Links:** 13\n- **Logo:** yes\n\n## Animation & Motion\n\n- **Approach:** rich multi-layered motion design\n- **Intensity:** dramatic\n- **Transition style:** smooth-elegant\n- **Libraries:** Animate.css\n- **Techniques:** scroll-reveal, css-keyframe-animations, custom-cursor, marquee-ticker\n\n### Timing Pattern: **stagger**\n\n- Animated elements: 60\n- Elements with delay: 6\n- Stagger #1: 6 elements, ~200.0ms step\n\n## \u26a1 Animation Tech Stack\n\n- **Framework renderer:** `Next.js`\n- **Stack complexity:** css-only\n\n## \ud83d\udcdc Scroll Behavior\n\n- **Frames captured:** 19\n- **Page height:** 3,885px\n- **Viewport height:** 900px\n- **Scroll GIF size:** 368.4 KB\n- **Preview:** `motion/scroll/page-scroll-preview.gif`\n\n### High-Animation Zones\n\n- `py-10` (0px \u2013 226px)\n- `py-10` (226px \u2013 1831px)\n- `py-10` (1831px \u2013 2221px)\n- `w-full` (2221px \u2013 2521px)\n- `py-10` (2521px \u2013 2633px)\n- `flex` (2633px \u2013 2721px)\n- `skip-nav` (3111px \u2013 6605px)\n- `group` (6605px \u2013 7292px)\n- `group` (7292px \u2013 7979px)\n- `group` (7979px \u2013 8666px)\n- `group` (8666px \u2013 9353px)\n\n## \ud83c\udfac Motion Capture\n\n- **Animation groups detected:** 3\n- **Techniques:** group-hover:animate-pause, stagger-1, marquee-2\n- **Types:** keyframe, entrance\n\n### Animation Groups\n\n- \u2605 **entrance-stagger-1** \u2014 entrance / `stagger-1` (trigger: page-load)\n  - Selectors: `figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[200ms] opacity-100, figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[400ms] opacity-100`\n- \u25cf **keyframe-marquee-2** \u2014 keyframe / `marquee-2` (trigger: page-load)\n  - Selectors: `ul`\n- \u25cf **class-group-hover:animate-pause** \u2014 entrance / `group-hover:animate-pause` (trigger: class-toggle)\n  - Selectors: `[class*='group-hover:animate-pause']`\n\n## \ud83d\uddb1 Interaction Capture\n\n- **Interactive elements detected:** 5\n- **Element types:** image, nav-link\n- **Interaction types:** hover\n\n### Targets\n\n- \u25cf **nav-link-hover** \u2014 Navigation link hover (13 links) (hover)\n- \u25cb **image-hover-1** \u2014 Image hover in section 1 (hover)\n- \u25cb **image-hover-3** \u2014 Image hover in section 3 (hover)\n- \u25cb **image-hover-8** \u2014 Image hover in section 8 (hover)\n- \u25cb **image-hover-13** \u2014 Image hover in section 13 (hover)\n\n## Imagery\n\n- **Primary approach:** product-focused with high-quality renders\n- **Hero:** video-background\n- **Background:** video-background\n- **Icons:** font-awesome\n- **Density:** image-heavy\n- **Effects:** blur-backdrop, noise-texture\n\n## \ud83d\uddbc Media Intelligence\n\n- **Hero media:** video\n- **Media density:** media-heavy\n- **Images detected:** 25\n- **Videos detected:** 5\n- **SVGs detected:** 30\n- **Icon system:** monochrome-filled\n- **Icon library:** Font Awesome\n\n### Image Roles\n\n- `icon`: 22\n- `content`: 3\n\n### Video Usage\n\n- **hero-video** (loop, muted)\n- **content-video** (loop, muted)\n- **content-video** (loop, muted)\n- **content-video** (loop, muted)\n- **content-video** (loop, muted)\n\n## Premium Patterns\n\n- full-width-sections\n- glassmorphism\n- custom-cursor\n- marquee-text\n- generous-whitespace\n**Special effects:** custom-cursor\n\n**CTA style:** standard\n**Footer style:** mega-footer\n\n## Key Takeaways\n\n1. Study the minimal luxury aesthetic approach and how it creates cohesion\n2. Replicate the rich multi-layered motion design motion strategy\n3. Apply the product-focused with high-quality renders approach to visual content\n4. Adopt the large-bold-headings typography approach\n\n---\n\n*Generated by UX Analyzer \u2014 Design Intelligence Engine*",
+  "media_report": {
+    "images": [
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/7eaf7f7ffbaf09e9ba21d1f6ad8891a99894df96-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Phantom logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/5af9b09fd6758b58968cb40bab7fd70817cce051-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "ramp logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/020b9c30cc3811cd8eddb456be24e1a550f66b92-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Sierra logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/9adf81c6d55025b8843e668140b9b1795e9f0ea2-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Google Deepmind logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/a1db1eb7ad42f405308dd193f52814ddf55489bc-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Parallel logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/a003435adaed880f0c2a688aead277e14a5aa677-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Foursquare logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/a9512e2a8c00d7b5dfc21ba5a144474aadb1d75e-2001x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Sanity logo",
+        "natural_width": 2001,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/cd51dff8d105012c3a36d41212fd09dda302b798-2001x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Cointracker logo",
+        "natural_width": 2001,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/f93e0c4d42c98b3db8837d6a141b67a864886960-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Snap Inc logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/ce69480ed213a34554376ccbd6b210358e76c93a-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Bloomberg logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/c2d1864fcfa56c657d1bb4812ec591b75a4aa10b-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "reMarkable logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/7eaf7f7ffbaf09e9ba21d1f6ad8891a99894df96-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Phantom logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/5af9b09fd6758b58968cb40bab7fd70817cce051-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "ramp logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/020b9c30cc3811cd8eddb456be24e1a550f66b92-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Sierra logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/9adf81c6d55025b8843e668140b9b1795e9f0ea2-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Google Deepmind logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/a1db1eb7ad42f405308dd193f52814ddf55489bc-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Parallel logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/a003435adaed880f0c2a688aead277e14a5aa677-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Foursquare logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/a9512e2a8c00d7b5dfc21ba5a144474aadb1d75e-2001x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Sanity logo",
+        "natural_width": 2001,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/cd51dff8d105012c3a36d41212fd09dda302b798-2001x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Cointracker logo",
+        "natural_width": 2001,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/f93e0c4d42c98b3db8837d6a141b67a864886960-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Snap Inc logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/ce69480ed213a34554376ccbd6b210358e76c93a-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "Bloomberg logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "icon",
+        "src": "https://cdn.sanity.io/images/pwab4i5g/v6/c2d1864fcfa56c657d1bb4812ec591b75a4aa10b-2000x1000.svg",
+        "parent_section": "section.py-10",
+        "alt": "reMarkable logo",
+        "natural_width": 2000,
+        "natural_height": 1000,
+        "rendered_width": 228,
+        "rendered_height": 114,
+        "aspect_ratio": "2:1",
+        "object_fit": "contain",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://bakkenbaeck.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fpwab4i5g%2Fv6%2Fb58c23ccacc701b5f62ebd2bdb15a5feb19d6f16-3240x4050.png&w=640&q=90",
+        "parent_section": "article.group",
+        "alt": "illustration of an abstract, purple shape with the words \"crypto accounting in perfect flow\" on top of it",
+        "natural_width": 475,
+        "natural_height": 594,
+        "rendered_width": 464,
+        "rendered_height": 619,
+        "aspect_ratio": "3:4",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://bakkenbaeck.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fpwab4i5g%2Fv6%2Fbb805001df3b984a88a78da283510abf009cecfe-1080x1350.png&w=640&q=90",
+        "parent_section": "article.group",
+        "alt": "An image of a user interface where the user has the option to upload an image.",
+        "natural_width": 475,
+        "natural_height": 594,
+        "rendered_width": 464,
+        "rendered_height": 619,
+        "aspect_ratio": "3:4",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://bakkenbaeck.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fpwab4i5g%2Fv6%2Fff8a49cd40b63fee2488c1c5f42bfaf15bf2d56f-900x1000.jpg&w=750&q=90",
+        "parent_section": "section.w-full",
+        "alt": "Closeup of someone with their feet on the side of a couch while wearing socks",
+        "natural_width": 648,
+        "natural_height": 719,
+        "rendered_width": 314,
+        "rendered_height": 236,
+        "aspect_ratio": "0.90:1",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      }
+    ],
+    "videos": [
+      {
+        "role": "hero-video",
+        "src": "https://player.vimeo.com/progressive_redirect/playback/1148088421/rendition/1080p/file.mp4%20%281080p%29.mp4?loc=external&oauth2_token_id=1778214524&signature=2730d5d8363eb09e31d3754de7c9311cbe9100bede2a0d0e3b9aa5e29db1d570#t=0.001",
+        "parent_section": "main#skip-nav.backface-visibility-hidden relative w-full grow",
+        "alt": null,
+        "natural_width": null,
+        "natural_height": null,
+        "rendered_width": null,
+        "rendered_height": null,
+        "aspect_ratio": null,
+        "object_fit": null,
+        "is_background_image": false,
+        "loading": null,
+        "autoplay": false,
+        "loop": true,
+        "muted": true,
+        "poster": "",
+        "width": 1440,
+        "height": 720,
+        "embed_platform": "",
+        "embed_id": "",
+        "embed_url": ""
+      },
+      {
+        "role": "content-video",
+        "src": "https://assets.bakkenbaeck.com/v6/b102ec7023b1fe8a6a4c0de0c148caedf060d3df.mp4#t=0.001",
+        "parent_section": "article.group relative col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-4",
+        "alt": null,
+        "natural_width": null,
+        "natural_height": null,
+        "rendered_width": null,
+        "rendered_height": null,
+        "aspect_ratio": null,
+        "object_fit": null,
+        "is_background_image": false,
+        "loading": null,
+        "autoplay": false,
+        "loop": true,
+        "muted": true,
+        "poster": "",
+        "width": 464,
+        "height": 619,
+        "embed_platform": "",
+        "embed_id": "",
+        "embed_url": ""
+      },
+      {
+        "role": "content-video",
+        "src": "https://assets.bakkenbaeck.com/v6/cbf7e12d858be1d304d057f171cb5501f900799d.mp4#t=0.001",
+        "parent_section": "article.group relative col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-4",
+        "alt": null,
+        "natural_width": null,
+        "natural_height": null,
+        "rendered_width": null,
+        "rendered_height": null,
+        "aspect_ratio": null,
+        "object_fit": null,
+        "is_background_image": false,
+        "loading": null,
+        "autoplay": false,
+        "loop": true,
+        "muted": true,
+        "poster": "",
+        "width": 464,
+        "height": 619,
+        "embed_platform": "",
+        "embed_id": "",
+        "embed_url": ""
+      },
+      {
+        "role": "content-video",
+        "src": "https://assets.bakkenbaeck.com/v6/a7b5d12dbdd78152a54e896cdffbfa9b52127a58.mp4#t=0.001",
+        "parent_section": "article.group relative col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-4",
+        "alt": null,
+        "natural_width": null,
+        "natural_height": null,
+        "rendered_width": null,
+        "rendered_height": null,
+        "aspect_ratio": null,
+        "object_fit": null,
+        "is_background_image": false,
+        "loading": null,
+        "autoplay": false,
+        "loop": true,
+        "muted": true,
+        "poster": "",
+        "width": 464,
+        "height": 619,
+        "embed_platform": "",
+        "embed_id": "",
+        "embed_url": ""
+      },
+      {
+        "role": "content-video",
+        "src": "https://assets.bakkenbaeck.com/v6/da4fcf9757e25385481c8a76f7dbda2a826e9b19.mp4#t=0.001",
+        "parent_section": "article.group relative col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-4",
+        "alt": null,
+        "natural_width": null,
+        "natural_height": null,
+        "rendered_width": null,
+        "rendered_height": null,
+        "aspect_ratio": null,
+        "object_fit": null,
+        "is_background_image": false,
+        "loading": null,
+        "autoplay": false,
+        "loop": true,
+        "muted": true,
+        "poster": "",
+        "width": 464,
+        "height": 619,
+        "embed_platform": "",
+        "embed_id": "",
+        "embed_url": ""
+      }
+    ],
+    "svg_summary": {
+      "total_svgs": 30,
+      "icon_system": "monochrome-filled",
+      "detected_library": "Font Awesome"
+    },
+    "hero_media_type": "video",
+    "total_images": 25,
+    "total_videos": 5,
+    "total_svgs": 30,
+    "media_density_label": "media-heavy"
+  },
+  "scroll_capture": {
+    "frame_count": 19,
+    "page_height_px": 3885,
+    "viewport_height_px": 900,
+    "has_pinned_sections": false,
+    "pinned_sections": [],
+    "high_animation_zones": [
+      {
+        "section": "py-10",
+        "y_start": 0,
+        "y_end": 226
+      },
+      {
+        "section": "py-10",
+        "y_start": 226,
+        "y_end": 1831
+      },
+      {
+        "section": "py-10",
+        "y_start": 1831,
+        "y_end": 2221
+      },
+      {
+        "section": "w-full",
+        "y_start": 2221,
+        "y_end": 2521
+      },
+      {
+        "section": "py-10",
+        "y_start": 2521,
+        "y_end": 2633
+      },
+      {
+        "section": "flex",
+        "y_start": 2633,
+        "y_end": 2721
+      },
+      {
+        "section": "skip-nav",
+        "y_start": 3111,
+        "y_end": 6605
+      },
+      {
+        "section": "group",
+        "y_start": 6605,
+        "y_end": 7292
+      },
+      {
+        "section": "group",
+        "y_start": 7292,
+        "y_end": 7979
+      },
+      {
+        "section": "group",
+        "y_start": 7979,
+        "y_end": 8666
+      },
+      {
+        "section": "group",
+        "y_start": 8666,
+        "y_end": 9353
+      }
+    ],
+    "capture_time_ms": 13081,
+    "gif_size_bytes": 377277
+  },
+  "motion_capture": {
+    "animation_groups": [
+      {
+        "id": "entrance-stagger-1",
+        "type": "entrance",
+        "technique": "stagger-1",
+        "trigger": "page-load",
+        "selectors": [
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[200ms] opacity-100",
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[400ms] opacity-100",
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[600ms] opacity-100",
+          "figure.group/figure relative aspect-3/4 overflow-hidden rounded-sm duration-500 delay-[800ms] opacity-100"
+        ],
+        "section_index": 0,
+        "priority": 1
+      },
+      {
+        "id": "keyframe-marquee-2",
+        "type": "keyframe",
+        "technique": "marquee-2",
+        "trigger": "page-load",
+        "selectors": [
+          "ul"
+        ],
+        "section_index": 0,
+        "priority": 2
+      },
+      {
+        "id": "class-group-hover:animate-pause",
+        "type": "entrance",
+        "technique": "group-hover:animate-pause",
+        "trigger": "class-toggle",
+        "selectors": [
+          "[class*='group-hover:animate-pause']"
+        ],
+        "section_index": 0,
+        "priority": 2
+      }
+    ],
+    "recorded_gifs": [
+      {
+        "group_id": "entrance-stagger-1",
+        "gif_size_bytes": 0,
+        "frame_count": 22
+      },
+      {
+        "group_id": "keyframe-marquee-2",
+        "gif_size_bytes": 0,
+        "frame_count": 15
+      },
+      {
+        "group_id": "class-group-hover:animate-pause",
+        "gif_size_bytes": 0,
+        "frame_count": 15
+      }
+    ],
+    "total_gifs": 0,
+    "total_frames": 52,
+    "total_gif_bytes": 0,
+    "techniques_detected": [
+      "group-hover:animate-pause",
+      "stagger-1",
+      "marquee-2"
+    ],
+    "animation_types": [
+      "keyframe",
+      "entrance"
+    ],
+    "capture_time_ms": 15670
+  },
+  "interaction_capture": {
+    "targets": [
+      {
+        "id": "nav-link-hover",
+        "type": "nav-link",
+        "selector": "nav a",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 0,
+        "priority": 2,
+        "description": "Navigation link hover (13 links)"
+      },
+      {
+        "id": "image-hover-1",
+        "type": "image",
+        "selector": ".py-10 img",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 1,
+        "priority": 3,
+        "description": "Image hover in section 1"
+      },
+      {
+        "id": "image-hover-3",
+        "type": "image",
+        "selector": ".w-full img",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 3,
+        "priority": 3,
+        "description": "Image hover in section 3"
+      },
+      {
+        "id": "image-hover-8",
+        "type": "image",
+        "selector": "#skip-nav img",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 8,
+        "priority": 3,
+        "description": "Image hover in section 8"
+      },
+      {
+        "id": "image-hover-13",
+        "type": "image",
+        "selector": ".group img",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 13,
+        "priority": 3,
+        "description": "Image hover in section 13"
+      }
+    ],
+    "recorded_gifs": [
+      {
+        "target_id": "nav-link-hover",
+        "interaction": "hover",
+        "gif_size_bytes": 0,
+        "frame_count": 10
+      },
+      {
+        "target_id": "image-hover-1",
+        "interaction": "hover",
+        "gif_size_bytes": 0,
+        "frame_count": 10
+      }
+    ],
+    "total_gifs": 0,
+    "total_frames": 20,
+    "total_gif_bytes": 0,
+    "element_types": [
+      "image",
+      "nav-link"
+    ],
+    "interaction_types": [
+      "hover"
+    ],
+    "capture_time_ms": 37944
+  },
+  "animation_stack": {
+    "primary_engine": null,
+    "detected_libraries": [],
+    "library_details": [],
+    "detection_evidence": {},
+    "categories_present": [],
+    "framework_renderer": "Next.js",
+    "stack_complexity": "css-only",
+    "has_custom_scroll": false,
+    "has_3d": false,
+    "has_page_transitions": false
+  }
+}

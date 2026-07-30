@@ -1,0 +1,23 @@
+{
+  "detected_patterns": [
+    "floating-navbar",
+    "full-width-sections",
+    "noise-grain-texture",
+    "custom-cursor",
+    "generous-whitespace",
+    "dark-theme",
+    "pill-badges"
+  ],
+  "navigation_pattern": "floating-transparent",
+  "typography_pattern": "standard",
+  "card_patterns": [
+    "standard-cards"
+  ],
+  "cta_style": "standard",
+  "footer_style": "cta-footer-with-form",
+  "special_effects": [
+    "custom-cursor",
+    "noise-texture"
+  ],
+  "premium_score": 66
+}

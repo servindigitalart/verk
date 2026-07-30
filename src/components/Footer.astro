@@ -1,0 +1,197 @@
+---
+/**
+ * Footer.astro — Footer stub.
+ *
+ * Phase 1: Structure only. No final design.
+ * Full footer implementation in Phase 5.
+ *
+ * Structure (doc 05):
+ *   - Logo + tagline
+ *   - Service links
+ *   - Legal / secondary links
+ *   - "Hecho con intención" signature
+ *   - WhatsApp CTA (prominent)
+ *
+ * Language: Spanish primary (doc 06).
+ */
+
+const year = new Date().getFullYear();
+
+const serviceLinks = [
+  { href: '#servicios',  label: 'Sitios Web'   },
+  { href: '#servicios',  label: 'Automatizaciones' },
+  { href: '#servicios',  label: 'Integraciones CRM' },
+  { href: '#servicios',  label: 'Herramientas con IA' },
+];
+
+const secondaryLinks = [
+  { href: '/privacidad', label: 'Privacidad' },
+  { href: '/terminos',   label: 'Términos'   },
+];
+---
+
+<footer class="footer section section-dark" role="contentinfo">
+  <div class="container">
+    <div class="footer-inner">
+
+      <!-- Brand block -->
+      <div class="footer-brand">
+        <a href="/" class="footer-wordmark" aria-label="Verk — Inicio">
+          verk
+        </a>
+        <p class="footer-tagline text-label">
+          Conectamos. Automatizamos. Construimos.
+        </p>
+      </div>
+
+      <!-- Service links -->
+      <nav class="footer-nav" aria-label="Servicios">
+        <p class="footer-nav-label text-label">Servicios</p>
+        <ul role="list" class="footer-links">
+          {serviceLinks.map(({ href, label }) => (
+            <li>
+              <a href={href} class="footer-link link-line">
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <!-- WhatsApp CTA block -->
+      <div class="footer-cta-block">
+        <p class="footer-cta-text text-body-sm">
+          ¿Tienes un proyecto en mente?
+        </p>
+        <a
+          href="https://wa.me/52XXXXXXXXXX?text=Hola%2C%20me%20interesa%20hablar%20sobre%20un%20proyecto"
+          class="btn btn-primary"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Contactar por WhatsApp"
+        >
+          Escribir por WhatsApp
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <p class="footer-copy text-caption">
+        &copy; {year} Verk. Hecho con intención.
+      </p>
+      <ul class="footer-legal" role="list">
+        {secondaryLinks.map(({ href, label }) => (
+          <li>
+            <a href={href} class="footer-link-sm link-line">
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--color-border-dark);
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-16);
+    padding-bottom: var(--space-16);
+    border-bottom: 1px solid var(--color-border-dark);
+  }
+
+  .footer-wordmark {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-cream);
+    line-height: 1;
+    display: block;
+    margin-bottom: var(--space-4);
+  }
+
+  .footer-tagline {
+    color: var(--color-grey-mid-dark);
+  }
+
+  .footer-nav-label {
+    color: var(--color-grey-dim-dark);
+    margin-bottom: var(--space-6);
+  }
+
+  .footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .footer-link {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-grey-mid-dark);
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+
+  .footer-link:hover {
+    color: var(--color-cream);
+  }
+
+  .footer-cta-text {
+    color: var(--color-grey-mid-dark);
+    margin-bottom: var(--space-6);
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-8);
+  }
+
+  .footer-copy {
+    color: var(--color-grey-dim-dark);
+  }
+
+  .footer-legal {
+    display: flex;
+    gap: var(--space-6);
+  }
+
+  .footer-link-sm {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-grey-dim-dark);
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+
+  .footer-link-sm:hover {
+    color: var(--color-grey-mid-dark);
+  }
+
+  @media (max-width: 1024px) {
+    .footer-inner {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .footer-inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-12);
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+  }
+</style>

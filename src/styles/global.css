@@ -1,0 +1,500 @@
+/*
+ * Verk — Global CSS
+ *
+ * This file is the entry point for the design system.
+ * It declares all CSS custom properties and imports
+ * the remaining style sheets in correct order.
+ *
+ * Architecture:
+ *   global.css    ← You are here. Tokens + imports.
+ *   reset.css     ← Browser default overrides
+ *   typography.css ← Font faces, type utilities
+ *   layout.css    ← Containers, grid, sections
+ *   motion.css    ← Keyframes, reveal system, transitions
+ *
+ * Highest authority: docs/11-visual-identity-lock.md
+ * If any value below conflicts with document 11, document 11 wins.
+ */
+
+/* ─── Imports ───────────────────────────────────────────────── */
+
+@import './reset.css';
+@import './typography.css';
+@import './layout.css';
+@import './motion.css';
+
+/* ─── Geist Mono via @fontsource ────────────────────────────── */
+/* Loaded here so it's available to typography.css classes */
+@import '@fontsource/geist-mono/400.css';
+@import '@fontsource/geist-mono/500.css';
+
+/* ─── Design Tokens — :root ─────────────────────────────────── */
+/*
+ * All tokens reference document 11 as the source of truth.
+ * Token naming: --category-variant[-modifier]
+ *
+ * Color tokens follow the rule system from doc 11:
+ *   --color-lime:   action only (CTAs, interactive states)
+ *   --color-violet: intelligence only (AI, process, isotipo)
+ *   --color-ink:    structure (all text, structural elements)
+ *   --color-cream:  surface (all light backgrounds)
+ */
+
+:root {
+
+  /* ── Colors ──────────────────────────────────────────────── */
+
+  /* Structure colors */
+  --color-ink:          #0F0F0F;
+  --color-cream:        #F0EEE9;
+
+  /* Accent colors — each has a single, defined role */
+  --color-lime:         #BFEA00; /* ACTION: CTAs, interactive states, conversion */
+  --color-violet:       #6B6AF4; /* INTELLIGENCE: AI, automation, isotipo standalone */
+
+  /* Surface colors — dark sections and cards */
+  --color-surface-dark: #111111;
+  --color-surface-mid:  #1A1A1A;
+  --color-surface-card: #1E1E1E;
+
+  /* Grey scale — information hierarchy */
+  --color-grey-dark:    #2A2A2A;  /* strong emphasis on light backgrounds */
+  --color-grey-mid:     #404040;  /* mid-weight info on light */
+  --color-grey-soft:    #8C8C8C;  /* secondary text, labels, captions */
+  --color-grey-light:   #C4C4C0;  /* subtle info on light backgrounds */
+  --color-grey-mid-dark: #B3B3B3; /* secondary text on dark backgrounds */
+  --color-grey-dim-dark: #666666; /* tertiary text on dark backgrounds */
+
+  /* Border colors */
+  --color-border-light:       rgba(15, 15, 15, 0.10);
+  --color-border-medium:      rgba(15, 15, 15, 0.18);
+  --color-border-dark:        rgba(240, 238, 233, 0.12);
+  --color-border-dark-strong: rgba(240, 238, 233, 0.22);
+
+  /* Lime accent tints — for pill badges, not backgrounds */
+  --color-lime-tint:    rgba(191, 234, 0, 0.10);
+  --color-lime-border:  rgba(191, 234, 0, 0.22);
+
+  /* Violet accent tints — for pill badges, not backgrounds */
+  --color-violet-tint:   rgba(107, 106, 244, 0.10);
+  --color-violet-border: rgba(107, 106, 244, 0.22);
+
+  /* ── Typography ──────────────────────────────────────────── */
+
+  /*
+   * Font stacks:
+   * Display and Body: Neue Haas Grotesk (licensed, self-hosted)
+   * Fallback: Helvetica Neue → Arial → system sans
+   * Technical: Geist Mono (via @fontsource, already loaded)
+   *
+   * Note: Both Display and Text cuts are listed separately so
+   * the browser uses the optically-correct version per size.
+   * At 48px+: Display cut.  At 18px and below: Text cut.
+   * CSS doesn't automate this — apply via class.
+   */
+  --font-display: 'Neue Haas Grotesk Display', 'Helvetica Neue', 'Arial', sans-serif;
+  --font-body:    'Neue Haas Grotesk Text',    'Helvetica Neue', 'Arial', sans-serif;
+  --font-mono:    'Geist Mono', 'Cascadia Code', 'Fira Code', monospace;
+
+  /* ── Type Scale — Fluid ──────────────────────────────────── */
+  /*
+   * Each step uses clamp() for fluid scaling between
+   * a minimum (mobile) and maximum (wide desktop) value.
+   * The middle value is viewport-relative to smooth the transition.
+   */
+
+  --text-label:   10px;                                    /* section labels — fixed, never fluid */
+  --text-2xs:     clamp(0.625rem,  0.55rem  + 0.2vw,   0.75rem);
+  --text-xs:      clamp(0.75rem,   0.70rem  + 0.25vw,  0.875rem);
+  --text-sm:      clamp(0.875rem,  0.82rem  + 0.30vw,  1rem);
+  --text-base:    clamp(1rem,      0.95rem  + 0.25vw,  1.125rem);
+  --text-lg:      clamp(1.125rem,  1.05rem  + 0.40vw,  1.375rem);
+  --text-xl:      clamp(1.375rem,  1.20rem  + 0.80vw,  1.75rem);
+  --text-2xl:     clamp(1.75rem,   1.50rem  + 1.25vw,  2.5rem);
+  --text-3xl:     clamp(2.5rem,    2.00rem  + 2.50vw,  4rem);
+  --text-4xl:     clamp(4rem,      3.00rem  + 5.00vw,  7rem);
+  --text-display: clamp(3.5rem,    2.00rem  + 8.00vw,  9rem);
+
+  /* ── Font Weights ────────────────────────────────────────── */
+
+  --weight-light:    300;
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-black:    900;
+
+  /* ── Line Heights ────────────────────────────────────────── */
+
+  --leading-tightest: 1.00;  /* display only, very large type */
+  --leading-tight:    1.10;  /* headlines */
+  --leading-snug:     1.25;  /* sub-headlines, large cards */
+  --leading-normal:   1.45;  /* compact body text */
+  --leading-relaxed:  1.65;  /* primary body text */
+  --leading-loose:    1.80;  /* long-form prose */
+
+  /* ── Letter Spacing ──────────────────────────────────────── */
+
+  --tracking-display: -0.05em; /* display headlines */
+  --tracking-tight:   -0.03em; /* h1 headings */
+  --tracking-snug:    -0.01em; /* h2–h3 headings */
+  --tracking-normal:   0em;    /* body text */
+  --tracking-wide:     0.06em; /* buttons, small caps */
+  --tracking-wider:    0.10em; /* small labels */
+  --tracking-widest:   0.16em; /* section labels */
+
+  /* ── Spacing Scale ───────────────────────────────────────── */
+  /*
+   * Base unit: 4px.
+   * Naming: --space-N where N = pixels ÷ 4 for small values,
+   * or pixels directly for larger values (--space-20 = 80px).
+   */
+
+  --space-px:  1px;
+  --space-0-5: 2px;
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-14:  56px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+  --space-28:  112px;
+  --space-32:  128px;
+  --space-40:  160px;
+  --space-48:  192px;
+  --space-56:  224px;
+  --space-64:  256px;
+
+  /* ── Fluid Section Spacing ───────────────────────────────── */
+
+  --section-padding-y: clamp(80px, 10vw, 160px);
+  --section-padding-x: clamp(20px, 5vw,  80px);
+  --hero-padding-y:    clamp(120px, 15vw, 240px);
+
+  /* ── Container Widths ────────────────────────────────────── */
+
+  --container-sm:    640px;
+  --container-md:    768px;
+  --container-lg:    1024px;
+  --container-xl:    1280px;
+  --container-2xl:   1440px;
+  --container-prose: 680px;  /* maximum line length for reading */
+
+  /* ── Border Radius ───────────────────────────────────────── */
+
+  --radius-none: 0px;
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ── Z-Index System ──────────────────────────────────────── */
+  /*
+   * Named layers prevent z-index conflicts as the site grows.
+   * cursor sits above everything — it must always be visible.
+   */
+
+  --z-below:   -1;
+  --z-base:     0;
+  --z-raised:   10;
+  --z-floating: 20;   /* nav, floating elements */
+  --z-overlay:  30;   /* mobile menu overlay */
+  --z-modal:    40;
+  --z-toast:    50;
+  --z-cursor:   100;  /* custom cursor — always on top */
+
+  /* ── Easing Functions ────────────────────────────────────── */
+  /*
+   * Named easing reflects the motion principle: things that have
+   * mass decelerate (out). Things that are released accelerate (in).
+   * Spring easing for interactive states — physical response.
+   */
+
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);   /* primary ease — arrivals */
+  --ease-in-expo:   cubic-bezier(0.7, 0, 0.84, 0);   /* departures */
+  --ease-inout:     cubic-bezier(0.37, 0, 0.63, 1);  /* balanced transitions */
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1); /* interactive hover */
+
+  /* ── Duration Tokens ─────────────────────────────────────── */
+  /*
+   * Rule (doc 11, Rule 5): Motion never completes in less than 300ms.
+   * --duration-fast is reserved for hover micro-interactions where
+   * the motion is so small that 150ms feels natural.
+   */
+
+  --duration-fast:    150ms;  /* hover color/border changes */
+  --duration-normal:  300ms;  /* minimum for intentional motion */
+  --duration-slow:    600ms;  /* primary entrance animations */
+  --duration-slower:  900ms;  /* complex sequences */
+  --duration-page:    700ms;  /* page transitions */
+
+  /* ── Motion Configuration ────────────────────────────────── */
+
+  --motion-entrance-y:    32px;    /* distance elements travel on reveal */
+  --motion-stagger-step:  60ms;    /* delay between staggered elements */
+  --motion-marquee-speed: 40s;     /* marquee loop duration */
+
+  /* ── Breakpoints — for reference in JS/media queries ────── */
+  /* These are not used in CSS calc() but document the system. */
+  /* --bp-sm: 640px  --bp-md: 768px  --bp-lg: 1024px        */
+  /* --bp-xl: 1280px  --bp-2xl: 1536px                       */
+}
+
+/* ─── Base HTML & Body ──────────────────────────────────────── */
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Lenis manages scroll — do not set scroll-behavior here */
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-relaxed);
+  color: var(--color-ink);
+  background-color: var(--color-cream);
+  overflow-x: hidden;
+}
+
+/* ─── Focus Styles ──────────────────────────────────────────── */
+/*
+ * Remove default outline. Provide a clearly visible, brand-aligned
+ * focus ring for keyboard navigation.
+ */
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Selection ─────────────────────────────────────────────── */
+
+::selection {
+  background-color: var(--color-lime);
+  color: var(--color-ink);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+/*
+ * Custom scrollbar for Webkit browsers.
+ * Thin, non-intrusive, brand-aligned.
+ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-grey-light);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-grey-soft);
+}
+
+/* ─── Color Utility Classes ─────────────────────────────────── */
+
+/* Backgrounds */
+.bg-cream        { background-color: var(--color-cream); }
+.bg-dark         { background-color: var(--color-surface-dark); }
+.bg-ink          { background-color: var(--color-ink); }
+.bg-lime         { background-color: var(--color-lime); }
+.bg-violet       { background-color: var(--color-violet); }
+
+/* Text colors */
+.text-ink        { color: var(--color-ink); }
+.text-cream      { color: var(--color-cream); }
+.text-muted      { color: var(--color-grey-soft); }
+.text-lime       { color: var(--color-lime); }
+.text-violet     { color: var(--color-violet); }
+
+/* ─── Link Styles ───────────────────────────────────────────── */
+/*
+ * Base link: inherits color, no underline.
+ * Decorated variants applied via utility classes.
+ */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ─── Prose ─────────────────────────────────────────────────── */
+/*
+ * .prose wraps long-form text and constrains line length.
+ * doc 02: "60–70 character line length maximum"
+ * --container-prose = 680px achieves this at body text size.
+ */
+
+.prose {
+  max-width: var(--container-prose);
+}
+
+.prose p + p {
+  margin-top: var(--space-4);
+}
+
+/* ─── Button System ─────────────────────────────────────────── */
+/*
+ * Three variants, one set of base rules.
+ * Rule (doc 11): The primary CTA is always lime.
+ * Rule (doc 11): All buttons are pill-shaped (--radius-full).
+ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-normal) var(--ease-out-expo),
+    color            var(--duration-normal) var(--ease-out-expo),
+    border-color     var(--duration-normal) var(--ease-out-expo),
+    transform        var(--duration-fast)   var(--ease-out-expo);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* Primary — lime fill on any background */
+.btn-primary {
+  background-color: var(--color-lime);
+  color: var(--color-ink);
+  border-color: var(--color-lime);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover {
+    background-color: #D4FF00;
+    border-color: #D4FF00;
+  }
+}
+
+/* Secondary — ghost on light backgrounds */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-ink);
+  border-color: var(--color-border-medium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-secondary:hover {
+    background-color: var(--color-ink);
+    color: var(--color-cream);
+    border-color: var(--color-ink);
+  }
+}
+
+/* Ghost dark — for use on dark sections */
+.btn-ghost-dark {
+  background-color: transparent;
+  color: var(--color-cream);
+  border-color: var(--color-border-dark-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-ghost-dark:hover {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    border-color: var(--color-cream);
+  }
+}
+
+/* Arrow variant — text link with animated gap */
+.btn-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: gap var(--duration-normal) var(--ease-out-expo);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-arrow:hover {
+    gap: var(--space-4);
+  }
+}
+
+/* ─── Pill Badges ───────────────────────────────────────────── */
+/*
+ * From doc 11: "Pill badges are always transparent — lime on
+ * lime-tinted background, violet on violet-tinted background.
+ * Never solid fills."
+ */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  line-height: 1.4;
+}
+
+.pill-default {
+  background-color: var(--color-border-light);
+  color: var(--color-grey-soft);
+}
+
+.pill-lime {
+  background-color: var(--color-lime-tint);
+  color: var(--color-lime);
+  border: 1px solid var(--color-lime-border);
+}
+
+.pill-violet {
+  background-color: var(--color-violet-tint);
+  color: var(--color-violet);
+  border: 1px solid var(--color-violet-border);
+}
+
+.pill-dark {
+  background-color: var(--color-surface-card);
+  color: var(--color-grey-mid-dark);
+  border: 1px solid var(--color-border-dark);
+}

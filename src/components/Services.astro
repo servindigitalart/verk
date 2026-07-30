@@ -1,0 +1,314 @@
+---
+/**
+ * Services.astro — Phase 3
+ *
+ * Layout: editorial row list. Three standard rows (Sitios Web,
+ * Automatizaciones, Integraciones) + one dark inset block (IA).
+ * The IA block is the structural asymmetry: same grid, different
+ * surface — signals that intelligence is a different register.
+ *
+ * Copy rule (doc 11, Rule 9): max two sentences per service.
+ * Label rule (doc 11, Rule 6): label above every headline.
+ * Color rule (doc 11): violet = intelligence only → IA pill only.
+ * Lime rule (doc 11): lime = action only → no lime here (no CTAs).
+ *
+ * Isotipo (doc 11, Part 5, "Background systems"):
+ * Single shape, top-right, ~5% opacity on the cream section.
+ * mix-blend-mode: multiply makes the white PNG areas transparent
+ * against the cream surface — only the violet geometry shows.
+ *
+ * data-reveal: intentionally omitted in Phase 3.
+ * Phase 4 will add IntersectionObserver and add these attributes
+ * to trigger the reveal animations properly.
+ */
+---
+
+<section class="services section section-light" id="servicios" aria-label="Servicios">
+
+  <!-- Isotipo — structural background mark, top-right -->
+  <!-- doc 11 Part 5: macro-background, never decoration -->
+  <div class="services-isotipo" aria-hidden="true">
+    <img
+      src="/images/isotipo.png"
+      alt=""
+      width="600"
+      height="600"
+      draggable="false"
+      decoding="async"
+    />
+  </div>
+
+  <div class="container services-container">
+
+    <!-- Section header — label above headline per Rule 6 -->
+    <header class="services-header">
+      <p class="text-label services-lbl">Servicios</p>
+      <h2 class="services-headline">
+        <span class="services-line">Cuatro disciplinas.</span>
+        <span class="services-line">Un sistema.</span>
+      </h2>
+      <p class="services-intro">
+        No servicios sueltos. Todo lo que construimos está diseñado para conectarse.
+      </p>
+    </header>
+
+    <!-- Service list — editorial rows separated by hairlines -->
+    <ul class="services-list" role="list">
+
+      <!-- Sitios Web — foundation of every system -->
+      <li class="service-row">
+        <div class="service-left">
+          <h3 class="service-name">Sitios Web</h3>
+        </div>
+        <div class="service-right">
+          <p class="service-body">
+            Tu sitio web no es una vitrina. Es el primer paso de un sistema que convierte visitas en conversaciones reales.
+          </p>
+        </div>
+      </li>
+
+      <!-- Automatizaciones — workflows that run without you -->
+      <li class="service-row">
+        <div class="service-left">
+          <h3 class="service-name">Automatizaciones</h3>
+        </div>
+        <div class="service-right">
+          <p class="service-body">
+            Cada tarea que se repite puede automatizarse. Construimos los flujos que ejecutan seguimientos, confirmaciones y recordatorios sin intervención.
+          </p>
+        </div>
+      </li>
+
+      <!-- Integraciones CRM — tools that talk to each other -->
+      <li class="service-row">
+        <div class="service-left">
+          <h3 class="service-name">Integraciones CRM</h3>
+        </div>
+        <div class="service-right">
+          <p class="service-body">
+            Cuando tus herramientas no hablan entre sí, los clientes potenciales se pierden. Conectamos CRM, WhatsApp, formularios y calendario para que nada quede sin respuesta.
+          </p>
+        </div>
+      </li>
+
+      <!-- IA — distinct surface. Violet = intelligence register. -->
+      <!-- Visual interruption: same grid rhythm, different material. -->
+      <li class="service-row service-row--ia">
+        <div class="service-left service-left--ia">
+          <span class="pill pill-violet ia-pill" aria-label="Inteligencia artificial">Inteligencia</span>
+          <h3 class="service-name service-name--ia">
+            Herramientas<br />con IA
+          </h3>
+        </div>
+        <div class="service-right service-right--ia">
+          <p class="service-body service-body--ia">
+            Las herramientas de IA genéricas no conocen tu negocio. Construimos las tuyas: entrenadas en tu operación, útiles desde el primer día.
+          </p>
+        </div>
+      </li>
+
+    </ul>
+
+  </div>
+</section>
+
+<style>
+  /* ── Section ────────────────────────────────────────────────── */
+
+  .services {
+    overflow: hidden;
+  }
+
+  /* ── Isotipo ────────────────────────────────────────────────── */
+  /*
+   * Position: absolute, flush top-right.
+   * Specificity of scoped selector beats .section-dark > * globally.
+   * mix-blend-mode: multiply → white PNG areas become transparent
+   * against the cream surface. Only the parallelogram geometry shows.
+   */
+
+  .services-isotipo {
+    position: absolute;
+    top: -4%;
+    right: -7%;
+    width: clamp(280px, 36vw, 540px);
+    opacity: 0.055;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .services-isotipo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    mix-blend-mode: multiply;
+  }
+
+  /* ── Container ──────────────────────────────────────────────── */
+
+  .services-container {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────── */
+
+  .services-header {
+    max-width: 600px;
+    margin-bottom: var(--space-16);
+  }
+
+  .services-lbl {
+    display: block;
+    margin-bottom: var(--space-5);
+  }
+
+  /* Item 7 (doc 11): 20–24px gap between label and headline */
+
+  .services-headline {
+    margin: 0 0 var(--space-8);
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-ink);
+  }
+
+  .services-line {
+    display: block;
+    font-size: clamp(2.25rem, 1.2rem + 4.5vw, 5.5rem);
+  }
+
+  .services-intro {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-grey-mid);
+    margin: 0;
+    max-width: 480px;
+  }
+
+  /* ── Service list ───────────────────────────────────────────── */
+
+  .services-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ── Service row ────────────────────────────────────────────── */
+  /*
+   * Grid: 38% service name / 62% copy — asymmetric by intent.
+   * Not 50/50. The name is the anchor; the copy is the substance.
+   * Each row separated by a 1px hairline (structural, not decorative).
+   */
+
+  .service-row {
+    display: grid;
+    grid-template-columns: 38% 62%;
+    gap: var(--space-12);
+    padding-block: var(--space-10);
+    border-top: 1px solid var(--color-border-medium);
+    align-items: start;
+  }
+
+  .service-name {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .service-body {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-grey-mid);
+    margin: 0;
+    max-width: 52ch;
+  }
+
+  /* ── IA row — dark inset ────────────────────────────────────── */
+  /*
+   * The IA service breaks the cream surface intentionally.
+   * Same grid rhythm as the other rows, different material.
+   * Violet pill (intelligence color, doc 11) marks the register.
+   * border-top: none — the dark block is its own boundary.
+   * margin-top: gap equivalent, keeps the list rhythm.
+   */
+
+  .service-row--ia {
+    background-color: var(--color-surface-dark);
+    border-top: none;
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-3);
+    padding: var(--space-8) var(--space-8) var(--space-10);
+    align-items: start;
+  }
+
+  .service-left--ia {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .ia-pill {
+    margin-bottom: var(--space-4);
+  }
+
+  .service-name--ia {
+    color: var(--color-cream);
+  }
+
+  .service-body--ia {
+    color: var(--color-grey-mid-dark);
+  }
+
+  /* ── Mobile — 768px and below ───────────────────────────────── */
+  /*
+   * Single-column layout. Service name above body copy.
+   * Asymmetry preserved via the IA dark block — it still reads
+   * differently at mobile. Visual interruption survives collapse.
+   */
+
+  @media (max-width: 768px) {
+    .service-row {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+      padding-block: var(--space-8);
+    }
+
+    .service-row--ia {
+      padding: var(--space-6);
+      border-radius: var(--radius-md);
+      margin-top: var(--space-2);
+    }
+
+    .services-isotipo {
+      width: 72vw;
+      right: -14%;
+      top: 0;
+      opacity: 0.04;
+    }
+
+    .services-intro {
+      max-width: 100%;
+    }
+  }
+
+  /* ── Small mobile ───────────────────────────────────────────── */
+
+  @media (max-width: 480px) {
+    .services-isotipo {
+      display: none;
+    }
+  }
+
+  /* ── Reduced motion ─────────────────────────────────────────── */
+  /* Global motion.css handles [data-reveal] — no local override needed */
+</style>

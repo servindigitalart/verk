@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f3d22"/>
+      <stop offset="100%" style="stop-color:#1a6b3a"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e7a42"/>
+      <stop offset="100%" style="stop-color:#145730"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Grid lines -->
+  <line x1="0" y1="210" x2="1200" y2="210" stroke="#ffffff" stroke-width="0.5" opacity="0.08"/>
+  <line x1="0" y1="420" x2="1200" y2="420" stroke="#ffffff" stroke-width="0.5" opacity="0.08"/>
+  <line x1="400" y1="0" x2="400" y2="630" stroke="#ffffff" stroke-width="0.5" opacity="0.08"/>
+  <line x1="800" y1="0" x2="800" y2="630" stroke="#ffffff" stroke-width="0.5" opacity="0.08"/>
+  <!-- Solar panel illustration (right) -->
+  <g transform="translate(820, 120)">
+    <rect x="0" y="0" width="310" height="185" rx="8" fill="url(#panel)" opacity="0.9"/>
+    <line x1="103" y1="0" x2="103" y2="185" stroke="#0a2e18" stroke-width="2" opacity="0.5"/>
+    <line x1="206" y1="0" x2="206" y2="185" stroke="#0a2e18" stroke-width="2" opacity="0.5"/>
+    <line x1="0" y1="62" x2="310" y2="62" stroke="#0a2e18" stroke-width="2" opacity="0.5"/>
+    <line x1="0" y1="124" x2="310" y2="124" stroke="#0a2e18" stroke-width="2" opacity="0.5"/>
+    <rect x="12" y="12" width="32" height="14" rx="3" fill="white" opacity="0.12"/>
+    <rect x="115" y="12" width="32" height="14" rx="3" fill="white" opacity="0.12"/>
+    <!-- Second panel -->
+    <rect x="0" y="200" width="310" height="185" rx="8" fill="url(#panel)" opacity="0.65"/>
+    <line x1="103" y1="200" x2="103" y2="385" stroke="#0a2e18" stroke-width="2" opacity="0.5"/>
+    <line x1="206" y1="200" x2="206" y2="385" stroke="#0a2e18" stroke-width="2" opacity="0.5"/>
+    <line x1="0" y1="262" x2="310" y2="262" stroke="#0a2e18" stroke-width="2" opacity="0.5"/>
+    <line x1="0" y1="324" x2="310" y2="324" stroke="#0a2e18" stroke-width="2" opacity="0.5"/>
+  </g>
+  <!-- Sun glow -->
+  <circle cx="950" cy="90" r="72" fill="#f5c842" opacity="0.08"/>
+  <circle cx="950" cy="90" r="56" fill="#f5c842" opacity="0.12"/>
+  <circle cx="950" cy="90" r="40" fill="#f5c842" opacity="0.85"/>
+  <!-- Logo mark -->
+  <circle cx="100" cy="95" r="28" fill="#f5c842" opacity="0.9"/>
+  <rect x="86" y="103" width="28" height="16" rx="2" fill="#0f3d22"/>
+  <line x1="95" y1="103" x2="95" y2="119" stroke="#f5c842" stroke-width="1.5" opacity="0.6"/>
+  <line x1="105" y1="103" x2="105" y2="119" stroke="#f5c842" stroke-width="1.5" opacity="0.6"/>
+  <line x1="86" y1="111" x2="114" y2="111" stroke="#f5c842" stroke-width="1.5" opacity="0.6"/>
+  <!-- Brand -->
+  <text x="148" y="84" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#f5c842" letter-spacing="0.5">Clean Solar</text>
+  <text x="148" y="118" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="white" letter-spacing="0.5">Australia</text>
+  <!-- Divider -->
+  <rect x="80" y="150" width="3" height="32" fill="#f5c842" rx="1.5"/>
+  <text x="96" y="171" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="white" opacity="0.6">Solar panel cleaning &amp; bird proofing guides for Australian homeowners</text>
+  <!-- Main headline -->
+  <text x="80" y="300" font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="700" fill="white">Expert Solar Panel</text>
+  <text x="80" y="372" font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="700" fill="#f5c842">Maintenance Guides</text>
+  <text x="80" y="430" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="white" opacity="0.7">Protect your investment. Maximise your output.</text>
+  <!-- URL bar -->
+  <rect x="0" y="595" width="1200" height="35" fill="black" opacity="0.25"/>
+  <text x="80" y="618" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="white" opacity="0.55">cleansolaraus.com</text>
+</svg>

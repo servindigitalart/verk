@@ -1,0 +1,168 @@
+---
+/**
+ * index.astro — Homepage.
+ * Phase 2A: Nav + Hero implemented. Remaining sections are placeholders.
+ *
+ * Section IDs match the Nav links:
+ *   #servicios → Servicios
+ *   #metodo    → Método
+ *   #proyectos → Proyectos
+ *   #contacto  → Contacto
+ *
+ * Placeholder sections will be replaced in Phases 3–6.
+ * The [data-reveal] attributes are scaffolded but not yet activated —
+ * the IntersectionObserver that adds .is-visible is Phase 4 work.
+ */
+
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Services from '../components/Services.astro';
+import Method from '../components/Method.astro';
+import Systems from '../components/Systems.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Verk"
+  description="Verk construye los sistemas digitales que conectan tu presencia online con tu operación real. Sitios, automatizaciones, integraciones CRM y herramientas con IA."
+>
+  <Nav />
+
+  <main id="main-content">
+
+    <!-- Phase 2A: Final hero -->
+    <Hero />
+
+    <!-- Marquee band — Phase 3 -->
+    <div class="ticker section-dark" aria-hidden="true" role="presentation">
+      <div class="ticker-inner">
+        {Array.from({ length: 2 }, () => (
+          <div class="ticker-track">
+            <span class="ticker-item text-label">Sitios Web</span>
+            <span class="ticker-sep" aria-hidden="true">·</span>
+            <span class="ticker-item text-label">Automatizaciones</span>
+            <span class="ticker-sep" aria-hidden="true">·</span>
+            <span class="ticker-item text-label">Integraciones CRM</span>
+            <span class="ticker-sep" aria-hidden="true">·</span>
+            <span class="ticker-item text-label">Herramientas con IA</span>
+            <span class="ticker-sep" aria-hidden="true">·</span>
+            <span class="ticker-item text-label">WhatsApp</span>
+            <span class="ticker-sep" aria-hidden="true">·</span>
+            <span class="ticker-item text-label">Lead Capture</span>
+            <span class="ticker-sep" aria-hidden="true">·</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Servicios — Phase 3 -->
+    <Services />
+
+    <!-- Método — Phase 3 -->
+    <Method />
+
+    <!-- Sistemas — Phase 4B -->
+    <Systems />
+
+    <!-- Contacto / Auditoría placeholder — Phase 6 -->
+    <section id="contacto" class="section section-dark" aria-label="Diagnóstico gratuito">
+      <div class="container">
+        <p class="text-label dark-label" data-reveal="fade">Diagnóstico</p>
+        <h2 class="text-h1 cream-text" data-reveal>
+          Empieza con una<br />auditoría gratuita.
+        </h2>
+        <p class="text-body-lg section-intro dark-intro" data-reveal>
+          Analizamos tu presencia digital y te entregamos un plan
+          concreto. Sin compromiso.
+        </p>
+        <div class="cta-row" data-reveal>
+          <a href="https://wa.me/52XXXXXXXXXX" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            Solicitar auditoría
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* ── Ticker (marquee band) ─────────────────────────────────── */
+
+  .ticker {
+    overflow: hidden;
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--color-border-dark);
+    border-bottom: 1px solid var(--color-border-dark);
+  }
+
+  .ticker-inner {
+    display: flex;
+    width: max-content;
+    animation: marquee 50s linear infinite;
+  }
+
+  .ticker-track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding-right: var(--space-6);
+    flex-shrink: 0;
+  }
+
+  .ticker-item {
+    color: rgba(240, 238, 233, 0.35);
+  }
+
+  .ticker-sep {
+    color: rgba(240, 238, 233, 0.15);
+    font-size: 10px;
+  }
+
+  /* ── Section placeholder helpers ──────────────────────────── */
+
+  .section-intro {
+    color: var(--color-grey-mid);
+    max-width: var(--container-prose);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-12);
+  }
+
+  .dark-label {
+    color: var(--color-grey-dim-dark);
+  }
+
+  .cream-text {
+    color: var(--color-cream);
+  }
+
+  .dark-intro {
+    color: var(--color-grey-mid-dark);
+  }
+
+  .cta-row {
+    margin-top: var(--space-10);
+  }
+
+  /* ── Placeholder blocks ────────────────────────────────────── */
+
+  .placeholder-block {
+    margin-top: var(--space-12);
+    padding: var(--space-16);
+    border: 1px dashed var(--color-border-medium);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-grey-soft);
+    min-height: 200px;
+  }
+
+  .placeholder-block--dark {
+    border-color: var(--color-border-dark);
+    color: var(--color-grey-dim-dark);
+  }
+</style>

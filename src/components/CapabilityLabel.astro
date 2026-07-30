@@ -1,0 +1,22 @@
+---
+/**
+ * CapabilityLabel.astro — Phase 4B
+ *
+ * Tags a system with the capability it demonstrates (doc 16, Part 1).
+ * kind="ai" marks "AI as Production Infrastructure" specifically — the one
+ * capability that legitimately earns violet under doc 11's color law.
+ * Every other capability uses the neutral default pill: capability tags are
+ * information, not action (lime) or intelligence (violet), except this one case.
+ */
+
+interface Props {
+  label: string;
+  kind?: 'ai' | 'default';
+}
+
+const { label, kind = 'default' } = Astro.props;
+---
+
+<span class:list={['pill', kind === 'ai' ? 'pill-violet' : 'pill-default', 'capability-label']}>
+  {label}
+</span>

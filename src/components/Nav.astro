@@ -1,0 +1,274 @@
+---
+/**
+ * Nav.astro — Final navigation.
+ * Phase 2A implementation.
+ *
+ * Design decisions:
+ *   - Dark pill on cream hero creates maximum contrast (doc 11: "dark, floating")
+ *   - Centered via left:50% + transform:translateX(-50%) on the wrapper
+ *     The pill itself only handles vertical entrance — no transform conflict
+ *   - Entrance: 400ms delay on first visit, immediate on subsequent navigations
+ *     (sessionStorage flag prevents re-animating on ViewTransition page changes)
+ *   - Hover: mechanical — background fill, no movement, no spring
+ *   - Active state: lime dot + cream text (Phase 4 IntersectionObserver will wire this)
+ *
+ * Items (Phase 2A): Servicios | Método | Proyectos | Contacto
+ * CTA: Auditoría
+ */
+
+const navLinks = [
+  { href: '#servicios', label: 'Servicios' },
+  { href: '#metodo',    label: 'Método'    },
+  { href: '#proyectos', label: 'Proyectos' },
+  { href: '#contacto',  label: 'Contacto'  },
+];
+---
+
+<header class="nav-wrapper" role="banner">
+  <nav class="nav-pill" data-nav aria-label="Navegación principal">
+
+    <!-- Wordmark — always lowercase, Rule 7 (doc 11) -->
+    <a href="/" class="nav-wordmark" aria-label="Verk — Inicio">
+      verk
+    </a>
+
+    <!-- Visual separator -->
+    <span class="nav-divider" aria-hidden="true"></span>
+
+    <!-- Navigation links -->
+    <ul class="nav-links" role="list">
+      {navLinks.map(({ href, label }) => (
+        <li>
+          <a href={href} class="nav-link">
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Primary CTA -->
+    <a href="#contacto" class="nav-cta">
+      Auditoría
+    </a>
+
+  </nav>
+</header>
+
+<!-- Nav entrance — first visit animates, subsequent navigations skip -->
+<script>
+  function initNav(): void {
+    const nav = document.querySelector<HTMLElement>('[data-nav]');
+    if (!nav) return;
+
+    const isFirstLoad = !sessionStorage.getItem('verk-nav-seen');
+    sessionStorage.setItem('verk-nav-seen', '1');
+
+    if (isFirstLoad) {
+      setTimeout(() => nav.classList.add('is-visible'), 400);
+    } else {
+      nav.classList.add('is-visible');
+    }
+  }
+
+  document.addEventListener('astro:page-load', initNav);
+</script>
+
+<style>
+  /* ── Positioning wrapper ──────────────────────────────────── */
+  /*
+   * Wrapper is centered via left:50% + translateX(-50%).
+   * pointer-events:none so the empty space around the pill
+   * doesn't block hero interactions.
+   */
+  .nav-wrapper {
+    position: fixed;
+    top: var(--space-6);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--z-floating);
+    pointer-events: none;
+    /* Prevent the pill from wrapping on small screens */
+    white-space: nowrap;
+  }
+
+  /* ── Pill ─────────────────────────────────────────────────── */
+
+  .nav-pill {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 6px 6px 6px 20px;
+    background-color: rgba(17, 17, 17, 0.90);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(240, 238, 233, 0.08);
+    border-radius: var(--radius-full);
+
+    /* Entrance — starts hidden, becomes visible via .is-visible */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition:
+      opacity  600ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .nav-pill.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Wordmark ─────────────────────────────────────────────── */
+
+  .nav-wordmark {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: var(--weight-bold);
+    letter-spacing: -0.02em;
+    color: var(--color-cream);
+    line-height: 1;
+    flex-shrink: 0;
+    padding-right: var(--space-4);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav-wordmark:hover {
+      color: rgba(240, 238, 233, 0.75);
+    }
+  }
+
+  /* ── Divider ──────────────────────────────────────────────── */
+
+  .nav-divider {
+    width: 1px;
+    height: 14px;
+    background-color: rgba(240, 238, 233, 0.12);
+    flex-shrink: 0;
+    margin-right: var(--space-2);
+  }
+
+  /* ── Links ────────────────────────────────────────────────── */
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .nav-link {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: var(--weight-regular);
+    color: rgba(240, 238, 233, 0.50);
+    line-height: 1;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-full);
+    transition:
+      color            150ms ease,
+      background-color 150ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav-link:hover {
+      color: var(--color-cream);
+      background-color: rgba(240, 238, 233, 0.08);
+    }
+  }
+
+  /*
+   * Active state — applied via JS IntersectionObserver in Phase 4.
+   * Lime dot before the active link text.
+   */
+  .nav-link.is-active {
+    color: var(--color-cream);
+    font-weight: var(--weight-medium);
+  }
+
+  .nav-link.is-active::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--color-lime);
+    margin-right: 6px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
+
+  /* ── CTA ──────────────────────────────────────────────────── */
+  /*
+   * The CTA is not using the global .btn class here — its padding
+   * and size are tuned specifically to live inside the pill.
+   */
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: var(--weight-medium);
+    letter-spacing: 0.01em;
+    color: var(--color-ink);
+    background-color: var(--color-lime);
+    border-radius: var(--radius-full);
+    padding: 8px 16px;
+    margin-left: var(--space-2);
+    flex-shrink: 0;
+    line-height: 1;
+    transition:
+      background-color 150ms ease,
+      transform        100ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav-cta:hover {
+      background-color: #CEFF00;
+    }
+  }
+
+  .nav-cta:active {
+    transform: scale(0.97);
+  }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+
+  /* Tablet: hide nav links — show wordmark + CTA only */
+  @media (max-width: 768px) {
+    .nav-links,
+    .nav-divider {
+      display: none;
+    }
+
+    .nav-pill {
+      padding: 6px 6px 6px 16px;
+      gap: var(--space-3);
+    }
+
+    .nav-wordmark {
+      padding-right: 0;
+    }
+  }
+
+  /* Small mobile: tighter pill */
+  @media (max-width: 390px) {
+    .nav-pill {
+      padding: 5px 5px 5px 14px;
+    }
+
+    .nav-cta {
+      padding: 7px 14px;
+    }
+  }
+
+  /* ── Reduced motion ───────────────────────────────────────── */
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-pill {
+      opacity: 1;
+      transform: translateY(0);
+      transition: none;
+    }
+  }
+</style>

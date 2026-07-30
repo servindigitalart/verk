@@ -1,0 +1,115 @@
+---
+/**
+ * ProjectPreview.astro — Phase 4B
+ *
+ * The logo treatment for a system entry. Consolidates the brief's suggested
+ * "ProjectLogo" + "ProjectPreview" into one component — both would have been a
+ * two-line img wrapper; splitting them added a file without adding a decision.
+ *
+ * Logos are signatures, not illustrations (brief, Phase 4A/4B):
+ *   - Every logo sits inside an identical hairline-bordered frame, sized by `size`.
+ *     Verk's asset audit (public/project-logos/) found two families: self-contained
+ *     badges that already carry their own background color (Sonoro, PRISMA, Riot,
+ *     Bufón, Bloom Undies, CleanSolarAus) and transparent wordmarks that rely on the
+ *     page background (DocLink, WATERLÜ). A shared neutral frame is what makes a
+ *     bright-yellow Bufón badge and a plain black WATERLÜ wordmark read as the same
+ *     kind of object instead of nine inconsistent treatments.
+ *   - No background fill is introduced for the frame itself — it inherits the
+ *     section's own surface color, so Rule 1 (cream never becomes white) is never
+ *     at risk here.
+ *
+ * No-logo fallback (UX Analyzer only):
+ *   No logo exists for an internal tool with no public face — inventing one would
+ *   violate "never redesign, never recreate" (Phase 4A brief). Instead the isotipo
+ *   itself stands in, unframed, at reduced opacity: doc 11 Part 5 sanctions the
+ *   isotipo as a structural mark standing in for missing brand material, and using
+ *   it here is the literal case doc 11 describes — a signature for the one system
+ *   that doesn't have one of its own.
+ */
+
+interface Props {
+  src?: string;
+  alt?: string;
+  size?: 'xl' | 'lg' | 'md' | 'sm';
+  tone?: 'light' | 'dark';
+}
+
+const { src, alt = '', size = 'md', tone = 'light' } = Astro.props;
+const hasLogo = Boolean(src);
+---
+
+{hasLogo ? (
+  <div class:list={['project-preview', `preview-${size}`, `preview-${tone}`]}>
+    <img {src} {alt} loading="lazy" decoding="async" draggable="false" />
+  </div>
+) : (
+  <div class:list={['project-preview', 'preview-mark', `preview-${size}`, `preview-${tone}`]} aria-hidden="true">
+    <img
+      src="/images/isotipo.png"
+      alt=""
+      loading="lazy"
+      decoding="async"
+      draggable="false"
+      class="mark-img"
+    />
+  </div>
+)}
+
+<style>
+  .project-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+  }
+
+  /* Framed — real logo signature */
+  .project-preview:not(.preview-mark) {
+    border: 1px solid var(--color-border-medium);
+    padding: var(--space-3);
+  }
+
+  .preview-dark:not(.preview-mark) {
+    border-color: var(--color-border-dark);
+  }
+
+  .project-preview img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  /* Unframed — isotipo standing in for a missing logo */
+  .preview-mark {
+    border: none;
+    padding: 0;
+  }
+
+  .preview-mark .mark-img {
+    opacity: 0.6;
+    mix-blend-mode: multiply;
+  }
+
+  .preview-dark.preview-mark .mark-img {
+    opacity: 0.5;
+    mix-blend-mode: normal;
+  }
+
+  /* Size scale — drives visual weight (Sonoro larger than Bloom Undies) */
+  .preview-xl { width: clamp(96px, 9vw, 112px); height: clamp(88px, 8vw, 104px); }
+  .preview-lg { width: clamp(80px, 7vw, 92px);  height: clamp(72px, 6.5vw, 82px); }
+  .preview-md { width: clamp(68px, 6vw, 78px);  height: clamp(64px, 5.5vw, 72px); }
+  .preview-sm { width: clamp(56px, 5vw, 64px);  height: clamp(52px, 4.5vw, 58px); }
+
+  @media (max-width: 640px) {
+    .preview-xl { width: 88px; height: 80px; }
+    .preview-lg { width: 72px; height: 64px; }
+    .preview-md { width: 60px; height: 56px; }
+    .preview-sm { width: 52px; height: 48px; }
+  }
+</style>

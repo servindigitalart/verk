@@ -1,0 +1,15 @@
+{
+  "style": "sticky-solid",
+  "behavior": "always-visible",
+  "is_fixed": true,
+  "is_transparent": false,
+  "has_backdrop_blur": false,
+  "has_shadow": false,
+  "has_logo": false,
+  "link_count": 8,
+  "height_px": 0,
+  "background_color": "rgb(254, 253, 252)",
+  "backdrop_filter": "",
+  "box_shadow": "",
+  "z_index": "30"
+}

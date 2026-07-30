@@ -1,0 +1,871 @@
+{
+  "url": "https://www.instrument.com/",
+  "site_name": "Instrument | A technology-led brand, product, &amp; marketing agency | Instrumen",
+  "design_style": {
+    "primary_style": "corporate modern",
+    "secondary_style": "",
+    "visual_density": "dense",
+    "whitespace_usage": "generous",
+    "typography_prominence": "subtle",
+    "color_contrast": "high-contrast",
+    "layout_complexity": "complex",
+    "mood": "structured professionalism",
+    "design_era": "contemporary"
+  },
+  "animation_strategy": {
+    "overall_approach": "immersive 3D experience",
+    "detected_techniques": [
+      "scroll-reveal",
+      "css-keyframe-animations",
+      "page-transitions",
+      "3d-webgl",
+      "marquee-ticker"
+    ],
+    "detected_libraries": [
+      "GSAP"
+    ],
+    "scroll_behavior": "standard",
+    "entrance_animations": [
+      "slide-in"
+    ],
+    "hover_interactions": [
+      "transform-transition"
+    ],
+    "transition_style": "standard",
+    "motion_intensity": "dramatic"
+  },
+  "imagery_strategy": {
+    "primary_approach": "product-focused with high-quality renders",
+    "image_types": [
+      "hero-photography",
+      "product-renders",
+      "svg-icons",
+      "illustration-heavy",
+      "video-content",
+      "logo-wall"
+    ],
+    "hero_imagery": "text-only",
+    "background_treatment": "mixed-gradient-image",
+    "icon_style": "font-awesome",
+    "media_density": "image-heavy",
+    "visual_effects": [
+      "gradient-overlay",
+      "blur-backdrop",
+      "noise-texture",
+      "clip-path-masking"
+    ]
+  },
+  "layout_rhythm": {
+    "hero_type": "compact",
+    "section_sequence": [
+      "content",
+      "social-proof",
+      "content",
+      "social-proof",
+      "content",
+      "cta",
+      "footer",
+      "features"
+    ],
+    "spacing_rhythm": "dramatic-variation",
+    "content_width_pattern": "mixed-widths",
+    "section_count": 16,
+    "vertical_rhythm": "generous-breathing",
+    "page_flow_narrative": "Page flow: content \u2192 social-proof \u2192 content \u2192 social-proof \u2192 content \u2192 cta \u2192 footer \u2192 features. Presenting core content, reinforced by social proof and testimonials, presenting core content, reinforced by social proof and testimonials, presenting core content, culminating in a clear call-to-action, closing with navigation and contact information, followed by feature/benefit presentation."
+  },
+  "premium_signals": {
+    "detected_patterns": [
+      "floating-navbar",
+      "card-grid-layout",
+      "full-width-sections",
+      "glassmorphism",
+      "gradient-design",
+      "clip-path-shapes",
+      "marquee-text",
+      "dark-theme",
+      "pill-badges"
+    ],
+    "navigation_pattern": "floating-transparent",
+    "typography_pattern": "standard",
+    "card_patterns": [
+      "glass-card",
+      "bordered-minimal",
+      "rounded-cards",
+      "gradient-card",
+      "interactive-hover-card"
+    ],
+    "cta_style": "standard",
+    "footer_style": "cta-footer-with-form",
+    "special_effects": [
+      "backdrop-blur",
+      "clip-path-shapes"
+    ],
+    "premium_score": 72
+  },
+  "executive_summary": "Instrument | A technology-led brand, product, &amp; marketing agency | Instrumen features a corporate modern design with a structured professionalism feel. The layout uses generous whitespace and employs floating-navbar, card-grid-layout, full-width-sections. Overall premium design score: 72/100.",
+  "inspiration_takeaways": [
+    "Study the corporate modern aesthetic approach and how it creates cohesion",
+    "Replicate the immersive 3D experience motion strategy",
+    "Apply the product-focused with high-quality renders approach to visual content",
+    "Implement the floating-transparent navigation pattern"
+  ],
+  "replication_notes": "To replicate this corporate modern aesthetic, start with generous spacing and high-contrast color contrast. Use sans-serif for headings and Instrument-Sans, Helvetica, sans-serif for body text. Typography should be subtle in visual weight. Pay attention to the section rhythm and ensure consistent vertical spacing throughout the layout.",
+  "section_screenshots": [
+    {
+      "name": "section-02.png",
+      "type": "section-02",
+      "index": 1,
+      "width": 1440,
+      "height": 230
+    },
+    {
+      "name": "section-03.png",
+      "type": "section-03",
+      "index": 2,
+      "width": 1344,
+      "height": 404
+    },
+    {
+      "name": "social-proof.png",
+      "type": "social-proof",
+      "index": 6,
+      "width": 1344,
+      "height": 217
+    },
+    {
+      "name": "section-08.png",
+      "type": "section-08",
+      "index": 7,
+      "width": 1344,
+      "height": 668
+    },
+    {
+      "name": "social-proof-2.png",
+      "type": "social-proof",
+      "index": 8,
+      "width": 1344,
+      "height": 217
+    },
+    {
+      "name": "section-10.png",
+      "type": "section-10",
+      "index": 9,
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "name": "section-11.png",
+      "type": "section-11",
+      "index": 10,
+      "width": 1440,
+      "height": 158
+    },
+    {
+      "name": "section-12.png",
+      "type": "section-12",
+      "index": 11,
+      "width": 1344,
+      "height": 498
+    },
+    {
+      "name": "section-13.png",
+      "type": "section-13",
+      "index": 12,
+      "width": 1440,
+      "height": 272
+    },
+    {
+      "name": "section-14.png",
+      "type": "section-14",
+      "index": 13,
+      "width": 1440,
+      "height": 50
+    },
+    {
+      "name": "footer.png",
+      "type": "footer",
+      "index": 14,
+      "width": 1440,
+      "height": 397
+    },
+    {
+      "name": "gallery.png",
+      "type": "gallery",
+      "index": 15,
+      "width": 1440,
+      "height": 6075
+    }
+  ],
+  "animation_timeline": {
+    "pattern": "none",
+    "total_animated_elements": 60,
+    "elements_with_delay": 0,
+    "timing_groups": [
+      {
+        "delay_ms": 0,
+        "count": 60,
+        "elements": [
+          "body",
+          "div.gdpr",
+          "p",
+          "span",
+          "span.shape",
+          "span.label",
+          "span.shape",
+          "span.label"
+        ]
+      }
+    ],
+    "stagger_sequences": [],
+    "min_delay_ms": 0.0,
+    "max_delay_ms": 0.0,
+    "avg_delay_ms": 0.0
+  },
+  "navigation_style": {
+    "style": "transparent-static",
+    "behavior": "static",
+    "is_fixed": false,
+    "is_transparent": true,
+    "has_backdrop_blur": false,
+    "has_shadow": false,
+    "has_logo": true,
+    "link_count": 27,
+    "height_px": 50,
+    "background_color": "rgba(0, 0, 0, 0)",
+    "backdrop_filter": "",
+    "box_shadow": "",
+    "z_index": "auto"
+  },
+  "visual_density": {
+    "density_score": 70,
+    "density_label": "moderate-dense",
+    "whitespace_ratio": 0.261,
+    "elements_per_viewport": 17.7,
+    "avg_section_height_px": 840.0,
+    "content_width_pct": 79.2,
+    "section_count": 16,
+    "total_page_height_px": 10086.0
+  },
+  "design_notes_md": "# \ud83c\udfa8 Design Notes \u2014 Instrument | A technology-led brand, product, &amp; marketing agency | Instrumen\n\n> **URL:** https://www.instrument.com/  \n> **Style:** corporate modern  \n> **Premium Score:** 72/100 (\u2728 High Quality)\n\n## Quick Profile\n\n| Trait | Value |\n|---|---|\n| Mood | structured professionalism |\n| Era | contemporary |\n| Contrast | high-contrast |\n| Whitespace | generous |\n| Complexity | complex |\n| Density | moderate-dense (70/100) |\n| Whitespace Ratio | 0.261 |\n\n## Typography & Colour\n\n- **Typography prominence:** subtle\n- **Typography pattern:** standard\n- **Colour contrast:** high-contrast\n- \ud83c\udf11 **Dark theme** detected\n- \ud83c\udf08 **Gradient accents** used\n\n## Layout & Rhythm\n\n- **Hero type:** compact\n- **Section count:** 16\n- **Spacing rhythm:** dramatic-variation\n- **Content width:** mixed-widths\n- **Vertical rhythm:** generous-breathing\n\n**Section flow:** `content \u2192 social-proof \u2192 content \u2192 social-proof \u2192 content \u2192 cta \u2192 footer \u2192 features`\n\n> Page flow: content \u2192 social-proof \u2192 content \u2192 social-proof \u2192 content \u2192 cta \u2192 footer \u2192 features. Presenting core content, reinforced by social proof and testimonials, presenting core content, reinforced by social proof and testimonials, presenting core content, culminating in a clear call-to-action, closing with navigation and contact information, followed by feature/benefit presentation.\n\n### Captured Sections\n\n- `section-02.png` \u2014 *section-02* (1440\u00d7230)\n- `section-03.png` \u2014 *section-03* (1344\u00d7404)\n- `social-proof.png` \u2014 *social-proof* (1344\u00d7217)\n- `section-08.png` \u2014 *section-08* (1344\u00d7668)\n- `social-proof-2.png` \u2014 *social-proof* (1344\u00d7217)\n- `section-10.png` \u2014 *section-10* (1440\u00d7900)\n- `section-11.png` \u2014 *section-11* (1440\u00d7158)\n- `section-12.png` \u2014 *section-12* (1344\u00d7498)\n- `section-13.png` \u2014 *section-13* (1440\u00d7272)\n- `section-14.png` \u2014 *section-14* (1440\u00d750)\n- `footer.png` \u2014 *footer* (1440\u00d7397)\n- `gallery.png` \u2014 *gallery* (1440\u00d76075)\n\n## Navigation\n\n- **Pattern (basic):** floating-transparent\n- **Style:** transparent-static\n- **Behaviour:** static\n- **Fixed:** no\n- **Backdrop blur:** no\n- **Shadow:** no\n- **Links:** 27\n- **Logo:** yes\n\n## Animation & Motion\n\n- **Approach:** immersive 3D experience\n- **Intensity:** dramatic\n- **Transition style:** standard\n- **Libraries:** GSAP\n- **Techniques:** scroll-reveal, css-keyframe-animations, page-transitions, 3d-webgl, marquee-ticker\n\n### Timing Pattern: **none**\n\n- Animated elements: 60\n- Elements with delay: 0\n\n## \u26a1 Animation Tech Stack\n\n- **Framework renderer:** `Nuxt.js`\n- **Stack complexity:** css-only\n\n## \ud83d\udcdc Scroll Behavior\n\n- **Frames captured:** 17\n- **Page height:** 6,686px\n- **Viewport height:** 900px\n- **Scroll GIF size:** 802.3 KB\n- **Preview:** `motion/scroll/page-scroll-preview.gif`\n- **Pinned sections:** 1\n  - Section #13 pinned from 162px to 5598px (15 frames)\n\n### High-Animation Zones\n\n- `text-tout` (0px \u2013 230px)\n- `card-grid` (230px \u2013 634px)\n\n## \ud83c\udfac Motion Capture\n\n- **Animation groups detected:** 4\n- **Techniques:** swiper-slide, slideshow-item, slideshow, fade\n- **Types:** entrance\n\n### Animation Groups\n\n- \u25cf **class-slideshow** \u2014 entrance / `slideshow` (trigger: class-toggle)\n  - Selectors: `[class*='slideshow']`\n- \u25cf **class-fade** \u2014 entrance / `fade` (trigger: class-toggle)\n  - Selectors: `[class*='swiper-fade']`\n- \u25cf **class-swiper-slide** \u2014 entrance / `swiper-slide` (trigger: class-toggle)\n  - Selectors: `[class*='swiper-slide']`\n- \u25cf **class-slideshow-item** \u2014 entrance / `slideshow-item` (trigger: class-toggle)\n  - Selectors: `[class*='slideshow-item']`\n\n## \ud83d\uddb1 Interaction Capture\n\n- **Interactive elements detected:** 5\n- **Element types:** image, nav-link, card\n- **Interaction types:** hover\n- **GIFs recorded:** 2 (343.3 KB total)\n\n### Targets\n\n- \u2605 **card-hover** \u2014 Card hover effect (109 cards) (hover)\n- \u25cf **nav-link-hover** \u2014 Navigation link hover (27 links) (hover)\n- \u25cb **image-hover-2** \u2014 Image hover in section 2 (hover)\n- \u25cb **image-hover-7** \u2014 Image hover in section 7 (hover)\n- \u25cb **image-hover-15** \u2014 Image hover in section 15 (hover)\n\n### Recorded GIFs\n\n- `motion/interactions/card-hover-hover.gif` \u2014 10 frames, 174.4 KB\n- `motion/interactions/image-hover-2-hover.gif` \u2014 10 frames, 168.8 KB\n\n## Imagery\n\n- **Primary approach:** product-focused with high-quality renders\n- **Hero:** text-only\n- **Background:** mixed-gradient-image\n- **Icons:** font-awesome\n- **Density:** image-heavy\n- **Effects:** gradient-overlay, blur-backdrop, noise-texture, clip-path-masking\n\n## \ud83d\uddbc Media Intelligence\n\n- **Hero media:** text-only\n- **Media density:** balanced\n- **Images detected:** 14\n- **Videos detected:** 3\n- **SVGs detected:** 32\n- **Icon system:** outline\n- **Icon library:** Font Awesome\n\n### Image Roles\n\n- `content`: 14\n\n### Video Usage\n\n- **embed** \u2014 vimeo embed (loop, muted)\n- **embed** \u2014 vimeo embed (loop, muted)\n- **embed** \u2014 vimeo embed\n\n## Premium Patterns\n\n- floating-navbar\n- card-grid-layout\n- full-width-sections\n- glassmorphism\n- gradient-design\n- clip-path-shapes\n- marquee-text\n- dark-theme\n- pill-badges\n\n**Card styles:** glass-card, bordered-minimal, rounded-cards, gradient-card, interactive-hover-card\n**Special effects:** backdrop-blur, clip-path-shapes\n\n**CTA style:** standard\n**Footer style:** cta-footer-with-form\n\n## Key Takeaways\n\n1. Study the corporate modern aesthetic approach and how it creates cohesion\n2. Replicate the immersive 3D experience motion strategy\n3. Apply the product-focused with high-quality renders approach to visual content\n4. Implement the floating-transparent navigation pattern\n\n---\n\n*Generated by UX Analyzer \u2014 Design Intelligence Engine*",
+  "media_report": {
+    "images": [
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1024x1024/5430259e19/teaser_thumbnail_feeld_app.png/m/640x640/",
+        "parent_section": "section.card-grid",
+        "alt": "",
+        "natural_width": 360,
+        "natural_height": 360,
+        "rendered_width": 347,
+        "rendered_height": 347,
+        "aspect_ratio": "1:1",
+        "object_fit": "fill",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1024x1024/2278acc3f6/oura-sleep-recovered-1.jpg/m/640x640/",
+        "parent_section": "section.card-grid",
+        "alt": "",
+        "natural_width": 360,
+        "natural_height": 360,
+        "rendered_width": 347,
+        "rendered_height": 347,
+        "aspect_ratio": "1:1",
+        "object_fit": "fill",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1024x1024/b956675169/alphasense_teaser_thumbnail.png/m/640x640/",
+        "parent_section": "section.card-grid",
+        "alt": "",
+        "natural_width": 360,
+        "natural_height": 360,
+        "rendered_width": 347,
+        "rendered_height": 347,
+        "aspect_ratio": "1:1",
+        "object_fit": "fill",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/2048x2048/ba453be5d3/medium-feature.png/m/640x640/",
+        "parent_section": "section.card-grid",
+        "alt": "",
+        "natural_width": 360,
+        "natural_height": 360,
+        "rendered_width": 347,
+        "rendered_height": 347,
+        "aspect_ratio": "1:1",
+        "object_fit": "fill",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/2048x2048/485d9ae1f2/oura_homepage_slideshow.jpg/m/1440x0/",
+        "parent_section": "section.diptych",
+        "alt": "",
+        "natural_width": 1440,
+        "natural_height": 1440,
+        "rendered_width": 668,
+        "rendered_height": 668,
+        "aspect_ratio": "1:1",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1816x1816/43774ed1be/notion_carousel.png/m/1440x0/",
+        "parent_section": "section.diptych",
+        "alt": "",
+        "natural_width": 1440,
+        "natural_height": 1440,
+        "rendered_width": 668,
+        "rendered_height": 668,
+        "aspect_ratio": "1:1",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/2048x2048/6f9fad5a18/eames_carousel.png/m/1440x0/",
+        "parent_section": "section.diptych",
+        "alt": "",
+        "natural_width": 1440,
+        "natural_height": 1440,
+        "rendered_width": 668,
+        "rendered_height": 668,
+        "aspect_ratio": "1:1",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1816x1816/21bf56a7b4/dropnow.png/m/1440x0/",
+        "parent_section": "section.diptych",
+        "alt": "",
+        "natural_width": 1440,
+        "natural_height": 1440,
+        "rendered_width": 668,
+        "rendered_height": 668,
+        "aspect_ratio": "1:1",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1816x1816/813fe651cc/nike_carousel.png/m/1440x0/",
+        "parent_section": "section.diptych",
+        "alt": "",
+        "natural_width": 1440,
+        "natural_height": 1440,
+        "rendered_width": 668,
+        "rendered_height": 668,
+        "aspect_ratio": "1:1",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/2048x2048/dc9c30f062/pagerduty_homepage_slideshow.png/m/1440x0/",
+        "parent_section": "section.diptych",
+        "alt": "",
+        "natural_width": 1440,
+        "natural_height": 1440,
+        "rendered_width": 668,
+        "rendered_height": 668,
+        "aspect_ratio": "1:1",
+        "object_fit": "cover",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1080x1080/abfa3181da/ai-agent-paradox-teaser-thumbnail.png/m/640x640/",
+        "parent_section": "section.card-grid",
+        "alt": "",
+        "natural_width": 360,
+        "natural_height": 360,
+        "rendered_width": 347,
+        "rendered_height": 347,
+        "aspect_ratio": "1:1",
+        "object_fit": "fill",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1080x1080/7fecf913ae/thumb1.png/m/640x640/",
+        "parent_section": "section.card-grid",
+        "alt": "",
+        "natural_width": 360,
+        "natural_height": 360,
+        "rendered_width": 347,
+        "rendered_height": 347,
+        "aspect_ratio": "1:1",
+        "object_fit": "fill",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/1024x1024/5934f80534/highwire_teaser-tumbnail-1024x1024.png/m/640x640/",
+        "parent_section": "section.card-grid",
+        "alt": "",
+        "natural_width": 360,
+        "natural_height": 360,
+        "rendered_width": 347,
+        "rendered_height": 347,
+        "aspect_ratio": "1:1",
+        "object_fit": "fill",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      },
+      {
+        "role": "content",
+        "src": "https://a-us.storyblok.com/f/1004432/800x800/54241fca87/itsnicethat_article1.jpg/m/640x640/",
+        "parent_section": "section.card-grid",
+        "alt": "",
+        "natural_width": 360,
+        "natural_height": 360,
+        "rendered_width": 347,
+        "rendered_height": 347,
+        "aspect_ratio": "1:1",
+        "object_fit": "fill",
+        "is_background_image": false,
+        "loading": "lazy",
+        "autoplay": null,
+        "loop": null,
+        "muted": null,
+        "poster": null,
+        "width": null,
+        "height": null,
+        "embed_platform": null,
+        "embed_id": null,
+        "embed_url": null
+      }
+    ],
+    "videos": [
+      {
+        "role": "embed",
+        "src": "",
+        "parent_section": "main#content.storyblok__outline",
+        "alt": null,
+        "natural_width": null,
+        "natural_height": null,
+        "rendered_width": null,
+        "rendered_height": null,
+        "aspect_ratio": null,
+        "object_fit": null,
+        "is_background_image": false,
+        "loading": null,
+        "autoplay": false,
+        "loop": true,
+        "muted": true,
+        "poster": "",
+        "width": 0,
+        "height": 0,
+        "embed_platform": "vimeo",
+        "embed_id": "1190191041",
+        "embed_url": "https://player.vimeo.com/video/1190191041?h=386edc5f4b&amp;app_id=122963&autoplay=0&muted=1&controls=0&loop=1&autopause=0&title=0&byline=0&playsinline=1&background=1"
+      },
+      {
+        "role": "embed",
+        "src": "",
+        "parent_section": "main#content.storyblok__outline",
+        "alt": null,
+        "natural_width": null,
+        "natural_height": null,
+        "rendered_width": null,
+        "rendered_height": null,
+        "aspect_ratio": null,
+        "object_fit": null,
+        "is_background_image": false,
+        "loading": null,
+        "autoplay": false,
+        "loop": true,
+        "muted": true,
+        "poster": "",
+        "width": 1440,
+        "height": 811,
+        "embed_platform": "vimeo",
+        "embed_id": "1190191041",
+        "embed_url": "https://player.vimeo.com/video/1190191041?h=386edc5f4b&amp;app_id=122963&autoplay=0&muted=1&controls=0&loop=1&autopause=0&title=0&byline=0&playsinline=1&background=1"
+      },
+      {
+        "role": "embed",
+        "src": "",
+        "parent_section": "main#content.storyblok__outline",
+        "alt": null,
+        "natural_width": null,
+        "natural_height": null,
+        "rendered_width": null,
+        "rendered_height": null,
+        "aspect_ratio": null,
+        "object_fit": null,
+        "is_background_image": false,
+        "loading": null,
+        "autoplay": false,
+        "loop": false,
+        "muted": false,
+        "poster": "",
+        "width": 0,
+        "height": 0,
+        "embed_platform": "vimeo",
+        "embed_id": "1190191041",
+        "embed_url": "https://player.vimeo.com/video/1190191041?h=386edc5f4b&amp;app_id=122963&autoplay=0&autopause=0&title=0&byline=0&playsinline=0&portrait=0"
+      }
+    ],
+    "svg_summary": {
+      "total_svgs": 32,
+      "icon_system": "outline",
+      "detected_library": "Font Awesome"
+    },
+    "hero_media_type": "text-only",
+    "total_images": 14,
+    "total_videos": 3,
+    "total_svgs": 32,
+    "media_density_label": "balanced"
+  },
+  "scroll_capture": {
+    "frame_count": 17,
+    "page_height_px": 6686,
+    "viewport_height_px": 900,
+    "has_pinned_sections": true,
+    "pinned_sections": [
+      {
+        "section_index": 13,
+        "pin_start_y": 162,
+        "pin_end_y": 5598,
+        "duration_frames": 15
+      }
+    ],
+    "high_animation_zones": [
+      {
+        "section": "text-tout",
+        "y_start": 0,
+        "y_end": 230
+      },
+      {
+        "section": "card-grid",
+        "y_start": 230,
+        "y_end": 634
+      }
+    ],
+    "capture_time_ms": 15879,
+    "gif_size_bytes": 821552
+  },
+  "motion_capture": {
+    "animation_groups": [
+      {
+        "id": "class-slideshow",
+        "type": "entrance",
+        "technique": "slideshow",
+        "trigger": "class-toggle",
+        "selectors": [
+          "[class*='slideshow']"
+        ],
+        "section_index": 0,
+        "priority": 2
+      },
+      {
+        "id": "class-fade",
+        "type": "entrance",
+        "technique": "fade",
+        "trigger": "class-toggle",
+        "selectors": [
+          "[class*='swiper-fade']"
+        ],
+        "section_index": 0,
+        "priority": 2
+      },
+      {
+        "id": "class-swiper-slide",
+        "type": "entrance",
+        "technique": "swiper-slide",
+        "trigger": "class-toggle",
+        "selectors": [
+          "[class*='swiper-slide']"
+        ],
+        "section_index": 0,
+        "priority": 2
+      },
+      {
+        "id": "class-slideshow-item",
+        "type": "entrance",
+        "technique": "slideshow-item",
+        "trigger": "class-toggle",
+        "selectors": [
+          "[class*='slideshow-item']"
+        ],
+        "section_index": 0,
+        "priority": 2
+      }
+    ],
+    "recorded_gifs": [
+      {
+        "group_id": "class-slideshow",
+        "gif_size_bytes": 0,
+        "frame_count": 15
+      },
+      {
+        "group_id": "class-fade",
+        "gif_size_bytes": 0,
+        "frame_count": 15
+      },
+      {
+        "group_id": "class-swiper-slide",
+        "gif_size_bytes": 0,
+        "frame_count": 15
+      },
+      {
+        "group_id": "class-slideshow-item",
+        "gif_size_bytes": 0,
+        "frame_count": 15
+      }
+    ],
+    "total_gifs": 0,
+    "total_frames": 60,
+    "total_gif_bytes": 0,
+    "techniques_detected": [
+      "swiper-slide",
+      "slideshow-item",
+      "slideshow",
+      "fade"
+    ],
+    "animation_types": [
+      "entrance"
+    ],
+    "capture_time_ms": 23907
+  },
+  "interaction_capture": {
+    "targets": [
+      {
+        "id": "card-hover",
+        "type": "card",
+        "selector": "[class*=\"card\"]",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 1,
+        "priority": 1,
+        "description": "Card hover effect (109 cards)"
+      },
+      {
+        "id": "nav-link-hover",
+        "type": "nav-link",
+        "selector": "nav a",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 0,
+        "priority": 2,
+        "description": "Navigation link hover (27 links)"
+      },
+      {
+        "id": "image-hover-2",
+        "type": "image",
+        "selector": ".card-grid img",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 2,
+        "priority": 3,
+        "description": "Image hover in section 2"
+      },
+      {
+        "id": "image-hover-7",
+        "type": "image",
+        "selector": ".diptych img",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 7,
+        "priority": 3,
+        "description": "Image hover in section 7"
+      },
+      {
+        "id": "image-hover-15",
+        "type": "image",
+        "selector": "#content img",
+        "interactions": [
+          "hover"
+        ],
+        "section_index": 15,
+        "priority": 3,
+        "description": "Image hover in section 15"
+      }
+    ],
+    "recorded_gifs": [
+      {
+        "target_id": "card-hover",
+        "interaction": "hover",
+        "gif_size_bytes": 178634,
+        "frame_count": 10
+      },
+      {
+        "target_id": "nav-link-hover",
+        "interaction": "hover",
+        "gif_size_bytes": 0,
+        "frame_count": 10
+      },
+      {
+        "target_id": "image-hover-2",
+        "interaction": "hover",
+        "gif_size_bytes": 172858,
+        "frame_count": 10
+      }
+    ],
+    "total_gifs": 2,
+    "total_frames": 30,
+    "total_gif_bytes": 351492,
+    "element_types": [
+      "image",
+      "nav-link",
+      "card"
+    ],
+    "interaction_types": [
+      "hover"
+    ],
+    "capture_time_ms": 17926
+  },
+  "animation_stack": {
+    "primary_engine": null,
+    "detected_libraries": [],
+    "library_details": [],
+    "detection_evidence": {},
+    "categories_present": [],
+    "framework_renderer": "Nuxt.js",
+    "stack_complexity": "css-only",
+    "has_custom_scroll": false,
+    "has_3d": false,
+    "has_page_transitions": false
+  }
+}
