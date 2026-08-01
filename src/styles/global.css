@@ -57,6 +57,12 @@
   --color-surface-mid:  #1A1A1A;
   --color-surface-card: #1E1E1E;
 
+  /* Tonal variations of cream/ink (Phase 5, docs/18 Part 2) — same two
+     colors, different amount of light. Never a new hue: lime and violet
+     never gain variants, only cream and ink breathe between chapters. */
+  --color-cream-warm:   #EBE8E1; /* Servicios — second light chapter, reads as related but not identical to Hero */
+  --color-ink-deep:      #080808; /* CTA only — the single darkest point on the site */
+
   /* Grey scale — information hierarchy */
   --color-grey-dark:    #2A2A2A;  /* strong emphasis on light backgrounds */
   --color-grey-mid:     #404040;  /* mid-weight info on light */

@@ -28,6 +28,7 @@ import ProjectPreview from './ProjectPreview.astro';
 import ProjectStatus from './ProjectStatus.astro';
 import CapabilityLabel from './CapabilityLabel.astro';
 import ArchitectureStrip from './ArchitectureStrip.astro';
+import Isotipo from './Isotipo.astro';
 
 interface Layer {
   layer: string;
@@ -40,7 +41,7 @@ interface Capability {
 }
 
 interface Props {
-  rank: number;
+  rank?: number;
   name: string;
   status: 'Operativo' | 'En Evolución' | 'Investigación' | 'Desarrollo Activo';
   problem: string;
@@ -55,6 +56,7 @@ interface Props {
   variant?: 'featured' | 'standard' | 'conceptual';
   size?: 'xl' | 'lg' | 'md' | 'sm';
   closing?: boolean;
+  masked?: boolean;
 }
 
 const {
@@ -73,9 +75,10 @@ const {
   variant = 'standard',
   size = 'md',
   closing = false,
+  masked = false,
 } = Astro.props;
 
-const rankLabel = String(rank).padStart(2, '0');
+const rankLabel = rank !== undefined ? String(rank).padStart(2, '0') : null;
 const isFeatured = variant === 'featured';
 const isConceptual = variant === 'conceptual';
 const tone = isFeatured ? 'dark' : 'light';
@@ -91,13 +94,13 @@ const tone = isFeatured ? 'dark' : 'light';
 >
   {isFeatured && (
     <div class="entry-featured-mark" aria-hidden="true">
-      <img src="/images/isotipo.png" alt="" loading="lazy" decoding="async" draggable="false" />
+      <Isotipo tone="cream" class="entry-featured-mark-svg" />
     </div>
   )}
 
   <div class="entry-head">
-    <span class="entry-rank text-mono" aria-hidden="true">{rankLabel}</span>
-    <ProjectPreview src={logoSrc} alt={logoAlt} size={size} tone={tone} />
+    {rankLabel && <span class="entry-rank text-mono" aria-hidden="true">{rankLabel}</span>}
+    <ProjectPreview src={logoSrc} alt={logoAlt} size={size} tone={tone} masked={masked} />
     <div class="entry-heading">
       <h3 class="entry-name">
         {url ? (
@@ -326,8 +329,8 @@ const tone = isFeatured ? 'dark' : 'light';
     z-index: 0;
   }
 
-  .entry-featured-mark img {
-    display: block;
+  /* :global() — sizes the <svg> rendered inside the <Isotipo> child. */
+  :global(.entry-featured-mark-svg) {
     width: 100%;
     height: auto;
   }

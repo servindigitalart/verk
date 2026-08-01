@@ -1,0 +1,152 @@
+---
+/**
+ * CTA.astro — Phase 5, "El Umbral"
+ *
+ * The climax (docs/18 Part 8, docs/19). Was a 15-line placeholder with a
+ * broken [data-reveal] (Hallazgo 1, docs/17) — the section was, until this
+ * phase, literally invisible. Now: the single darkest surface on the site
+ * (--color-ink-deep), a deliberate silence before anything moves, and the
+ * isotipo used as an open frame — the one place the mark defines a
+ * boundary without closing it.
+ *
+ * The silence: every element's data-reveal-delay starts at 700ms, not 0 —
+ * the section sits still for a full beat after entering the viewport
+ * before the headline begins. No other section on the site holds still
+ * on arrival; this is the one moment that does, and that's what makes it
+ * read as a threshold instead of the next item in a list.
+ */
+
+import Isotipo from './Isotipo.astro';
+---
+
+<section
+  class="cta section section-dark"
+  id="contacto"
+  aria-label="Diagnóstico gratuito"
+  data-theme="feature"
+>
+  <div class="cta-frame" aria-hidden="true">
+    <Isotipo single="a" tone="cream" class="cta-frame-shape cta-frame-shape-a" />
+    <Isotipo single="b" tone="cream" class="cta-frame-shape cta-frame-shape-b" />
+  </div>
+
+  <div class="container cta-container">
+    <p class="text-label cta-lbl" data-reveal data-reveal-delay="700">Diagnóstico</p>
+
+    <h2 class="cta-headline" data-reveal data-reveal-delay="900">
+      <span class="cta-line">Ya viste cómo pensamos.</span>
+      <span class="cta-line cta-line--accent">Ahora construyamos el tuyo.</span>
+    </h2>
+
+    <p class="cta-intro" data-reveal data-reveal-delay="1100">
+      Analizamos tu presencia digital y te entregamos un plan concreto. Sin compromiso.
+    </p>
+
+    <div class="cta-actions" data-reveal data-reveal-delay="1300">
+      <a
+        href="https://wa.me/52XXXXXXXXXX?text=Hola%2C%20me%20interesa%20solicitar%20una%20auditor%C3%ADa"
+        class="btn btn-primary cta-btn"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-cursor-tone="action"
+      >
+        Solicitar auditoría
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    background-color: var(--color-ink-deep);
+    overflow: hidden;
+  }
+
+  /* ── The frame — two shapes, opposite corners, never touching ── */
+
+  .cta-frame {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /*
+   * :global() is required here — these classes are passed as props into
+   * <Isotipo>, which renders the actual <svg> under its own scope. Astro
+   * only auto-scopes elements a component's own template renders directly,
+   * so a plain (non-global) selector here would silently never match and
+   * leave the shape unconstrained (it happened — first pass shipped a
+   * shape sized to roughly half the viewport before this fix).
+   */
+  :global(.cta-frame-shape) {
+    position: absolute;
+    width: clamp(90px, 10vw, 150px);
+    height: auto;
+    opacity: 0.14;
+  }
+
+  :global(.cta-frame-shape-a) {
+    top: var(--space-12);
+    left: var(--space-12);
+  }
+
+  :global(.cta-frame-shape-b) {
+    bottom: var(--space-12);
+    right: var(--space-12);
+  }
+
+  .cta-container {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+  }
+
+  .cta-lbl {
+    color: var(--color-grey-dim-dark);
+    margin-bottom: var(--space-6);
+  }
+
+  .cta-headline {
+    margin: 0 0 var(--space-8);
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-cream);
+  }
+
+  .cta-line {
+    display: block;
+    font-size: clamp(2rem, 1.1rem + 4vw, 4.5rem);
+  }
+
+  .cta-line--accent {
+    color: var(--color-grey-mid-dark);
+  }
+
+  .cta-intro {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-grey-mid-dark);
+    max-width: 480px;
+    margin: 0 0 var(--space-10);
+  }
+
+  .cta-btn {
+    font-size: var(--text-base);
+    padding: var(--space-4) var(--space-8);
+  }
+
+  @media (max-width: 640px) {
+    :global(.cta-frame-shape) {
+      width: 70px;
+    }
+
+    :global(.cta-frame-shape-a),
+    :global(.cta-frame-shape-b) {
+      opacity: 0.1;
+    }
+  }
+</style>

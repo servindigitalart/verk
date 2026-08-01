@@ -1,48 +1,55 @@
 ---
 /**
- * Method.astro — Phase 3
+ * Method.astro — Phase 5
  *
- * Layout: editorial step list, dark section (depth mode per doc 11).
- * Four steps maximum — per brief. Process feels inevitable.
- *
- * Step numbering: Geist Mono (technical register, doc 11 Part 6).
- * Step names: Neue Haas Grotesk Display (structural register).
- * Step copy: Neue Haas Grotesk Text (body register).
- *
- * The step numbers earn their place: the method IS a sequence.
- * Order carries information the reader needs. This is the exception
- * to taste-skill's numbering caution — not section markers, process steps.
- *
- * Label rule (doc 11, Rule 6): label above every headline.
- * Rule 4 (doc 11): no centered headlines on dark sections. Flush left.
- *
- * Isotipo (doc 11, Part 5): structural background presence at bottom-right.
- * On dark surface: opacity only, no blend mode — white areas contribute
- * barely-perceptible brightness at 5% opacity (below the "visible" threshold).
- *
- * data-reveal: intentionally omitted in Phase 3.
- * Phase 4 adds IntersectionObserver — attributes added then.
+ * Structure, copy and rhythm unchanged (approved: "la estructura es muy
+ * buena, no quiero cambiar el contenido"). What's elevated:
+ *   - Step numerals scale up substantially — they earn the "sienten
+ *     especiales" the brief asked for through scale, not ornament.
+ *   - A single spine connects all four numerals — the steps stop reading
+ *     as four separate items and start reading as one continuous line.
+ *   - Step 04 ("Verificamos") is where the isotipo's two shapes assemble
+ *     into the complete mark — doc 11's own reading of the isotipo
+ *     ("dos sistemas en equilibrio dinámico") made literal at the exact
+ *     step that verifies the system works. A quiet detail, not the site's
+ *     signature moment (that's the cursor, docs/19) — this one rewards
+ *     someone who's actually reading, nothing more.
+ *   - Real scroll-triggered stagger reveal (150ms/step, per doc 04's
+ *     already-written standard) — previously entirely static.
  */
+
+import Isotipo from './Isotipo.astro';
+
+const steps = [
+  {
+    num: '01',
+    name: 'Entendemos',
+    body: 'Antes de diseñar, preguntamos. ¿Dónde se pierden los clientes? ¿Qué tarea se repite más? ¿Qué herramientas ya tienes y cuáles no están conectadas?',
+  },
+  {
+    num: '02',
+    name: 'Diseñamos',
+    body: 'Diseñamos el sistema completo antes de escribir código. El sitio, las automatizaciones, las integraciones: todo conectado desde el principio.',
+  },
+  {
+    num: '03',
+    name: 'Construimos',
+    body: 'Construimos el sitio y todo lo que lo conecta a tu operación. No entregamos piezas sueltas, entregamos el sistema completo.',
+  },
+  {
+    num: '04',
+    name: 'Verificamos',
+    body: 'El sistema funciona antes de que lo llamemos terminado. Probamos cada flujo, cada integración, cada punto de contacto con el cliente.',
+  },
+];
 ---
 
-<section class="method section section-dark" id="metodo" aria-label="Método">
-
-  <!-- Isotipo — bottom-right structural mark on dark section -->
-  <div class="method-isotipo" aria-hidden="true">
-    <img
-      src="/images/isotipo.png"
-      alt=""
-      width="600"
-      height="600"
-      draggable="false"
-      decoding="async"
-    />
-  </div>
+<section class="method section section-dark" id="metodo" aria-label="Método" data-theme="dark">
 
   <div class="container method-container">
 
     <!-- Section header — label above headline per Rule 6 -->
-    <header class="method-header">
+    <header class="method-header" data-reveal>
       <p class="text-label method-lbl">Método</p>
       <h2 class="method-headline">Cómo funciona.</h2>
       <p class="method-intro">
@@ -52,47 +59,25 @@
 
     <!-- Steps — ordered list: sequence matters, order carries information -->
     <ol class="method-steps" role="list">
-
-      <li class="method-step">
-        <span class="step-num text-mono" aria-hidden="true">01</span>
-        <div class="step-content">
-          <h3 class="step-name">Entendemos</h3>
-          <p class="step-body">
-            Antes de diseñar, preguntamos. ¿Dónde se pierden los clientes? ¿Qué tarea se repite más? ¿Qué herramientas ya tienes y cuáles no están conectadas?
-          </p>
-        </div>
-      </li>
-
-      <li class="method-step">
-        <span class="step-num text-mono" aria-hidden="true">02</span>
-        <div class="step-content">
-          <h3 class="step-name">Diseñamos</h3>
-          <p class="step-body">
-            Diseñamos el sistema completo antes de escribir código. El sitio, las automatizaciones, las integraciones: todo conectado desde el principio.
-          </p>
-        </div>
-      </li>
-
-      <li class="method-step">
-        <span class="step-num text-mono" aria-hidden="true">03</span>
-        <div class="step-content">
-          <h3 class="step-name">Construimos</h3>
-          <p class="step-body">
-            Construimos el sitio y todo lo que lo conecta a tu operación. No entregamos piezas sueltas, entregamos el sistema completo.
-          </p>
-        </div>
-      </li>
-
-      <li class="method-step">
-        <span class="step-num text-mono" aria-hidden="true">04</span>
-        <div class="step-content">
-          <h3 class="step-name">Verificamos</h3>
-          <p class="step-body">
-            El sistema funciona antes de que lo llamemos terminado. Probamos cada flujo, cada integración, cada punto de contacto con el cliente.
-          </p>
-        </div>
-      </li>
-
+      {steps.map((step, i) => (
+        <li
+          class:list={['method-step', step.num === '04' && 'method-step--final']}
+          data-reveal
+          data-reveal-delay={i * 150}
+        >
+          <span class="step-num text-mono" aria-hidden="true">{step.num}</span>
+          <div class="step-content">
+            <h3 class="step-name">{step.name}</h3>
+            <p class="step-body">{step.body}</p>
+          </div>
+          {step.num === '04' && (
+            <div class="step-assembly" aria-hidden="true">
+              <Isotipo single="a" tone="cream" class="assembly-shape assembly-shape-a" />
+              <Isotipo single="b" tone="cream" class="assembly-shape assembly-shape-b" />
+            </div>
+          )}
+        </li>
+      ))}
     </ol>
 
   </div>
@@ -104,35 +89,6 @@
 
   .method {
     overflow: hidden;
-  }
-
-  /* ── Isotipo ────────────────────────────────────────────────── */
-  /*
-   * Override: .section-dark > * applies position:relative; z-index:1
-   * globally. Astro's scoped attribute increases specificity of this
-   * rule, so position:absolute and z-index:0 win here.
-   *
-   * z-index:0 places the isotipo behind content (z-index:1) but
-   * above the noise grain pseudo-element (also z-index:0, but
-   * ::after renders after regular elements, so grain is on top —
-   * acceptable since grain is at 3.5% opacity and essentially invisible).
-   */
-
-  .method-isotipo {
-    position: absolute;
-    bottom: -6%;
-    right: -5%;
-    width: clamp(260px, 32vw, 480px);
-    opacity: 0.05;
-    pointer-events: none;
-    user-select: none;
-    z-index: 0;
-  }
-
-  .method-isotipo img {
-    display: block;
-    width: 100%;
-    height: auto;
   }
 
   /* ── Container ──────────────────────────────────────────────── */
@@ -181,24 +137,41 @@
   }
 
   /* ── Steps ──────────────────────────────────────────────────── */
+  /*
+   * The spine (::before) connects all four numerals into one line — the
+   * steps stop reading as four separate items. left offset is tuned to
+   * sit just past the numeral glyphs, matching .step-num::after's dot.
+   */
 
   .method-steps {
+    position: relative;
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
+  .method-steps::before {
+    content: '';
+    position: absolute;
+    top: var(--space-12);
+    bottom: var(--space-12);
+    left: 88px;
+    width: 1px;
+    background-color: var(--color-border-dark);
+  }
+
   /* ── Step row ───────────────────────────────────────────────── */
   /*
    * Grid: [step number fixed] [step content fills remaining width]
-   * Step number: Geist Mono, muted, technical register.
-   * This column stays at 56px on desktop — number is a coordinate,
-   * not a headline. It should not compete with the step name.
+   * The numeral is elevated to display scale — it earns its place
+   * through size, not ornament (brief: "los números deben sentirse
+   * especiales").
    */
 
   .method-step {
+    position: relative;
     display: grid;
-    grid-template-columns: 56px 1fr;
+    grid-template-columns: 72px 1fr;
     gap: var(--space-8);
     padding-block: var(--space-10);
     border-top: 1px solid var(--color-border-dark);
@@ -206,13 +179,30 @@
   }
 
   .step-num {
+    position: relative;
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-regular);
+    font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+    font-weight: var(--weight-medium);
     color: var(--color-grey-dim-dark);
     line-height: 1;
-    padding-top: 5px;
-    /* optical alignment with first line of step-name */
+  }
+
+  /* Dot on the spine — lime only on the final step (doc 17 Part 6: lime
+     marks the step where the system is confirmed to work). */
+  .step-num::after {
+    content: '';
+    position: absolute;
+    left: 84px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background-color: var(--color-grey-dim-dark);
+  }
+
+  .method-step--final .step-num::after {
+    background-color: var(--color-lime);
   }
 
   .step-name {
@@ -234,36 +224,75 @@
     max-width: 52ch;
   }
 
-  /* ── Mobile — 768px and below ───────────────────────────────── */
-  /*
-   * Narrower number column, tighter gap.
-   * Step content remains full-width — reads well single-column.
+  /* ── Isotipo assembly — step 04 only ──────────────────────────
+   * The two shapes start apart and settle into the complete mark once
+   * the step is revealed (same [data-reveal].is-visible toggle that
+   * drives the rest of the stagger — no separate trigger needed).
    */
+
+  .step-assembly {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 64px;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  /* :global() — these classes size/animate <svg> elements rendered inside
+     the <Isotipo> child component, which Astro's scoping never reaches. */
+  :global(.assembly-shape) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: auto;
+    transition:
+      transform 700ms var(--ease-out-expo),
+      opacity   700ms var(--ease-out-expo);
+    opacity: 0;
+  }
+
+  :global(.assembly-shape-a) {
+    transform: translate(-16px, -12px);
+  }
+
+  :global(.assembly-shape-b) {
+    transform: translate(16px, 12px);
+  }
+
+  :global([data-reveal].is-visible .assembly-shape) {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  /* ── Mobile — 768px and below ───────────────────────────────── */
 
   @media (max-width: 768px) {
     .method-step {
-      grid-template-columns: 40px 1fr;
+      grid-template-columns: 48px 1fr;
       gap: var(--space-5);
       padding-block: var(--space-8);
     }
 
-    .method-isotipo {
-      width: 68vw;
-      bottom: -4%;
-      right: -18%;
-      opacity: 0.04;
+    .method-steps::before {
+      left: 58px;
+    }
+
+    .step-num::after {
+      left: 54px;
+    }
+
+    .step-num {
+      font-size: 1.5rem;
+    }
+
+    .step-assembly {
+      display: none;
     }
 
     .method-intro {
       max-width: 100%;
-    }
-  }
-
-  /* ── Small mobile ───────────────────────────────────────────── */
-
-  @media (max-width: 480px) {
-    .method-isotipo {
-      display: none;
     }
   }
 </style>

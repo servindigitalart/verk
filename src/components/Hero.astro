@@ -1,62 +1,42 @@
 ---
 /**
- * Hero.astro — Concept 4: "La Primera Decisión"
- * Phase 2A implementation. doc 11 is highest authority.
+ * Hero.astro — Concept 4: "La Primera Decisión" + Phase 5 visual component
+ * doc 11 is highest authority for copy/hierarchy. Phase 5 (docs/18, docs/19)
+ * replaces the isotipo-watermark with a different question entirely: not
+ * "how do I draw the mark" but "what should someone feel in the first five
+ * seconds." The answer here is restraint that resolves — nothing happens
+ * in the negative space until the reading is done, and then exactly one
+ * quiet, permanent mark appears: a single hairline with two angled ticks
+ * at its ends (the isotipo's own diagonal, quoted, not drawn) — evidence
+ * that even the empty space was measured, not left over.
  *
- * Concept:
- *   Almost empty. An expanse of cream. The isotipo already present,
- *   as if it has been there for some time. The headline arrives one
- *   line at a time at reading speed. The subheadline follows. Then
- *   the CTAs. Then the microcopy. Nothing simultaneous. Nothing rushed.
+ * Copy source: doc 12, Part 9 (Final Hero Copy Lock) — unchanged.
  *
- * Copy source: doc 12, Part 9 (Final Hero Copy Lock)
- *   Headline:    Construimos sistemas. / No sitios.
- *   Subheadline: De la primera visita al cliente que paga…
- *   Primary CTA: Ver cómo funciona
- *   Secondary:   Ver proyectos
- *   Microcopy:   Para clínicas, despachos y negocios…
- *
- * Motion:
- *   CSS-only sequential reveal — no JS, no animation libraries.
- *   animation-fill-mode: both keeps elements invisible before their
- *   delay fires and visible after the animation completes.
- *
- *   Timing (reading speed, not animation speed):
- *     Label    → delay 0.3s, duration 0.4s
- *     Line 1   → delay 1.0s, duration 0.55s
- *     Line 2   → delay 2.6s, duration 0.55s  (1.2s pause after line 1)
- *     Sub      → delay 4.2s, duration 0.55s  (1.0s pause after line 2)
- *     Actions  → delay 5.5s, duration 0.50s  (0.75s pause after sub)
- *     Microcopy→ delay 6.5s, duration 0.40s  (0.5s pause after actions)
- *
- *   Each transition: opacity 0→1 + translateY(28px)→0, ease-out-expo.
- *
- * Isotipo:
- *   Position: absolute, right side, vertically centered on the hero.
- *   Opacity: 0.08 (8%, per doc 11).
- *   No entrance animation — it exists before the user arrives.
- *   mix-blend-mode: multiply makes any white background transparent
- *   against the cream hero surface.
+ * Motion — compressed per docs/18 Part 4.2 (microcopy now lands at 5.4s,
+ * not 6.5s) — still reading speed, not animation speed:
+ *   Label    → delay 0.3s,  duration 0.4s
+ *   Line 1   → delay 1.0s,  duration 0.55s
+ *   Line 2   → delay 2.3s,  duration 0.55s
+ *   Sub      → delay 3.6s,  duration 0.55s
+ *   Actions  → delay 4.7s,  duration 0.50s
+ *   Microcopy→ delay 5.4s,  duration 0.40s
+ *   Mark     → delay 5.6s,  duration 0.9s  (the last event — arrives after
+ *                                           everything else has landed)
  */
 ---
 
-<section class="hero" aria-label="Inicio" id="inicio">
+<section class="hero" aria-label="Inicio" id="inicio" data-theme="light">
 
   <!--
-    Isotipo — decorative background element.
-    Already present. No entrance. No animation.
-    Rule: aria-hidden on all decorative elements.
+    The hairline mark — the only thing that lives in the negative space
+    now. Static once drawn: doc 18 Part 5, "el cruce" was retired in favor
+    of something quieter. Two ticks quote the isotipo's angle without
+    being the isotipo — a measurement, not a logo placement.
   -->
-  <div class="hero-isotipo" aria-hidden="true">
-    <img
-      src="/images/isotipo.png"
-      alt=""
-      width="700"
-      height="700"
-      draggable="false"
-      fetchpriority="high"
-      decoding="async"
-    />
+  <div class="hero-mark" aria-hidden="true">
+    <span class="hero-mark-tick hero-mark-tick-top"></span>
+    <span class="hero-mark-line"></span>
+    <span class="hero-mark-tick hero-mark-tick-bottom"></span>
   </div>
 
   <!-- Content — sequential reveal -->
@@ -89,7 +69,7 @@
 
     <!-- CTA group — primary lime + secondary ghost -->
     <div class="hero-actions" role="group" aria-label="Acciones principales">
-      <a href="#servicios" class="btn btn-primary hero-btn-primary">
+      <a href="#servicios" class="btn btn-primary hero-btn-primary" data-cursor-tone="action">
         Ver cómo funciona
       </a>
       <a href="#proyectos" class="hero-btn-secondary">
@@ -142,34 +122,63 @@
     overflow: hidden;
   }
 
-  /* ─── Isotipo ─────────────────────────────────────────────── */
+  /* ─── The mark ────────────────────────────────────────────── */
   /*
-   * Absolutely positioned in the right portion of the hero.
-   * Large enough to create presence behind the text without
-   * overpowering the cream surface.
-   *
-   * mix-blend-mode: multiply ensures any white areas of the PNG
-   * become transparent against the cream background, revealing
-   * only the violet shape geometry.
-   *
-   * No transition, no animation — it is always here.
+   * Phase 5 (docs/18, docs/19). Not the isotipo, not a watermark — a
+   * single hairline with two ticks at its own angle, quoting the mark's
+   * geometry without placing the logo in the background. Lives at the
+   * right edge, in the space the isotipo used to occupy. Static once
+   * drawn: it is the last event of the sequence, not a loop.
    */
-  .hero-isotipo {
+  .hero-mark {
     position: absolute;
-    right: -6%;
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(340px, 50vw, 720px);
+    right: clamp(28px, 7vw, 110px);
+    top: 14%;
+    bottom: 16%;
+    width: 1px;
     pointer-events: none;
     user-select: none;
-    opacity: 0.08;
   }
 
-  .hero-isotipo img {
-    display: block;
-    width: 100%;
-    height: auto;
-    mix-blend-mode: multiply;
+  .hero-mark-line {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-border-medium);
+    transform-origin: top;
+    transform: scaleY(0);
+    animation: heroMarkDraw 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 5.6s;
+  }
+
+  .hero-mark-tick {
+    position: absolute;
+    left: -3px;
+    width: 7px;
+    height: 1px;
+    background-color: var(--color-grey-light);
+    opacity: 0;
+    animation: heroTickReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .hero-mark-tick-top {
+    top: 0;
+    animation-delay: 5.6s;
+  }
+
+  .hero-mark-tick-bottom {
+    bottom: 0;
+    animation-delay: 6.3s;
+  }
+
+  @keyframes heroMarkDraw {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+
+  /* Same diagonal as the isotipo's own angle — a quote, not the mark itself */
+  @keyframes heroTickReveal {
+    from { opacity: 0; transform: rotate(-24deg) translateX(-5px); }
+    to   { opacity: 1; transform: rotate(-24deg) translateX(0); }
   }
 
   /* ─── Content ─────────────────────────────────────────────── */
@@ -227,9 +236,9 @@
     animation-delay: 1.0s;
   }
 
-  /* "No sitios." — shorter line, arrives after 1.2s reading pause */
+  /* "No sitios." — shorter line, arrives after a reading pause */
   .hero-line-2 {
-    animation-delay: 2.6s;
+    animation-delay: 2.3s;
     /*
      * The second line is intentionally shorter.
      * At desktop, "No sitios." will occupy roughly 40% of the
@@ -253,7 +262,7 @@
     animation-duration: 0.55s;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     animation-fill-mode: both;
-    animation-delay: 4.2s;
+    animation-delay: 3.6s;
   }
 
   /* ─── Actions ─────────────────────────────────────────────── */
@@ -269,7 +278,7 @@
     animation-duration: 0.5s;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     animation-fill-mode: both;
-    animation-delay: 5.5s;
+    animation-delay: 4.7s;
   }
 
   /* Primary — lime pill, slightly larger than the global .btn default */
@@ -337,7 +346,7 @@
 
   .hero-microcopy {
     font-family: var(--font-body);
-    font-size: 11px;
+    font-size: 13px;
     font-weight: var(--weight-regular);
     line-height: 1.5;
     color: var(--color-grey-soft);
@@ -347,35 +356,35 @@
     animation-duration: 0.4s;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     animation-fill-mode: both;
-    animation-delay: 6.5s;
+    animation-delay: 5.4s;
   }
 
   /* ─── Tablet ──────────────────────────────────────────────── */
 
   @media (max-width: 900px) {
-    .hero-isotipo {
-      right: -15%;
-      width: clamp(280px, 65vw, 500px);
-      opacity: 0.06;
+    .hero-mark {
+      right: clamp(20px, 4vw, 48px);
     }
   }
 
   /* ─── Mobile ──────────────────────────────────────────────── */
   /*
    * Mobile is not a reduced version — it's a first-class experience.
-   * Typography remains large and impactful.
-   * The isotipo shifts to be centered rather than right-anchored.
+   * Typography remains large and impactful. The mark steps back rather
+   * than centering — on a narrow viewport it has no negative space left
+   * to occupy without crowding the text, so it recedes instead of
+   * relocating awkwardly.
    */
   @media (max-width: 600px) {
     .hero {
       padding-block: clamp(100px, 20vw, 140px) clamp(60px, 10vw, 100px);
     }
 
-    .hero-isotipo {
-      right: 50%;
-      transform: translateX(50%) translateY(-55%);
-      width: 85vw;
-      opacity: 0.05;
+    .hero-mark {
+      right: 16px;
+      top: 20%;
+      bottom: 30%;
+      opacity: 0.6;
     }
 
     .hero-sub {
@@ -411,6 +420,17 @@
       animation: none;
       opacity: 1;
       transform: none;
+    }
+
+    .hero-mark-tick {
+      animation: none;
+      opacity: 1;
+      transform: rotate(-24deg);
+    }
+
+    .hero-mark-line {
+      animation: none;
+      transform: scaleY(1);
     }
   }
 </style>

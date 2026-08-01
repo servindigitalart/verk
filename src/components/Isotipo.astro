@@ -1,0 +1,51 @@
+---
+/**
+ * Isotipo.astro — Phase 5
+ *
+ * The two-parallelogram mark, as a real vector — replaces the raster PNG
+ * watermark that Phase 5 retires everywhere (docs/17, docs/18). Two
+ * independently addressable shapes (`isotipo-shape-a` / `-b`) so each of
+ * the five sanctioned appearances (docs/18 Part 4 — trazo/tick, ensamblaje,
+ * máscara, marco, puntuación) can animate or position them independently
+ * instead of treating the mark as one flat image.
+ *
+ * Geometry: two skewed quadrilaterals, upper-left shape rising toward the
+ * upper-right, lower-right shape descending toward the lower-right — the
+ * implied trajectory doc 11 locks (Part 4: "they do not rotate, they travel").
+ */
+
+interface Props {
+  tone?: 'ink' | 'cream' | 'lime' | 'violet' | 'current';
+  outline?: boolean;
+  single?: 'a' | 'b';
+  class?: string;
+}
+
+const { tone = 'current', outline = false, single, class: className = '' } = Astro.props;
+const color = tone === 'current' ? 'currentColor' : `var(--color-${tone})`;
+const shapeProps = outline
+  ? { fill: 'none', stroke: color, 'stroke-width': 1.5 }
+  : { fill: color, stroke: 'none' };
+---
+
+<svg
+  class={`isotipo ${className}`}
+  viewBox="0 0 100 90"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  {(!single || single === 'a') && (
+    <path class="isotipo-shape isotipo-shape-a" d="M28 12 L62 12 L48 42 L14 42 Z" {...shapeProps} />
+  )}
+  {(!single || single === 'b') && (
+    <path class="isotipo-shape isotipo-shape-b" d="M52 46 L86 46 L72 76 L38 76 Z" {...shapeProps} />
+  )}
+</svg>
+
+<style>
+  .isotipo {
+    display: block;
+    overflow: visible;
+  }
+</style>

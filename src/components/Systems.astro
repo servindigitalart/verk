@@ -1,246 +1,312 @@
 ---
 /**
- * Systems.astro — Phase 4B
+ * Systems.astro — Phase 5
  *
- * The evidence layer of Verk (docs 16, phase-4a/4b reports). Replaces the
- * `#proyectos` placeholder. Row list, not a grid or a logo wall — identical
- * structural principle to Services.astro and Method.astro so the section can
- * hold 9, 20, or 100 systems without redesign (doc 16, Part 6).
+ * The heart of the site (brief: "quiero convertir esta sección en el
+ * corazón del sitio"). Retired the flat nine-row ranked list. The visible
+ * structure is now doc 16 Part 1's six capabilities, expanded — not
+ * replaced — into six editorial chapters (docs/18 Part 7). Every system
+ * still lives in exactly the capability doc 16 already assigned it as
+ * primary or secondary evidence; nothing was reclassified.
  *
- * Order, taxonomy, ranking, state language, and per-system architecture layers
- * are locked in docs/16-systems-architecture.md and docs/project-content/*.md.
- * This file only translates that narrative into markup — see phase-4b-report.md
- * for the reasoning behind every decision below.
+ * Each chapter deliberately uses a different composition (brief: "no
+ * tengas miedo de romper el layout entre categorías") — a dark full-force
+ * feature, a quiet spacious one, a two-column diagram, a diptych, a
+ * compact three-up poster, and a calm closing feature. Six different
+ * grids, one visual language (same tokens, same type system, same
+ * ArchitectureStrip/disclosure mechanics throughout).
  *
- * Section label: "Sistemas" (doc 16, Part 3) — one word, matching Servicios/Método.
- * Headline: "El problema cambia. / El método no." — callback to the Método section,
- * chosen specifically to avoid repeating "sistema" directly under a label that
- * already says "Sistemas."
- *
- * data-reveal intentionally omitted — same precedent as Services/Method; the
- * IntersectionObserver activation is still pending in the generic Phase 4 queue.
+ * The isotipo appears here as a mask (docs/18 Part 4, row 3) — every
+ * chapter anchor's preview is clipped to the parallelogram silhouette
+ * (ProjectPreview `masked`) instead of the standard hairline frame. One
+ * technique, six quiet instances, never the flat watermark.
  */
 
 import SystemEntry from './SystemEntry.astro';
 
-const systems = [
+const chapters = [
   {
-    rank: 1,
-    name: 'Sonoro',
-    status: 'Operativo' as const,
-    problem: 'Convertir contenido extenso en audio no es narrar un texto. Es construir un pipeline que no falle.',
-    system: 'Una plataforma que transforma documentos en audiolibros narrados con IA, de principio a fin.',
-    howItWorks: 'Cola de trabajos, reintentos automáticos y más de 700 pruebas garantizan que cada narración se complete.',
-    whyItMatters: 'Prueba que Verk diseña infraestructura distribuida, no solo interfaces.',
-    capabilities: [
-      { label: 'Sistemas distribuidos' },
-      { label: 'IA en producción', kind: 'ai' as const },
-    ],
-    layers: [
-      { layer: 'Presentation', detail: 'Astro, React Islands' },
-      { layer: 'Logic', detail: 'FastAPI' },
-      { layer: 'Processing', detail: 'Redis, async workers' },
-      { layer: 'Storage', detail: 'PostgreSQL, S3' },
-      { layer: 'Infrastructure', detail: 'Stripe billing' },
-      { layer: 'AI', detail: 'Google TTS' },
-    ],
-    logoSrc: '/project-logos/sonoro/favicon.svg',
-    url: 'https://sonoro-six.vercel.app/',
-    variant: 'featured' as const,
-    size: 'xl' as const,
+    key: 'distributed',
+    label: '01 — Ingeniería de Sistemas Distribuidos',
+    thesis:
+      'Colas, workers, reintentos, procesamiento asíncrono: la recuperación de fallas tratada como la condición operativa por defecto, no como una excepción.',
+    layout: 'feature-dark',
+    anchor: {
+      name: 'Sonoro',
+      status: 'Operativo' as const,
+      problem: 'Convertir contenido extenso en audio no es narrar un texto. Es construir un pipeline que no falle.',
+      system: 'Una plataforma que transforma documentos en audiolibros narrados con IA, de principio a fin.',
+      howItWorks: 'Cola de trabajos, reintentos automáticos y más de 700 pruebas garantizan que cada narración se complete.',
+      whyItMatters: 'Prueba que Verk diseña infraestructura distribuida, no solo interfaces.',
+      capabilities: [{ label: 'Sistemas distribuidos' }, { label: 'IA en producción', kind: 'ai' as const }],
+      layers: [
+        { layer: 'Presentation', detail: 'Astro, React Islands' },
+        { layer: 'Logic', detail: 'FastAPI' },
+        { layer: 'Processing', detail: 'Redis, async workers' },
+        { layer: 'Storage', detail: 'PostgreSQL, S3' },
+        { layer: 'Infrastructure', detail: 'Stripe billing' },
+        { layer: 'AI', detail: 'Google TTS' },
+      ],
+      logoSrc: '/project-logos/sonoro/favicon.svg',
+      url: 'https://sonoro-six.vercel.app/',
+      variant: 'featured' as const,
+      size: 'xl' as const,
+      masked: true,
+    },
+    support: [],
   },
   {
-    rank: 2,
-    name: 'DocLink',
-    status: 'En Evolución' as const,
-    problem: 'Las clínicas tienen potencial de crecimiento digital que nadie identifica ni convierte en clientes.',
-    system: 'Un ecosistema que prospecta, califica y convierte clínicas en suscriptores, en una sola plataforma.',
-    howItWorks: 'Microservicios independientes de prospección, SEO, generación de sitios y portal, conectados por un motor de automatización.',
-    whyItMatters: 'Prueba que Verk conecta múltiples sistemas en una sola operación de negocio.',
-    capabilities: [{ label: 'Plataforma' }],
-    layers: [
-      { layer: 'Presentation', detail: 'Next.js, Astro' },
-      { layer: 'Logic', detail: 'FastAPI microservices' },
-      { layer: 'Automation', detail: 'Motor de automatización' },
-      { layer: 'Storage', detail: 'PostgreSQL, Supabase' },
-      { layer: 'Infrastructure', detail: 'Railway, Clerk, Paddle' },
-      { layer: 'AI', detail: 'Scoring y enriquecimiento' },
-    ],
-    logoSrc: '/project-logos/doclink/doclink-logo-dark.png',
-    url: 'https://b2b-prospector-zc4e-git-main-minecraftleon182-8293s-projects.vercel.app/',
-    variant: 'standard' as const,
-    size: 'lg' as const,
+    key: 'ai-production',
+    label: '02 — IA en Producción',
+    thesis:
+      'IA como componente de producción que tiene que funcionar correctamente todos los días — no una función de demostración.',
+    layout: 'feature-quiet',
+    quietNote: 'Se publica sola. Todos los días. A las 06:00.',
+    anchor: {
+      name: 'CleanSolarAus',
+      status: 'Operativo' as const,
+      problem: 'Publicar suficiente contenido para ganar autoridad en un tema no es sostenible a mano.',
+      system: 'Una operación de contenido programático que investiga, escribe, revisa y publica sola, todos los días.',
+      howItWorks: 'Un pipeline en Python con Claude como redactor y revisor, desplegado automáticamente por GitHub Actions.',
+      whyItMatters: 'Prueba que Verk construye infraestructura que sigue funcionando sin intervención.',
+      capabilities: [{ label: 'IA en producción', kind: 'ai' as const }],
+      layers: [
+        { layer: 'Research', detail: 'Agentes en Python, Search Console' },
+        { layer: 'Writing', detail: 'Claude Sonnet 4.5' },
+        { layer: 'Deployment', detail: 'GitHub Actions → Cloudflare Pages, diario' },
+      ],
+      logoSrc: '/project-logos/cleansolaraus/favicon.svg',
+      url: 'https://cleansolaraus.com/',
+      variant: 'standard' as const,
+      size: 'lg' as const,
+      masked: true,
+    },
+    support: [],
   },
   {
-    rank: 3,
-    name: 'PRISMA',
-    status: 'En Evolución' as const,
-    problem: 'El cine siempre se organiza por género, director o país. Nunca por cómo se siente.',
-    system: 'Una plataforma que explora cine a través de una taxonomía visual propia: color, ritmo, abstracción.',
-    howItWorks: 'Un pipeline de IA enriquece cada película con dimensiones que no existen en ninguna base de datos estándar.',
-    whyItMatters: 'Prueba que Verk puede inventar una forma de entender un dominio, no solo digitalizarlo.',
-    capabilities: [{ label: 'Arquitectura de conocimiento' }],
-    layers: [
-      { layer: 'Presentation', detail: 'Astro (SSR)' },
-      { layer: 'Data', detail: 'Supabase (auth, APIs)' },
-      { layer: 'Enrichment', detail: 'Pipeline en Python + scoring con IA' },
-      { layer: 'Storage', detail: 'PostgreSQL' },
+    key: 'knowledge',
+    label: '03 — Arquitectura de Conocimiento Original',
+    thesis:
+      'Inventar una taxonomía o una forma estructurada de entender un dominio, en vez de adoptar una que ya existe.',
+    layout: 'diagram',
+    anchor: {
+      name: 'PRISMA',
+      status: 'En Evolución' as const,
+      problem: 'El cine siempre se organiza por género, director o país. Nunca por cómo se siente.',
+      system: 'Una plataforma que explora cine a través de una taxonomía visual propia: color, ritmo, abstracción.',
+      howItWorks: 'Un pipeline de IA enriquece cada película con dimensiones que no existen en ninguna base de datos estándar.',
+      whyItMatters: 'Prueba que Verk puede inventar una forma de entender un dominio, no solo digitalizarlo.',
+      capabilities: [{ label: 'Arquitectura de conocimiento' }],
+      layers: [
+        { layer: 'Presentation', detail: 'Astro (SSR)' },
+        { layer: 'Data', detail: 'Supabase (auth, APIs)' },
+        { layer: 'Enrichment', detail: 'Pipeline en Python + scoring con IA' },
+        { layer: 'Storage', detail: 'PostgreSQL' },
+      ],
+      logoSrc: '/project-logos/prisma/logo.png',
+      url: 'https://prisma-site-eight.vercel.app/',
+      variant: 'standard' as const,
+      size: 'lg' as const,
+      masked: true,
+    },
+    support: [
+      {
+        name: 'UX Analyzer',
+        status: 'Investigación' as const,
+        problem: 'Diseñar por inspiración es subjetivo. Antes de construir, hay que entender cómo funcionan los sitios premium.',
+        system: 'Una herramienta interna que analiza sitios existentes y convierte lo observado en datos estructurados.',
+        howItWorks: 'Automatización de navegador, análisis visual con IA y reportes estructurados. Sin interfaz pública.',
+        whyItMatters: 'Prueba que Verk estudia antes de construir.',
+        capabilities: [{ label: 'Arquitectura de conocimiento' }],
+        layers: [
+          { layer: 'Automation', detail: 'Playwright' },
+          { layer: 'Analysis', detail: 'Gemini (análisis visual)' },
+          { layer: 'Output', detail: 'JSON, Markdown, capturas' },
+        ],
+        variant: 'conceptual' as const,
+        size: 'sm' as const,
+      },
     ],
-    logoSrc: '/project-logos/prisma/logo.png',
-    url: 'https://prisma-site-eight.vercel.app/',
-    variant: 'standard' as const,
-    size: 'md' as const,
   },
   {
-    rank: 4,
-    name: 'UX Analyzer',
-    status: 'Investigación' as const,
-    problem: 'Diseñar por inspiración es subjetivo. Antes de construir, hay que entender cómo funcionan los sitios premium.',
-    system: 'Una herramienta interna que analiza sitios existentes y convierte lo observado en datos estructurados.',
-    howItWorks: 'Automatización de navegador, análisis visual con IA y reportes estructurados. Sin interfaz pública.',
-    whyItMatters: 'Prueba que Verk estudia antes de construir.',
-    capabilities: [{ label: 'Arquitectura de conocimiento' }],
-    layers: [
-      { layer: 'Automation', detail: 'Playwright' },
-      { layer: 'Analysis', detail: 'Gemini (análisis visual)' },
-      { layer: 'Output', detail: 'JSON, Markdown, capturas' },
+    key: 'platform',
+    label: '04 — Sistemas de Negocio a Nivel de Plataforma',
+    thesis:
+      'Múltiples servicios independientes — prospección, facturación, portales, generación — conectados en una sola plataforma comercial coherente.',
+    layout: 'diptych',
+    anchor: {
+      name: 'DocLink',
+      status: 'En Evolución' as const,
+      problem: 'Las clínicas tienen potencial de crecimiento digital que nadie identifica ni convierte en clientes.',
+      system: 'Un ecosistema que prospecta, califica y convierte clínicas en suscriptores, en una sola plataforma.',
+      howItWorks: 'Microservicios independientes de prospección, SEO, generación de sitios y portal, conectados por un motor de automatización.',
+      whyItMatters: 'Prueba que Verk conecta múltiples sistemas en una sola operación de negocio.',
+      capabilities: [{ label: 'Plataforma' }],
+      layers: [
+        { layer: 'Presentation', detail: 'Next.js, Astro' },
+        { layer: 'Logic', detail: 'FastAPI microservices' },
+        { layer: 'Automation', detail: 'Motor de automatización' },
+        { layer: 'Storage', detail: 'PostgreSQL, Supabase' },
+        { layer: 'Infrastructure', detail: 'Railway, Clerk, Paddle' },
+        { layer: 'AI', detail: 'Scoring y enriquecimiento' },
+      ],
+      logoSrc: '/project-logos/doclink/doclink-logo-dark.png',
+      url: 'https://b2b-prospector-zc4e-git-main-minecraftleon182-8293s-projects.vercel.app/',
+      variant: 'standard' as const,
+      size: 'lg' as const,
+      masked: true,
+    },
+    support: [
+      {
+        name: 'Los Fibos',
+        status: 'Operativo' as const,
+        problem: 'Una banda necesita una tienda real, no un enlace a Instagram para vender mercancía.',
+        system: 'Un sitio editorial con e-commerce integrado, construido para sentirse como un fotolibro, no como una plantilla de Shopify.',
+        howItWorks: 'Astro con Islands Architecture — componentes estáticos y las pocas islas de React donde hay interacción real. Pagos con Stripe, correo transaccional con Resend, base de datos PostgreSQL en Neon vía Drizzle.',
+        whyItMatters: 'Prueba que la capacidad de plataforma no fue un golpe de suerte — se repite con un stack distinto, para un cliente distinto.',
+        capabilities: [{ label: 'Plataforma' }],
+        layers: [
+          { layer: 'Presentation', detail: 'Astro, React Islands' },
+          { layer: 'Data', detail: 'PostgreSQL (Neon), Drizzle ORM' },
+          { layer: 'Commerce', detail: 'Stripe, checkout integrado' },
+          { layer: 'Infrastructure', detail: 'Netlify, GitHub CI/CD, funciones serverless' },
+        ],
+        logoSrc: '/project-logos/fibos/isonegro.png',
+        variant: 'standard' as const,
+        size: 'lg' as const,
+        masked: true,
+      },
     ],
-    variant: 'conceptual' as const,
-    size: 'md' as const,
   },
   {
-    rank: 5,
-    name: 'CleanSolarAus',
-    status: 'Operativo' as const,
-    problem: 'Publicar suficiente contenido para ganar autoridad en un tema no es sostenible a mano.',
-    system: 'Una operación de contenido programático que investiga, escribe, revisa y publica sola, todos los días.',
-    howItWorks: 'Un pipeline en Python con Claude como redactor y revisor, desplegado automáticamente por GitHub Actions.',
-    whyItMatters: 'Prueba que Verk construye infraestructura que sigue funcionando sin intervención.',
-    capabilities: [{ label: 'IA en producción', kind: 'ai' as const }],
-    layers: [
-      { layer: 'Research', detail: 'Agentes en Python, Search Console' },
-      { layer: 'Writing', detail: 'Claude Sonnet 4.5' },
-      { layer: 'Deployment', detail: 'GitHub Actions → Cloudflare Pages, diario' },
+    key: 'product',
+    label: '05 — Pensamiento de Producto a Largo Plazo',
+    thesis:
+      'Productos construidos como software de largo plazo: estado en tiempo real, permisos, sensación de juego, arquitectura de privacidad.',
+    layout: 'poster',
+    anchor: {
+      name: 'Riot',
+      status: 'En Evolución' as const,
+      problem: 'Las apps de eventos tratan cada evento como un anuncio, no como algo a lo que alguien te invita.',
+      system: 'Una plataforma social para descubrir y organizar eventos reales, construida alrededor de comunidades.',
+      howItWorks: 'Estado en tiempo real, invitaciones, control de acceso y boletos con validación por QR.',
+      whyItMatters: 'Prueba que Verk diseña productos de consumo con permisos y estado complejos.',
+      capabilities: [{ label: 'Producto a largo plazo' }],
+      layers: [
+        { layer: 'Presentation', detail: 'Flutter, feature-first' },
+        { layer: 'Realtime', detail: 'Firestore, Cloud Functions' },
+        { layer: 'Access Control', detail: 'Firebase Auth, Security Rules, QR' },
+      ],
+      logoSrc: '/project-logos/riot/riot-logo.png',
+      variant: 'standard' as const,
+      size: 'sm' as const,
+      masked: true,
+    },
+    support: [
+      {
+        name: 'Bufón',
+        status: 'En Evolución' as const,
+        problem: 'Un juego de fiesta no sobrevive por sus funciones. Sobrevive por cómo se siente jugarlo.',
+        system: 'Un juego social multijugador diseñado alrededor del ritmo emocional de una sesión en vivo.',
+        howItWorks: 'Salas en tiempo real, votación y una secuencia de revelado afinada con audio, vibración y tiempo.',
+        whyItMatters: 'Prueba que Verk diseña experiencia, no solo funcionalidad.',
+        capabilities: [{ label: 'Producto a largo plazo' }],
+        layers: [
+          { layer: 'Presentation', detail: 'Flutter, Riverpod' },
+          { layer: 'Realtime', detail: 'Firestore (salas, rondas, votación)' },
+          { layer: 'Experience', detail: 'Audio, haptics, revelado con tiempo' },
+        ],
+        logoSrc: '/project-logos/bufon/BUFON-LOGO.png',
+        variant: 'standard' as const,
+        size: 'sm' as const,
+      },
+      {
+        name: 'Bloom Undies',
+        status: 'Desarrollo Activo' as const,
+        problem: 'Las apps de salud femenina suelen optimizar el engagement, en una categoría que necesita privacidad.',
+        system: 'Una app de seguimiento de ciclo y salud hormonal, local y privada por diseño.',
+        howItWorks: 'Almacenamiento local cifrado, sin conexión requerida, con arquitectura lista para crecer hacia comunidad.',
+        whyItMatters: 'Prueba que la contención también es una capacidad de diseño en Verk.',
+        capabilities: [{ label: 'Producto a largo plazo' }],
+        layers: [
+          { layer: 'Presentation', detail: 'Flutter, Clean Architecture' },
+          { layer: 'Storage', detail: 'Hive (local, cifrado)' },
+          { layer: 'Roadmap', detail: 'Firebase + Gemini (planeado)' },
+        ],
+        logoSrc: '/project-logos/bloom%20undies/bloom%20undies%20logo%20simplificado%20con%20coral.png',
+        variant: 'standard' as const,
+        size: 'sm' as const,
+      },
     ],
-    logoSrc: '/project-logos/cleansolaraus/favicon.svg',
-    url: 'https://cleansolaraus.com/',
-    variant: 'standard' as const,
-    size: 'md' as const,
   },
   {
-    rank: 6,
-    name: 'Riot',
-    status: 'En Evolución' as const,
-    problem: 'Las apps de eventos tratan cada evento como un anuncio, no como algo a lo que alguien te invita.',
-    system: 'Una plataforma social para descubrir y organizar eventos reales, construida alrededor de comunidades.',
-    howItWorks: 'Estado en tiempo real, invitaciones, control de acceso y boletos con validación por QR.',
-    whyItMatters: 'Prueba que Verk diseña productos de consumo con permisos y estado complejos.',
-    capabilities: [{ label: 'Producto a largo plazo' }],
-    layers: [
-      { layer: 'Presentation', detail: 'Flutter, feature-first' },
-      { layer: 'Realtime', detail: 'Firestore, Cloud Functions' },
-      { layer: 'Access Control', detail: 'Firebase Auth, Security Rules, QR' },
-    ],
-    logoSrc: '/project-logos/riot/riot-logo.png',
-    variant: 'standard' as const,
-    size: 'md' as const,
-  },
-  {
-    rank: 7,
-    name: 'Bufón',
-    status: 'En Evolución' as const,
-    problem: 'Un juego de fiesta no sobrevive por sus funciones. Sobrevive por cómo se siente jugarlo.',
-    system: 'Un juego social multijugador diseñado alrededor del ritmo emocional de una sesión en vivo.',
-    howItWorks: 'Salas en tiempo real, votación y una secuencia de revelado afinada con audio, vibración y tiempo.',
-    whyItMatters: 'Prueba que Verk diseña experiencia, no solo funcionalidad.',
-    capabilities: [{ label: 'Producto a largo plazo' }],
-    layers: [
-      { layer: 'Presentation', detail: 'Flutter, Riverpod' },
-      { layer: 'Realtime', detail: 'Firestore (salas, rondas, votación)' },
-      { layer: 'Experience', detail: 'Audio, haptics, revelado con tiempo' },
-    ],
-    logoSrc: '/project-logos/bufon/BUFON-LOGO.png',
-    variant: 'standard' as const,
-    size: 'sm' as const,
-  },
-  {
-    rank: 8,
-    name: 'Bloom Undies',
-    status: 'Desarrollo Activo' as const,
-    problem: 'Las apps de salud femenina suelen optimizar el engagement, en una categoría que necesita privacidad.',
-    system: 'Una app de seguimiento de ciclo y salud hormonal, local y privada por diseño.',
-    howItWorks: 'Almacenamiento local cifrado, sin conexión requerida, con arquitectura lista para crecer hacia comunidad.',
-    whyItMatters: 'Prueba que la contención también es una capacidad de diseño en Verk.',
-    capabilities: [{ label: 'Producto a largo plazo' }],
-    layers: [
-      { layer: 'Presentation', detail: 'Flutter, Clean Architecture' },
-      { layer: 'Storage', detail: 'Hive (local, cifrado)' },
-      { layer: 'Roadmap', detail: 'Firebase + Gemini (planeado)' },
-    ],
-    logoSrc: '/project-logos/bloom%20undies/bloom%20undies%20logo%20simplificado%20con%20coral.png',
-    variant: 'standard' as const,
-    size: 'sm' as const,
-  },
-  {
-    rank: 9,
-    name: 'WATERLÜ',
-    status: 'Operativo' as const,
-    problem: 'Convencer a restaurantes de adoptar un sistema de filtración exige marca y conversión, para un negocio real.',
-    system: 'Un sitio de adquisición B2B con identidad de marca completa, refinado en varias iteraciones.',
-    howItWorks: 'Astro, animación con GSAP e integración de formularios, con entrega continua en Netlify.',
-    whyItMatters: 'Prueba que Verk también entrega con disciplina, bajo las restricciones de un cliente real.',
-    capabilities: [{ label: 'Ejecución real' }],
-    layers: [
-      { layer: 'Presentation', detail: 'Astro, Tailwind, GSAP' },
-      { layer: 'Interaction', detail: 'Netlify Forms, scroll storytelling' },
-      { layer: 'Infrastructure', detail: 'Netlify, GitHub (CI/CD)' },
-    ],
-    logoSrc: '/project-logos/waterlu/waterlu-logo-negro-rectangulo.png',
-    url: 'https://waterlu.com.mx/',
-    variant: 'standard' as const,
-    size: 'lg' as const,
-    closing: true,
+    key: 'craft',
+    label: '06 — Ejecución y Oficio del Cliente',
+    thesis:
+      'Traducir estrategia de marca en una interfaz de producción para un negocio real, bajo restricciones reales — incluida la disciplina de rediseñar por completo cuando la primera dirección no era la correcta.',
+    layout: 'feature-calm',
+    anchor: {
+      name: 'WATERLÜ',
+      status: 'Operativo' as const,
+      problem: 'Convencer a restaurantes de adoptar un sistema de filtración exige marca y conversión, para un negocio real.',
+      system: 'Un sitio de adquisición B2B con identidad de marca completa, refinado en varias iteraciones.',
+      howItWorks: 'Astro, animación con GSAP e integración de formularios, con entrega continua en Netlify.',
+      whyItMatters: 'Prueba que Verk también entrega con disciplina, bajo las restricciones de un cliente real.',
+      capabilities: [{ label: 'Ejecución real' }],
+      layers: [
+        { layer: 'Presentation', detail: 'Astro, Tailwind, GSAP' },
+        { layer: 'Interaction', detail: 'Netlify Forms, scroll storytelling' },
+        { layer: 'Infrastructure', detail: 'Netlify, GitHub (CI/CD)' },
+      ],
+      logoSrc: '/project-logos/waterlu/waterlu-logo-negro-rectangulo.png',
+      url: 'https://waterlu.com.mx/',
+      variant: 'standard' as const,
+      size: 'lg' as const,
+      masked: true,
+      closing: true,
+    },
+    support: [],
   },
 ];
 ---
 
-<section class="systems section section-light" id="proyectos" aria-label="Sistemas">
-
-  <!-- Isotipo — structural background mark, top-left (Services used top-right,
-       Method used bottom-right — varying the corner keeps repetition from
-       feeling mechanical across sections, per doc 11 Part 5). -->
-  <div class="systems-isotipo" aria-hidden="true">
-    <img
-      src="/images/isotipo.png"
-      alt=""
-      width="600"
-      height="600"
-      draggable="false"
-      decoding="async"
-    />
-  </div>
+<section class="systems section section-light" id="proyectos" aria-label="Sistemas" data-theme="light">
 
   <div class="container systems-container">
 
-    <header class="systems-header">
+    <header class="systems-header" data-reveal>
       <p class="text-label systems-lbl">Sistemas</p>
       <h2 class="systems-headline">
         <span class="systems-line">El problema cambia.</span>
         <span class="systems-line">El método no.</span>
       </h2>
       <p class="systems-intro">
-        Nueve problemas distintos: narración, prospección, taxonomía, automatización, percepción.
-        Ninguno se resolvió con una plantilla: cada uno empezó por entender cómo funciona, antes de construir nada.
+        Seis capacidades. Diez sistemas como evidencia. Cada capítulo demuestra una
+        forma distinta de resolver problemas — no un formato de proyecto distinto.
       </p>
     </header>
 
-    <ol class="systems-list" role="list">
-      {systems.map((s) => (
-        <li>
-          <SystemEntry {...s} />
-        </li>
+    <div class="chapters">
+      {chapters.map((chapter) => (
+        <div class:list={['chapter', `chapter--${chapter.layout}`]} data-reveal>
+          <header class="chapter-head">
+            <p class="chapter-num text-mono">{chapter.label}</p>
+            <p class="chapter-thesis">{chapter.thesis}</p>
+          </header>
+
+          <div class="chapter-body">
+            <SystemEntry {...chapter.anchor} />
+            {chapter.support.map((s) => (
+              <SystemEntry {...s} />
+            ))}
+          </div>
+
+          {chapter.quietNote && (
+            <p class="chapter-quiet-note text-mono">{chapter.quietNote}</p>
+          )}
+        </div>
       ))}
-    </ol>
+    </div>
 
   </div>
 </section>
@@ -250,24 +316,6 @@ const systems = [
     overflow: hidden;
   }
 
-  .systems-isotipo {
-    position: absolute;
-    top: -6%;
-    left: -8%;
-    width: clamp(260px, 32vw, 480px);
-    opacity: 0.05;
-    pointer-events: none;
-    user-select: none;
-    z-index: 0;
-  }
-
-  .systems-isotipo img {
-    display: block;
-    width: 100%;
-    height: auto;
-    mix-blend-mode: multiply;
-  }
-
   .systems-container {
     position: relative;
     z-index: 1;
@@ -275,7 +323,7 @@ const systems = [
 
   .systems-header {
     max-width: 640px;
-    margin-bottom: var(--space-16);
+    margin-bottom: var(--space-20);
   }
 
   .systems-lbl {
@@ -306,28 +354,149 @@ const systems = [
     max-width: 520px;
   }
 
-  .systems-list {
-    list-style: none;
+  /* ── Chapters ───────────────────────────────────────────────── */
+
+  .chapters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-32);
+  }
+
+  .chapter-head {
+    max-width: 720px;
+    margin-bottom: var(--space-10);
+  }
+
+  .chapter-num {
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    font-size: var(--text-2xs);
+    color: var(--color-grey-soft);
+    margin: 0 0 var(--space-4);
+  }
+
+  .chapter-thesis {
+    font-family: var(--font-display);
+    font-weight: var(--weight-medium);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-ink);
     margin: 0;
-    padding: 0;
   }
 
-  @media (max-width: 768px) {
-    .systems-isotipo {
-      width: 70vw;
-      left: -18%;
-      top: -2%;
-      opacity: 0.04;
-    }
-
-    .systems-intro {
-      max-width: 100%;
-    }
+  .chapter-body :global(.system-entry) {
+    border-top: 1px solid var(--color-border-medium);
   }
 
-  @media (max-width: 480px) {
-    .systems-isotipo {
-      display: none;
+  /* ── Chapter 01 — feature-dark: unchanged Sonoro treatment ───── */
+
+  .chapter--feature-dark .chapter-body :global(.system-entry) {
+    border-top: none;
+  }
+
+  /* ── Chapter 02 — feature-quiet: generous air, one whisper of detail ── */
+
+  .chapter--feature-quiet .chapter-body {
+    padding-block: var(--space-8);
+  }
+
+  .chapter-quiet-note {
+    margin-top: var(--space-6);
+    text-align: right;
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-grey-light);
+  }
+
+  /* ── Chapter 03 — diagram: anchor + a footnote-like callout ──── */
+
+  .chapter--diagram .chapter-body {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  .chapter--diagram .chapter-body :global(.system-entry:nth-child(2)) {
+    border-top: none;
+    border-left: 1px solid var(--color-border-medium);
+    padding-left: var(--space-8);
+    padding-top: 0;
+  }
+
+  /* ── Chapter 04 — diptych: two full peers, side by side ──────── */
+
+  .chapter--diptych .chapter-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+  }
+
+  .chapter--diptych .chapter-body :global(.system-entry:nth-child(2)) {
+    border-top: 1px solid var(--color-border-medium);
+    padding-left: var(--space-12);
+    border-left: 1px solid var(--color-border-medium);
+  }
+
+  /* ── Chapter 05 — poster: three compact entries, tighter rhythm ── */
+
+  .chapter--poster .chapter-body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-10);
+  }
+
+  .chapter--poster .chapter-body :global(.system-entry) {
+    padding-block: var(--space-6);
+  }
+
+  .chapter--poster .chapter-body :global(.system-entry:not(:first-child)) {
+    border-top: 1px solid var(--color-border-medium);
+    padding-left: var(--space-8);
+    border-left: 1px solid var(--color-border-medium);
+  }
+
+  /* ── Chapter 06 — feature-calm: the closing argument, at rest ─── */
+
+  .chapter--feature-calm .chapter-body {
+    background-color: var(--color-cream-warm);
+    border-radius: var(--radius-xl);
+    padding: var(--space-12);
+  }
+
+  .chapter--feature-calm .chapter-body :global(.system-entry) {
+    border-top: none;
+  }
+
+  /* ── Mobile — every chapter collapses to one column ──────────── */
+
+  @media (max-width: 900px) {
+    .chapters {
+      gap: var(--space-20);
+    }
+
+    .chapter--diagram .chapter-body,
+    .chapter--diptych .chapter-body,
+    .chapter--poster .chapter-body {
+      grid-template-columns: 1fr;
+    }
+
+    .chapter--diagram .chapter-body :global(.system-entry:nth-child(2)),
+    .chapter--diptych .chapter-body :global(.system-entry:nth-child(2)),
+    .chapter--poster .chapter-body :global(.system-entry:not(:first-child)) {
+      border-left: none;
+      padding-left: 0;
+      border-top: 1px solid var(--color-border-medium);
+      padding-top: var(--space-6);
+    }
+
+    .chapter--feature-calm .chapter-body {
+      padding: var(--space-8);
+    }
+
+    .chapter-thesis {
+      font-size: var(--text-lg);
     }
   }
 </style>

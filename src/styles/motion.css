@@ -238,6 +238,113 @@
   transform: scale(1.04);
 }
 
+/* ─── Custom Cursor — "El cursor que es el sistema" ─────────── */
+/*
+ * The one wow moment (docs/19). Idle: a small neutral dot — never lime,
+ * doc 11 Rule 2 forbids lime as decoration. On hover of an interactive
+ * element, the dot blooms into the isotipo. Neutral targets get
+ * mix-blend-mode: difference (reads on any background without knowing
+ * the theme); actionable targets get real lime; intelligence/AI targets
+ * get real violet — the same law that governs every other use of those
+ * two colors on the site.
+ */
+
+body.cursor-ready,
+body.cursor-ready a,
+body.cursor-ready button {
+  cursor: none;
+}
+
+.verk-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: var(--z-cursor);
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.verk-cursor-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: #8c8c8c;
+  mix-blend-mode: difference;
+  transition:
+    opacity   200ms var(--ease-out-expo),
+    transform 200ms var(--ease-out-expo);
+}
+
+.verk-cursor-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 26px;
+  /* reset.css sets `svg { max-width: 100% }`; this element's containing
+     block is .verk-cursor, which is intentionally width:0 (a pure
+     positioning anchor) — without this override, 100% of 0 collapses
+     the mark to zero width. This was the actual bug behind "the cursor
+     wow-moment renders active but invisible" caught in visual QA. */
+  max-width: none;
+  height: auto;
+  margin: -12px 0 0 -13px;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity   220ms var(--ease-out-expo),
+    transform 220ms var(--ease-spring);
+}
+
+.verk-cursor-shape {
+  fill: #ffffff;
+}
+
+.verk-cursor.is-active .verk-cursor-dot {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.verk-cursor.is-active .verk-cursor-mark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.verk-cursor.is-active .verk-cursor-shape {
+  mix-blend-mode: difference;
+}
+
+/* Action tone deliberately uses ink, not lime: every current action-tone
+   target (nav CTA, hero/footer buttons) already IS a lime button, so a
+   lime mark on a lime background would vanish. Ink echoes the button's
+   own text color instead — still a real, intentional color decision. */
+.verk-cursor[data-tone='action'].is-active .verk-cursor-shape {
+  mix-blend-mode: normal;
+  fill: var(--color-ink);
+}
+
+.verk-cursor[data-tone='intel'].is-active .verk-cursor-shape {
+  mix-blend-mode: normal;
+  fill: var(--color-violet);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verk-cursor {
+    display: none;
+  }
+
+  body.cursor-ready,
+  body.cursor-ready a,
+  body.cursor-ready button {
+    cursor: auto;
+  }
+}
+
 /* ─── Reduced Motion ────────────────────────────────────────── */
 /*
  * Rule (doc 11): Accessibility is non-negotiable.

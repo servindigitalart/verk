@@ -1,19 +1,17 @@
 ---
 /**
- * Footer.astro — Footer stub.
+ * Footer.astro — Phase 5, "Epílogo"
  *
- * Phase 1: Structure only. No final design.
- * Full footer implementation in Phase 5.
- *
- * Structure (doc 05):
- *   - Logo + tagline
- *   - Service links
- *   - Legal / secondary links
- *   - "Hecho con intención" signature
- *   - WhatsApp CTA (prominent)
- *
- * Language: Spanish primary (doc 06).
+ * Doc 11 Part 10 has an explicit rule this footer never actually followed:
+ * "el footer siempre abre con una oración declarativa. No 'contáctanos'."
+ * There was no headline at all until now — a gap against the brand's own
+ * lock, not a design decision. Fixed here, plus the one closing gesture:
+ * the isotipo as punctuation (docs/18 Part 4, row 5) — the single
+ * exception to "headlines never end in punctuation," because this is the
+ * one headline that is allowed to end the whole site.
  */
+
+import Isotipo from './Isotipo.astro';
 
 const year = new Date().getFullYear();
 
@@ -30,8 +28,13 @@ const secondaryLinks = [
 ];
 ---
 
-<footer class="footer section section-dark" role="contentinfo">
+<footer class="footer section section-dark" role="contentinfo" data-theme="dark">
   <div class="container">
+
+    <p class="footer-headline" data-reveal>
+      Seguimos construyendo<Isotipo tone="cream" class="footer-period" />
+    </p>
+
     <div class="footer-inner">
 
       <!-- Brand block -->
@@ -69,6 +72,7 @@ const secondaryLinks = [
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Contactar por WhatsApp"
+          data-cursor-tone="action"
         >
           Escribir por WhatsApp
         </a>
@@ -99,6 +103,31 @@ const secondaryLinks = [
     border-top: 1px solid var(--color-border-dark);
   }
 
+  /* ── Epilogue headline — the declarative sentence doc 11 always
+     required and never got, plus the isotipo as the site's one period ── */
+
+  .footer-headline {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: clamp(1.75rem, 1.2rem + 2.5vw, 3rem);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+    color: var(--color-cream);
+    margin: 0 0 var(--space-16);
+  }
+
+  /* :global() — sizes the <svg> rendered inside the <Isotipo> child;
+     Astro's scoping doesn't reach across that component boundary. */
+  :global(.footer-period) {
+    width: 0.42em;
+    height: auto;
+    flex-shrink: 0;
+    transform: translateY(0.08em);
+  }
+
   .footer-inner {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -109,7 +138,7 @@ const secondaryLinks = [
 
   .footer-wordmark {
     font-family: var(--font-display);
-    font-size: var(--text-xl);
+    font-size: clamp(1.75rem, 1.1rem + 2.5vw, 3.5rem);
     font-weight: var(--weight-bold);
     letter-spacing: var(--tracking-tight);
     color: var(--color-cream);

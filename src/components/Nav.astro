@@ -47,7 +47,7 @@ const navLinks = [
     </ul>
 
     <!-- Primary CTA -->
-    <a href="#contacto" class="nav-cta">
+    <a href="#contacto" class="nav-cta" data-cursor-tone="action">
       Auditoría
     </a>
 
@@ -109,13 +109,66 @@ const navLinks = [
     opacity: 0;
     transform: translateY(-10px);
     transition:
-      opacity  600ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+      opacity           600ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform         600ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color  600ms var(--ease-out-expo),
+      border-color       600ms var(--ease-out-expo),
+      backdrop-filter    600ms var(--ease-out-expo);
   }
 
   .nav-pill.is-visible {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* ── Live header — reacts to the chapter behind it ───────────
+   * Driven by [data-scroll-theme] on <html>, written by
+   * src/scripts/nav-theme.ts (Phase 5, docs/18 Part 3). Paused during
+   * the Hero's own entrance so the nav never reacts mid-appearance.
+   * One shared duration/easing across background/border/blur — doc 18
+   * is explicit that desynced timings are what makes a theme switch
+   * feel like a hack instead of something organic.
+   */
+
+  :global(html[data-scroll-theme='dark']) .nav-pill {
+    background-color: rgba(240, 238, 233, 0.88);
+    border-color: rgba(15, 15, 15, 0.10);
+  }
+
+  :global(html[data-scroll-theme='dark']) .nav-wordmark {
+    color: var(--color-ink);
+  }
+
+  :global(html[data-scroll-theme='dark']) .nav-divider {
+    background-color: rgba(15, 15, 15, 0.14);
+  }
+
+  :global(html[data-scroll-theme='dark']) .nav-link {
+    color: rgba(15, 15, 15, 0.55);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    :global(html[data-scroll-theme='dark']) .nav-link:hover {
+      color: var(--color-ink);
+      background-color: rgba(15, 15, 15, 0.08);
+    }
+  }
+
+  /* Feature state — the CTA chapter only. The nav acknowledges it's the
+     decision moment: deeper glass, a lime-tinted edge instead of neutral. */
+  :global(html[data-scroll-theme='feature']) .nav-pill {
+    background-color: rgba(8, 8, 8, 0.75);
+    border-color: rgba(191, 234, 0, 0.22);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  :global(html[data-scroll-theme='feature']) .nav-wordmark {
+    color: var(--color-cream);
+  }
+
+  :global(html[data-scroll-theme='feature']) .nav-link {
+    color: rgba(240, 238, 233, 0.55);
   }
 
   /* ── Wordmark ─────────────────────────────────────────────── */

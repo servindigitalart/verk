@@ -15,6 +15,10 @@
  * Reading order: left to right on desktop (a request moving through the system),
  * top to bottom on mobile. Connector glyph swaps between "→" and "↓" via CSS only —
  * no JS, no duplicate markup beyond the two glyph spans.
+ *
+ * Phase 5 (docs/18 Part 7.4): `detail` is tokenized into individual pills
+ * (reusing the existing .pill/.pill-default system, no new component) instead
+ * of one plain-text sentence — "pills, agrupaciones, tecnologías, capas."
  */
 
 interface Layer {
@@ -35,7 +39,11 @@ const { layers, tone = 'light' } = Astro.props;
     <Fragment>
       <div class="arch-cell" role="listitem">
         <div class="arch-layer text-mono">{item.layer}</div>
-        <div class="arch-detail">{item.detail}</div>
+        <div class="arch-detail">
+          {item.detail.split(',').map((tech) => (
+            <span class="pill pill-default arch-pill">{tech.trim()}</span>
+          ))}
+        </div>
       </div>
       {i < layers.length - 1 && (
         <span class="arch-connector" aria-hidden="true">
@@ -74,10 +82,14 @@ const { layers, tone = 'light' } = Astro.props;
   }
 
   .arch-detail {
-    font-family: var(--font-body);
-    font-size: var(--text-xs);
-    line-height: var(--leading-normal);
-    color: var(--color-grey-mid);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .arch-pill {
+    font-size: var(--text-2xs);
+    padding: 2px var(--space-2);
   }
 
   .arch-connector {
@@ -98,7 +110,8 @@ const { layers, tone = 'light' } = Astro.props;
     color: var(--color-grey-dim-dark);
   }
 
-  .arch-dark .arch-detail {
+  .arch-dark .arch-pill {
+    background-color: rgba(240, 238, 233, 0.08);
     color: var(--color-grey-mid-dark);
   }
 
