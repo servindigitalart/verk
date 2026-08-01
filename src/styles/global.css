@@ -60,7 +60,7 @@
   /* Tonal variations of cream/ink (Phase 5, docs/18 Part 2) — same two
      colors, different amount of light. Never a new hue: lime and violet
      never gain variants, only cream and ink breathe between chapters. */
-  --color-cream-warm:   #EBE8E1; /* Servicios — second light chapter, reads as related but not identical to Hero */
+  --color-cream-warm:   #E6E1D5; /* Servicios — second light chapter; deepened in Phase 5 iteration so the shift actually registers instead of reading as identical to the Hero's cream */
   --color-ink-deep:      #080808; /* CTA only — the single darkest point on the site */
 
   /* Grey scale — information hierarchy */

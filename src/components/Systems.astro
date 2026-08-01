@@ -1,25 +1,23 @@
 ---
 /**
- * Systems.astro — Phase 5
+ * Systems.astro — Phase 5.1
  *
- * The heart of the site (brief: "quiero convertir esta sección en el
- * corazón del sitio"). Retired the flat nine-row ranked list. The visible
- * structure is now doc 16 Part 1's six capabilities, expanded — not
- * replaced — into six editorial chapters (docs/18 Part 7). Every system
- * still lives in exactly the capability doc 16 already assigned it as
- * primary or secondary evidence; nothing was reclassified.
+ * Iteration note: Phase 5 gave each of the six capability chapters a
+ * genuinely different grid (dark feature, quiet feature, 2-col diagram,
+ * diptych, 3-up poster, calm cream-warm feature). Reviewed on the live
+ * site, that read exactly as the brief described: "los proyectos parecen
+ * pertenecer a sistemas de diseño diferentes." Variety between chapters
+ * was the wrong lever — uniformity is.
  *
- * Each chapter deliberately uses a different composition (brief: "no
- * tengas miedo de romper el layout entre categorías") — a dark full-force
- * feature, a quiet spacious one, a two-column diagram, a diptych, a
- * compact three-up poster, and a calm closing feature. Six different
- * grids, one visual language (same tokens, same type system, same
- * ArchitectureStrip/disclosure mechanics throughout).
- *
- * The isotipo appears here as a mask (docs/18 Part 4, row 3) — every
- * chapter anchor's preview is clipped to the parallelogram silhouette
- * (ProjectPreview `masked`) instead of the standard hairline frame. One
- * technique, six quiet instances, never the flat watermark.
+ * What changed: every chapter now shares one identical composition — a
+ * single column, one type scale (large for the anchor, compact for
+ * support entries), one spacing rhythm. The only structural exception is
+ * Sonoro's dark-inset "featured" treatment, which isn't a layout choice —
+ * doc 16 Part 2 gives it that emphasis specifically because it's the
+ * single deepest piece of evidence and opens the whole section; every
+ * other chapter, anchor or support, uses the exact same neutral row.
+ * The six capabilities (doc 16 Part 1) are unchanged — nothing was
+ * reclassified, only the container got simpler.
  */
 
 import SystemEntry from './SystemEntry.astro';
@@ -30,7 +28,6 @@ const chapters = [
     label: '01 — Ingeniería de Sistemas Distribuidos',
     thesis:
       'Colas, workers, reintentos, procesamiento asíncrono: la recuperación de fallas tratada como la condición operativa por defecto, no como una excepción.',
-    layout: 'feature-dark',
     anchor: {
       name: 'Sonoro',
       status: 'Operativo' as const,
@@ -60,14 +57,12 @@ const chapters = [
     label: '02 — IA en Producción',
     thesis:
       'IA como componente de producción que tiene que funcionar correctamente todos los días — no una función de demostración.',
-    layout: 'feature-quiet',
-    quietNote: 'Se publica sola. Todos los días. A las 06:00.',
     anchor: {
       name: 'CleanSolarAus',
       status: 'Operativo' as const,
       problem: 'Publicar suficiente contenido para ganar autoridad en un tema no es sostenible a mano.',
       system: 'Una operación de contenido programático que investiga, escribe, revisa y publica sola, todos los días.',
-      howItWorks: 'Un pipeline en Python con Claude como redactor y revisor, desplegado automáticamente por GitHub Actions.',
+      howItWorks: 'Un pipeline en Python con Claude como redactor y revisor, desplegado automáticamente por GitHub Actions. Se publica sola, todos los días, a las 06:00.',
       whyItMatters: 'Prueba que Verk construye infraestructura que sigue funcionando sin intervención.',
       capabilities: [{ label: 'IA en producción', kind: 'ai' as const }],
       layers: [
@@ -88,7 +83,6 @@ const chapters = [
     label: '03 — Arquitectura de Conocimiento Original',
     thesis:
       'Inventar una taxonomía o una forma estructurada de entender un dominio, en vez de adoptar una que ya existe.',
-    layout: 'diagram',
     anchor: {
       name: 'PRISMA',
       status: 'En Evolución' as const,
@@ -123,8 +117,8 @@ const chapters = [
           { layer: 'Analysis', detail: 'Gemini (análisis visual)' },
           { layer: 'Output', detail: 'JSON, Markdown, capturas' },
         ],
-        variant: 'conceptual' as const,
-        size: 'sm' as const,
+        variant: 'standard' as const,
+        size: 'md' as const,
       },
     ],
   },
@@ -133,7 +127,6 @@ const chapters = [
     label: '04 — Sistemas de Negocio a Nivel de Plataforma',
     thesis:
       'Múltiples servicios independientes — prospección, facturación, portales, generación — conectados en una sola plataforma comercial coherente.',
-    layout: 'diptych',
     anchor: {
       name: 'DocLink',
       status: 'En Evolución' as const,
@@ -172,9 +165,9 @@ const chapters = [
           { layer: 'Infrastructure', detail: 'Netlify, GitHub CI/CD, funciones serverless' },
         ],
         logoSrc: '/project-logos/fibos/isonegro.png',
+        url: 'https://losfibos.com/',
         variant: 'standard' as const,
-        size: 'lg' as const,
-        masked: true,
+        size: 'md' as const,
       },
     ],
   },
@@ -183,7 +176,6 @@ const chapters = [
     label: '05 — Pensamiento de Producto a Largo Plazo',
     thesis:
       'Productos construidos como software de largo plazo: estado en tiempo real, permisos, sensación de juego, arquitectura de privacidad.',
-    layout: 'poster',
     anchor: {
       name: 'Riot',
       status: 'En Evolución' as const,
@@ -199,7 +191,7 @@ const chapters = [
       ],
       logoSrc: '/project-logos/riot/riot-logo.png',
       variant: 'standard' as const,
-      size: 'sm' as const,
+      size: 'lg' as const,
       masked: true,
     },
     support: [
@@ -218,7 +210,7 @@ const chapters = [
         ],
         logoSrc: '/project-logos/bufon/BUFON-LOGO.png',
         variant: 'standard' as const,
-        size: 'sm' as const,
+        size: 'md' as const,
       },
       {
         name: 'Bloom Undies',
@@ -235,7 +227,7 @@ const chapters = [
         ],
         logoSrc: '/project-logos/bloom%20undies/bloom%20undies%20logo%20simplificado%20con%20coral.png',
         variant: 'standard' as const,
-        size: 'sm' as const,
+        size: 'md' as const,
       },
     ],
   },
@@ -244,7 +236,6 @@ const chapters = [
     label: '06 — Ejecución y Oficio del Cliente',
     thesis:
       'Traducir estrategia de marca en una interfaz de producción para un negocio real, bajo restricciones reales — incluida la disciplina de rediseñar por completo cuando la primera dirección no era la correcta.',
-    layout: 'feature-calm',
     anchor: {
       name: 'WATERLÜ',
       status: 'Operativo' as const,
@@ -286,9 +277,13 @@ const chapters = [
       </p>
     </header>
 
+    <!-- One consistent composition for all six chapters: a single column,
+         the same spacing rhythm, the same two type-scale roles (anchor,
+         support). The only exception is Sonoro's dark-featured treatment,
+         which is a narrative emphasis (doc 16 Part 2), not a layout choice. -->
     <div class="chapters">
       {chapters.map((chapter) => (
-        <div class:list={['chapter', `chapter--${chapter.layout}`]} data-reveal>
+        <div class="chapter" data-reveal>
           <header class="chapter-head">
             <p class="chapter-num text-mono">{chapter.label}</p>
             <p class="chapter-thesis">{chapter.thesis}</p>
@@ -300,10 +295,6 @@ const chapters = [
               <SystemEntry {...s} />
             ))}
           </div>
-
-          {chapter.quietNote && (
-            <p class="chapter-quiet-note text-mono">{chapter.quietNote}</p>
-          )}
         </div>
       ))}
     </div>
@@ -354,17 +345,17 @@ const chapters = [
     max-width: 520px;
   }
 
-  /* ── Chapters ───────────────────────────────────────────────── */
+  /* ── Chapters — one consistent rhythm, repeated six times ────── */
 
   .chapters {
     display: flex;
     flex-direction: column;
-    gap: var(--space-32);
+    gap: var(--space-24);
   }
 
   .chapter-head {
     max-width: 720px;
-    margin-bottom: var(--space-10);
+    margin-bottom: var(--space-8);
   }
 
   .chapter-num {
@@ -385,114 +376,26 @@ const chapters = [
     margin: 0;
   }
 
+  .chapter-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Every entry, in every chapter, gets the same hairline rule — the
+     one uniform separator, regardless of anchor/support or chapter. */
   .chapter-body :global(.system-entry) {
     border-top: 1px solid var(--color-border-medium);
   }
 
-  /* ── Chapter 01 — feature-dark: unchanged Sonoro treatment ───── */
-
-  .chapter--feature-dark .chapter-body :global(.system-entry) {
+  /* Sonoro's dark-featured row supplies its own boundary (rounded, inset)
+     — a plain top hairline would fight it, not frame it. */
+  .chapter-body :global(.entry-featured) {
     border-top: none;
   }
-
-  /* ── Chapter 02 — feature-quiet: generous air, one whisper of detail ── */
-
-  .chapter--feature-quiet .chapter-body {
-    padding-block: var(--space-8);
-  }
-
-  .chapter-quiet-note {
-    margin-top: var(--space-6);
-    text-align: right;
-    font-size: var(--text-2xs);
-    letter-spacing: var(--tracking-wide);
-    color: var(--color-grey-light);
-  }
-
-  /* ── Chapter 03 — diagram: anchor + a footnote-like callout ──── */
-
-  .chapter--diagram .chapter-body {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: var(--space-12);
-    align-items: start;
-  }
-
-  .chapter--diagram .chapter-body :global(.system-entry:nth-child(2)) {
-    border-top: none;
-    border-left: 1px solid var(--color-border-medium);
-    padding-left: var(--space-8);
-    padding-top: 0;
-  }
-
-  /* ── Chapter 04 — diptych: two full peers, side by side ──────── */
-
-  .chapter--diptych .chapter-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-12);
-  }
-
-  .chapter--diptych .chapter-body :global(.system-entry:nth-child(2)) {
-    border-top: 1px solid var(--color-border-medium);
-    padding-left: var(--space-12);
-    border-left: 1px solid var(--color-border-medium);
-  }
-
-  /* ── Chapter 05 — poster: three compact entries, tighter rhythm ── */
-
-  .chapter--poster .chapter-body {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-10);
-  }
-
-  .chapter--poster .chapter-body :global(.system-entry) {
-    padding-block: var(--space-6);
-  }
-
-  .chapter--poster .chapter-body :global(.system-entry:not(:first-child)) {
-    border-top: 1px solid var(--color-border-medium);
-    padding-left: var(--space-8);
-    border-left: 1px solid var(--color-border-medium);
-  }
-
-  /* ── Chapter 06 — feature-calm: the closing argument, at rest ─── */
-
-  .chapter--feature-calm .chapter-body {
-    background-color: var(--color-cream-warm);
-    border-radius: var(--radius-xl);
-    padding: var(--space-12);
-  }
-
-  .chapter--feature-calm .chapter-body :global(.system-entry) {
-    border-top: none;
-  }
-
-  /* ── Mobile — every chapter collapses to one column ──────────── */
 
   @media (max-width: 900px) {
     .chapters {
-      gap: var(--space-20);
-    }
-
-    .chapter--diagram .chapter-body,
-    .chapter--diptych .chapter-body,
-    .chapter--poster .chapter-body {
-      grid-template-columns: 1fr;
-    }
-
-    .chapter--diagram .chapter-body :global(.system-entry:nth-child(2)),
-    .chapter--diptych .chapter-body :global(.system-entry:nth-child(2)),
-    .chapter--poster .chapter-body :global(.system-entry:not(:first-child)) {
-      border-left: none;
-      padding-left: 0;
-      border-top: 1px solid var(--color-border-medium);
-      padding-top: var(--space-6);
-    }
-
-    .chapter--feature-calm .chapter-body {
-      padding: var(--space-8);
+      gap: var(--space-16);
     }
 
     .chapter-thesis {

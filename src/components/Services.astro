@@ -1,47 +1,62 @@
 ---
 /**
- * Services.astro — Phase 5
+ * Services.astro — Phase 5.1
  *
- * Retired the four-row grid (docs/18 Part 6: "no quiero cuatro filas, quiero
- * un sistema"). Replaced with an editorial índice — the typographic device
- * of a printed table of contents (name — leader dots — the next name) —
- * followed by one continuous column, each discipline reduced to a small
- * running-head marginalia instead of a repeated bold title. The visual
- * weight of "the name" lives once, in the index; the body reads as a
- * single article, not four cards.
+ * Iteration note: the índice + continuous-column device (Phase 5) didn't
+ * land either — reviewed on the live site, the IA entry's dark inset still
+ * read as "the one row that's different," which was the exact complaint
+ * about the original four-row grid it replaced. The real problem was never
+ * the container (rows vs. column vs. index) — it was that IA was the only
+ * discipline with a distinct *material*. Fixed by removing the material
+ * difference entirely: all four disciplines now share one identical
+ * treatment (a Geist Mono numeral — the same device Método uses for its
+ * steps, creating an intentional echo between sections — plus a large
+ * display name, plus a disclosure for the body). IA is differentiated by
+ * exactly one thing: its numeral is violet instead of ink. That is the
+ * full extent of the difference, which is what doc 11's color law actually
+ * asks for (violet marks intelligence; it doesn't require a different
+ * surface to do it).
  *
- * Surface: --color-cream-warm (docs/18 Part 2) — the second light chapter,
- * related to the Hero's cream but not identical to it.
+ * Composition: a staggered cascade (increasing left offset per entry) —
+ * an editorial/poster rhythm, not a table, not cards, not a dashboard.
  *
- * IA keeps its dark inset + violet pill (doc 11 law: violet = intelligence
- * only) — now an interruption inside a running column, not a fourth
- * identical row with a different fill.
+ * Surface: --color-cream-warm, unchanged from Phase 5.
  */
 
 const disciplines = [
   {
     id: 'svc-sitios',
+    num: '01',
     name: 'Sitios Web',
     body: 'Tu sitio web no es una vitrina. Es el primer paso de un sistema que convierte visitas en conversaciones reales.',
   },
   {
     id: 'svc-auto',
+    num: '02',
     name: 'Automatizaciones',
     body: 'Cada tarea que se repite puede automatizarse. Construimos los flujos que ejecutan seguimientos, confirmaciones y recordatorios sin intervención.',
   },
   {
     id: 'svc-crm',
+    num: '03',
     name: 'Integraciones CRM',
     body: 'Cuando tus herramientas no hablan entre sí, los clientes potenciales se pierden. Conectamos CRM, WhatsApp, formularios y calendario para que nada quede sin respuesta.',
+  },
+  {
+    id: 'svc-ia',
+    num: '04',
+    name: 'Herramientas con IA',
+    body: 'Las herramientas de IA genéricas no conocen tu negocio. Construimos las tuyas: entrenadas en tu operación, útiles desde el primer día.',
+    isIA: true,
   },
 ];
 ---
 
-<section class="services section section-light" id="servicios" aria-label="Servicios" data-theme="light">
+<section class="services section section-light" id="servicios" aria-label="Servicios" data-theme="warm">
 
   <div class="container services-container">
 
-    <header class="services-header">
+    <header class="services-header" data-reveal>
       <p class="text-label services-lbl">Servicios</p>
       <h2 class="services-headline">
         <span class="services-line">Cuatro disciplinas.</span>
@@ -52,36 +67,32 @@ const disciplines = [
       </p>
     </header>
 
-    <!-- Índice — the table-of-contents gesture. Leader dots fill the gap
-         between names the way a printed index fills the gap before a
-         page number — except there is no page number, only air. -->
-    <nav class="services-index" aria-label="Índice de disciplinas">
-      {disciplines.map((d) => (
-        <>
-          <a href={`#${d.id}`} class="index-item">{d.name}</a>
-          <span class="index-dots" aria-hidden="true"></span>
-        </>
+    <!-- Staggered cascade — one shared treatment for all four; IA differs
+         only by the color of its numeral, nothing structural. -->
+    <div class="disciplines">
+      {disciplines.map((d, i) => (
+        <div
+          class:list={['discipline', `discipline-${i + 1}`]}
+          data-reveal
+          data-reveal-delay={i * 100}
+        >
+          <span
+            class:list={['discipline-num', 'text-mono', d.isIA && 'discipline-num--ia']}
+            aria-hidden="true"
+          >
+            {d.num}
+          </span>
+          <details class="discipline-detail" id={d.id}>
+            <summary
+              class:list={['discipline-name', d.isIA && 'discipline-name--ia']}
+              data-cursor-tone={d.isIA ? 'intel' : 'default'}
+            >
+              {d.name}
+            </summary>
+            <p class="discipline-body">{d.body}</p>
+          </details>
+        </div>
       ))}
-      <a href="#svc-ia" class="index-item index-item--ia" data-cursor-tone="intel">Herramientas IA</a>
-    </nav>
-
-    <!-- One continuous editorial column — not four boxed rows -->
-    <div class="services-column">
-      {disciplines.map((d) => (
-        <article class="service-entry" id={d.id}>
-          <p class="service-runninghead text-mono">{d.name}</p>
-          <p class="service-body">{d.body}</p>
-        </article>
-      ))}
-
-      <!-- IA — the interruption. Same column, different material. -->
-      <article class="service-entry service-entry--ia" id="svc-ia">
-        <span class="pill pill-violet ia-pill" aria-label="Inteligencia artificial">Inteligencia</span>
-        <p class="service-runninghead text-mono service-runninghead--ia">Herramientas con IA</p>
-        <p class="service-body service-body--ia">
-          Las herramientas de IA genéricas no conocen tu negocio. Construimos las tuyas: entrenadas en tu operación, útiles desde el primer día.
-        </p>
-      </article>
     </div>
 
   </div>
@@ -104,7 +115,7 @@ const disciplines = [
 
   .services-header {
     max-width: 600px;
-    margin-bottom: var(--space-12);
+    margin-bottom: var(--space-20);
   }
 
   .services-lbl {
@@ -135,135 +146,119 @@ const disciplines = [
     max-width: 480px;
   }
 
-  /* ── Índice — the table-of-contents gesture ──────────────────── */
+  /* ── The cascade ────────────────────────────────────────────── */
+  /*
+   * Each entry steps further right and slightly further down than the
+   * last — a poster/title-sequence rhythm. Values are deliberate, not
+   * arbitrary: the offset increases monotonically so the eye reads the
+   * four in order without needing a connecting line or number-of-four
+   * label anywhere.
+   */
 
-  .services-index {
+  .disciplines {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--space-2) var(--space-3);
-    padding-block: var(--space-10);
-    margin-bottom: var(--space-4);
-    border-top: 1px solid var(--color-border-medium);
-    border-bottom: 1px solid var(--color-border-medium);
+    flex-direction: column;
+    gap: var(--space-2);
   }
 
-  .index-item {
+  .discipline {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-5);
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--color-border-medium);
+  }
+
+  .discipline-1 { padding-left: 0; }
+  .discipline-2 { padding-left: 6%; }
+  .discipline-3 { padding-left: 13%; }
+  .discipline-4 { padding-left: 4%; border-bottom: 1px solid var(--color-border-medium); }
+
+  .discipline-num {
+    flex-shrink: 0;
+    font-size: clamp(1.25rem, 0.9rem + 1.5vw, 2rem);
+    font-weight: var(--weight-medium);
+    color: var(--color-grey-light);
+    line-height: 1;
+  }
+
+  .discipline-num--ia {
+    color: var(--color-violet);
+  }
+
+  .discipline-detail {
+    min-width: 0;
+  }
+
+  .discipline-name {
+    display: block;
     font-family: var(--font-display);
     font-weight: var(--weight-bold);
-    font-size: clamp(1.25rem, 0.95rem + 1.4vw, 2rem);
+    font-size: clamp(1.75rem, 1.1rem + 3vw, 3.5rem);
     letter-spacing: var(--tracking-snug);
+    line-height: 1.1;
     color: var(--color-ink);
-    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
     transition: color var(--duration-fast) var(--ease-out-expo);
   }
 
-  .index-item--ia {
+  .discipline-name::-webkit-details-marker {
+    display: none;
+  }
+
+  .discipline-name::after {
+    content: '+';
+    display: inline-block;
+    margin-left: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.4em;
+    vertical-align: middle;
+    color: var(--color-grey-soft);
+    transition: transform var(--duration-normal) var(--ease-out-expo);
+  }
+
+  details[open] .discipline-name::after {
+    transform: rotate(135deg);
+  }
+
+  .discipline-name--ia::after {
     color: var(--color-violet);
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .index-item:hover {
+    .discipline-name:hover {
       color: var(--color-grey-mid);
     }
-
-    .index-item--ia:hover {
-      color: var(--color-ink);
-    }
   }
 
-  /* The leader — a responsive dotted rule filling whatever space is left,
-     exactly the way a printed index leads a title to its page number. */
-  .index-dots {
-    flex: 1 1 32px;
-    min-width: 20px;
-    height: 0;
-    align-self: center;
-    border-bottom: 2px dotted var(--color-border-medium);
-  }
-
-  /* ── Continuous column ────────────────────────────────────────── */
-
-  .services-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .service-entry {
-    display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: var(--space-8);
-    padding-block: var(--space-8);
-    border-top: 1px solid var(--color-border-light);
-    align-items: baseline;
-  }
-
-  .service-entry:first-child {
-    border-top: none;
-  }
-
-  .service-runninghead {
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wider);
-    font-size: var(--text-2xs);
-    color: var(--color-grey-soft);
-    margin: 0;
-  }
-
-  .service-body {
+  .discipline-body {
     font-family: var(--font-body);
     font-size: var(--text-base);
     line-height: var(--leading-relaxed);
     color: var(--color-grey-mid);
-    margin: 0;
     max-width: 58ch;
-  }
-
-  /* ── IA entry — dark inset, the column's one interruption ────── */
-
-  .service-entry--ia {
-    background-color: var(--color-surface-dark);
-    border-top: none;
-    border-radius: var(--radius-lg);
-    grid-template-columns: 160px 1fr;
-    margin-top: var(--space-4);
-    padding: var(--space-8);
-  }
-
-  .service-entry--ia .ia-pill {
-    grid-column: 1 / -1;
-    justify-self: start;
-    margin-bottom: var(--space-1);
-  }
-
-  .service-runninghead--ia {
-    color: var(--color-grey-dim-dark);
-  }
-
-  .service-body--ia {
-    color: var(--color-grey-mid-dark);
+    margin: var(--space-4) 0 0;
   }
 
   /* ── Mobile — 768px and below ─────────────────────────────────── */
 
   @media (max-width: 768px) {
-    .services-index {
-      padding-block: var(--space-6);
+    .discipline-1,
+    .discipline-2,
+    .discipline-3,
+    .discipline-4 {
+      padding-left: 0;
     }
 
-    .service-entry,
-    .service-entry--ia {
-      grid-template-columns: 1fr;
+    .discipline {
       gap: var(--space-3);
-      padding-block: var(--space-6);
+      padding-block: var(--space-5);
     }
 
-    .service-entry--ia {
-      padding: var(--space-6);
-    }
-
-    .service-entry--ia .ia-pill {
-      grid-column: auto;
+    .discipline-num {
+      font-size: 1.125rem;
     }
 
     .services-intro {

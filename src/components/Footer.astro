@@ -104,14 +104,19 @@ const secondaryLinks = [
   }
 
   /* ── Epilogue headline — the declarative sentence doc 11 always
-     required and never got, plus the isotipo as the site's one period ── */
+     required and never got, plus the isotipo as the site's one period ──
+   * Iteration note: "más presencia, sin agrandarlo" — the lever here is
+   * purely typographic weight/contrast, not scale: --weight-black instead
+   * of bold, tighter tracking, and the isotipo period sized up slightly
+   * relative to the text so it reads as a real mark, not an afterthought.
+   */
 
   .footer-headline {
     display: flex;
     align-items: baseline;
     gap: var(--space-3);
     font-family: var(--font-display);
-    font-weight: var(--weight-bold);
+    font-weight: var(--weight-black);
     font-size: clamp(1.75rem, 1.2rem + 2.5vw, 3rem);
     letter-spacing: var(--tracking-tight);
     line-height: var(--leading-tight);
@@ -122,10 +127,10 @@ const secondaryLinks = [
   /* :global() — sizes the <svg> rendered inside the <Isotipo> child;
      Astro's scoping doesn't reach across that component boundary. */
   :global(.footer-period) {
-    width: 0.42em;
+    width: 0.52em;
     height: auto;
     flex-shrink: 0;
-    transform: translateY(0.08em);
+    transform: translateY(0.1em);
   }
 
   .footer-inner {
@@ -139,7 +144,7 @@ const secondaryLinks = [
   .footer-wordmark {
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 1.1rem + 2.5vw, 3.5rem);
-    font-weight: var(--weight-bold);
+    font-weight: var(--weight-black);
     letter-spacing: var(--tracking-tight);
     color: var(--color-cream);
     line-height: 1;
@@ -149,6 +154,7 @@ const secondaryLinks = [
 
   .footer-tagline {
     color: var(--color-grey-mid-dark);
+    font-weight: var(--weight-medium);
   }
 
   .footer-nav-label {

@@ -1,42 +1,47 @@
 ---
 /**
- * Hero.astro — Concept 4: "La Primera Decisión" + Phase 5 visual component
- * doc 11 is highest authority for copy/hierarchy. Phase 5 (docs/18, docs/19)
- * replaces the isotipo-watermark with a different question entirely: not
- * "how do I draw the mark" but "what should someone feel in the first five
- * seconds." The answer here is restraint that resolves — nothing happens
- * in the negative space until the reading is done, and then exactly one
- * quiet, permanent mark appears: a single hairline with two angled ticks
- * at its ends (the isotipo's own diagonal, quoted, not drawn) — evidence
- * that even the empty space was measured, not left over.
+ * Hero.astro — Concept 4: "La Primera Decisión" + Phase 5.1 visual component
+ * doc 11 is highest authority for copy/hierarchy — unchanged.
+ *
+ * Iteration note: the Phase 5 hairline-and-ticks device (a near-invisible
+ * 1px line standing in for the isotipo) was reviewed on the live site and
+ * didn't land — it read as an accidental stray element, not a considered
+ * one, which is the same failure mode as the watermark it replaced, just
+ * quieter. Retired.
+ *
+ * What replaces it: the isotipo itself, solid ink, fully opaque, at real
+ * scale — a compositional object beside the headline, not a background.
+ * It arrives as the last event of the sequence: the two shapes travel
+ * into their final position along their locked trajectory (doc 11 Part 4
+ * — upper shape moves up-and-right, lower shape moves down-and-right,
+ * neither rotates) and settle with a spring overshoot, the same
+ * "arrival" quality as Método's step-04 assembly, but here it's the
+ * Hero's own signature, not a borrowed technique.
  *
  * Copy source: doc 12, Part 9 (Final Hero Copy Lock) — unchanged.
  *
- * Motion — compressed per docs/18 Part 4.2 (microcopy now lands at 5.4s,
- * not 6.5s) — still reading speed, not animation speed:
+ * Motion — compressed per docs/18 Part 4.2 (microcopy lands at 5.4s):
  *   Label    → delay 0.3s,  duration 0.4s
  *   Line 1   → delay 1.0s,  duration 0.55s
  *   Line 2   → delay 2.3s,  duration 0.55s
  *   Sub      → delay 3.6s,  duration 0.55s
  *   Actions  → delay 4.7s,  duration 0.50s
  *   Microcopy→ delay 5.4s,  duration 0.40s
- *   Mark     → delay 5.6s,  duration 0.9s  (the last event — arrives after
- *                                           everything else has landed)
+ *   Mark     → delay 5.6s,  duration 0.9s  (the last event)
  */
+
+import Isotipo from './Isotipo.astro';
 ---
 
 <section class="hero" aria-label="Inicio" id="inicio" data-theme="light">
 
   <!--
-    The hairline mark — the only thing that lives in the negative space
-    now. Static once drawn: doc 18 Part 5, "el cruce" was retired in favor
-    of something quieter. Two ticks quote the isotipo's angle without
-    being the isotipo — a measurement, not a logo placement.
+    The isotipo — solid, opaque, a real object in the composition.
+    Arrives last, once the reading is done, and stays exactly where it
+    lands. No opacity trick, no background role.
   -->
   <div class="hero-mark" aria-hidden="true">
-    <span class="hero-mark-tick hero-mark-tick-top"></span>
-    <span class="hero-mark-line"></span>
-    <span class="hero-mark-tick hero-mark-tick-bottom"></span>
+    <Isotipo tone="ink" class="hero-mark-svg" />
   </div>
 
   <!-- Content — sequential reveal -->
@@ -124,61 +129,54 @@
 
   /* ─── The mark ────────────────────────────────────────────── */
   /*
-   * Phase 5 (docs/18, docs/19). Not the isotipo, not a watermark — a
-   * single hairline with two ticks at its own angle, quoting the mark's
-   * geometry without placing the logo in the background. Lives at the
-   * right edge, in the space the isotipo used to occupy. Static once
-   * drawn: it is the last event of the sequence, not a loop.
+   * Phase 5.1. The isotipo, solid ink, real scale, positioned as a real
+   * object in the negative space beside the headline — not a background,
+   * not translucent. :global() is required on the shape selectors below:
+   * they target <path> elements rendered inside the <Isotipo> child
+   * component, which Astro's CSS scoping does not reach (see the same
+   * note in CTA.astro / Method.astro / SystemEntry.astro).
    */
   .hero-mark {
     position: absolute;
-    right: clamp(28px, 7vw, 110px);
-    top: 14%;
-    bottom: 16%;
-    width: 1px;
+    right: clamp(32px, 7vw, 130px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(130px, 13vw, 210px);
     pointer-events: none;
     user-select: none;
   }
 
-  .hero-mark-line {
-    position: absolute;
-    inset: 0;
-    background-color: var(--color-border-medium);
-    transform-origin: top;
-    transform: scaleY(0);
-    animation: heroMarkDraw 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: 5.6s;
+  :global(.hero-mark-svg) {
+    width: 100%;
+    height: auto;
+    max-width: none;
   }
 
-  .hero-mark-tick {
-    position: absolute;
-    left: -3px;
-    width: 7px;
-    height: 1px;
-    background-color: var(--color-grey-light);
+  /* Each shape travels along its own locked trajectory (doc 11 Part 4)
+     into the position the SVG paths already define relative to each
+     other — this is an approach, not a repositioning. */
+  :global(.hero-mark-svg .isotipo-shape-a) {
     opacity: 0;
-    animation: heroTickReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .hero-mark-tick-top {
-    top: 0;
+    transform: translate(-34px, 26px);
+    animation: heroMarkArriveA 900ms var(--ease-spring) both;
     animation-delay: 5.6s;
   }
 
-  .hero-mark-tick-bottom {
-    bottom: 0;
-    animation-delay: 6.3s;
+  :global(.hero-mark-svg .isotipo-shape-b) {
+    opacity: 0;
+    transform: translate(-26px, -34px);
+    animation: heroMarkArriveB 900ms var(--ease-spring) both;
+    animation-delay: 5.75s;
   }
 
-  @keyframes heroMarkDraw {
-    from { transform: scaleY(0); }
-    to   { transform: scaleY(1); }
+  @keyframes heroMarkArriveA {
+    from { opacity: 0; transform: translate(-34px, 26px); }
+    to   { opacity: 1; transform: translate(0, 0); }
   }
 
-  /* Same diagonal as the isotipo's own angle — a quote, not the mark itself */
-  @keyframes heroTickReveal {
-    from { opacity: 0; transform: rotate(-24deg) translateX(-5px); }
-    to   { opacity: 1; transform: rotate(-24deg) translateX(0); }
+  @keyframes heroMarkArriveB {
+    from { opacity: 0; transform: translate(-26px, -34px); }
+    to   { opacity: 1; transform: translate(0, 0); }
   }
 
   /* ─── Content ─────────────────────────────────────────────── */
@@ -346,11 +344,12 @@
 
   .hero-microcopy {
     font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: var(--weight-regular);
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
     line-height: 1.5;
-    color: var(--color-grey-soft);
+    color: var(--color-grey-mid);
     letter-spacing: 0.01em;
+    margin-top: var(--space-2);
 
     animation-name: heroReveal;
     animation-duration: 0.4s;
@@ -382,9 +381,7 @@
 
     .hero-mark {
       right: 16px;
-      top: 20%;
-      bottom: 30%;
-      opacity: 0.6;
+      width: 84px;
     }
 
     .hero-sub {
@@ -422,15 +419,11 @@
       transform: none;
     }
 
-    .hero-mark-tick {
+    :global(.hero-mark-svg .isotipo-shape-a),
+    :global(.hero-mark-svg .isotipo-shape-b) {
       animation: none;
       opacity: 1;
-      transform: rotate(-24deg);
-    }
-
-    .hero-mark-line {
-      animation: none;
-      transform: scaleY(1);
+      transform: none;
     }
   }
 </style>

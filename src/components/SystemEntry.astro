@@ -139,10 +139,12 @@ const tone = isFeatured ? 'dark' : 'light';
         {isConceptual ? 'Qué hace' : 'Cómo funciona'}
       </summary>
       <div class="entry-detail-body">
-        <p class="entry-system">{system}</p>
-        <p class="entry-how">{howItWorks}</p>
-        <ArchitectureStrip layers={layers} tone={tone} />
-        <p class="entry-why">{whyItMatters}</p>
+        <div class="entry-detail-inner">
+          <p class="entry-system">{system}</p>
+          <p class="entry-how">{howItWorks}</p>
+          <ArchitectureStrip layers={layers} tone={tone} />
+          <p class="entry-why">{whyItMatters}</p>
+        </div>
       </div>
     </details>
   )}
@@ -262,7 +264,38 @@ const tone = isFeatured ? 'dark' : 'light';
     }
   }
 
-  .entry-detail-body,
+  /* ── Animated disclosure ──────────────────────────────────────
+   * Native <details> hides non-summary content with a hard UA
+   * display:none that can't be transitioned. The override below keeps
+   * .entry-detail-body laid out at all times and animates its own
+   * grid row (0fr → 1fr) instead — the standard CSS-only accordion
+   * technique. .entry-detail-inner supplies the overflow:hidden
+   * needed for the collapsed (0fr) state to actually clip content.
+   */
+  .entry-detail:not([open]) .entry-detail-body {
+    display: grid;
+  }
+
+  .entry-detail-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 450ms var(--ease-out-expo);
+  }
+
+  .entry-detail[open] .entry-detail-body {
+    grid-template-rows: 1fr;
+  }
+
+  .entry-detail-inner {
+    overflow: hidden;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-top: var(--space-4);
+    max-width: 68ch;
+  }
+
   .entry-detail--open {
     display: flex;
     flex-direction: column;
@@ -363,27 +396,6 @@ const tone = isFeatured ? 'dark' : 'light';
   .entry-featured .entry-why {
     color: var(--color-cream);
     border-top-color: var(--color-border-dark);
-  }
-
-  /* ── Conceptual variant — UX Analyzer's interlude ────────────── */
-
-  .entry-conceptual {
-    max-width: 640px;
-    margin-inline: auto;
-    text-align: left;
-  }
-
-  .entry-conceptual .entry-name {
-    font-size: var(--text-xl);
-  }
-
-  .entry-conceptual .entry-problem {
-    font-size: var(--text-lg);
-    color: var(--color-grey-dark);
-  }
-
-  .entry-conceptual .entry-toggle {
-    color: var(--color-violet);
   }
 
   /* ── Mobile — recompose, don't just stack ────────────────────── */

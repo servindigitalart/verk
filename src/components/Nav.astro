@@ -107,13 +107,19 @@ const navLinks = [
 
     /* Entrance — starts hidden, becomes visible via .is-visible */
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(1);
+    /*
+     * Theme-shift properties use --ease-spring, not --ease-out-expo.
+     * A material genuinely changing (not just a color lerp) has a beat
+     * of resistance before it settles — spring is what makes a state
+     * change read as physical instead of "a CSS transition happened."
+     */
     transition:
       opacity           600ms cubic-bezier(0.16, 1, 0.3, 1),
       transform         600ms cubic-bezier(0.16, 1, 0.3, 1),
-      background-color  600ms var(--ease-out-expo),
-      border-color       600ms var(--ease-out-expo),
-      backdrop-filter    600ms var(--ease-out-expo);
+      background-color  650ms var(--ease-spring),
+      border-color       650ms var(--ease-spring),
+      backdrop-filter    650ms var(--ease-spring);
   }
 
   .nav-pill.is-visible {
@@ -152,6 +158,14 @@ const navLinks = [
       color: var(--color-ink);
       background-color: rgba(15, 15, 15, 0.08);
     }
+  }
+
+  /* Warm state — Servicios only. Same dark-pill contrast logic as the
+     default (light) state, but the border carries a faint lime dust
+     instead of neutral cream — the pill's own small acknowledgment that
+     the surface behind it has shifted temperature, not just brightness. */
+  :global(html[data-scroll-theme='warm']) .nav-pill {
+    border-color: rgba(191, 234, 0, 0.10);
   }
 
   /* Feature state — the CTA chapter only. The nav acknowledges it's the

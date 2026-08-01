@@ -65,17 +65,18 @@ const steps = [
           data-reveal
           data-reveal-delay={i * 150}
         >
-          <span class="step-num text-mono" aria-hidden="true">{step.num}</span>
+          <span class="step-num text-mono" aria-hidden="true">
+            {step.num}
+            {step.num === '04' && (
+              <span class="step-mark" aria-hidden="true">
+                <Isotipo tone="cream" class="step-mark-svg" />
+              </span>
+            )}
+          </span>
           <div class="step-content">
             <h3 class="step-name">{step.name}</h3>
             <p class="step-body">{step.body}</p>
           </div>
-          {step.num === '04' && (
-            <div class="step-assembly" aria-hidden="true">
-              <Isotipo single="a" tone="cream" class="assembly-shape assembly-shape-a" />
-              <Isotipo single="b" tone="cream" class="assembly-shape assembly-shape-b" />
-            </div>
-          )}
         </li>
       ))}
     </ol>
@@ -88,6 +89,11 @@ const steps = [
   /* ── Section ────────────────────────────────────────────────── */
 
   .method {
+    /* Surface-mid, not surface-dark — otherwise this reads as literally
+       identical to the Ticker and Footer, which is exactly the "sections
+       feel too similar" complaint. First dark chapter gets its own,
+       slightly less dense black. */
+    background-color: var(--color-surface-mid);
     overflow: hidden;
   }
 
@@ -224,46 +230,39 @@ const steps = [
     max-width: 52ch;
   }
 
-  /* ── Isotipo assembly — step 04 only ──────────────────────────
-   * The two shapes start apart and settle into the complete mark once
-   * the step is revealed (same [data-reveal].is-visible toggle that
-   * drives the rest of the stagger — no separate trigger needed).
+  /* ── Isotipo micro-accent — step 04 only ──────────────────────
+   * Iteration note: this used to be a 64px shape floating at 70%
+   * opacity at the row's far right edge — reviewed on the live site as
+   * "still a watermark, just smaller." Replaced with a small, fully
+   * opaque badge sitting directly at the numeral itself — an editorial
+   * detail *on* the number, per the brief's own request ("pequeños
+   * detalles gráficos... encima o alrededor de los números"), not a
+   * separate decorative shape elsewhere in the row.
    */
 
-  .step-assembly {
+  .step-mark {
     position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 64px;
-    opacity: 0.7;
-    pointer-events: none;
+    top: -6px;
+    right: -14px;
+    width: 18px;
+    opacity: 0;
+    transform: scale(0.4);
+    transition:
+      transform 500ms var(--ease-spring),
+      opacity   500ms var(--ease-out-expo);
   }
 
-  /* :global() — these classes size/animate <svg> elements rendered inside
-     the <Isotipo> child component, which Astro's scoping never reaches. */
-  :global(.assembly-shape) {
-    position: absolute;
-    inset: 0;
+  /* :global() — sizes the <svg> rendered inside the <Isotipo> child,
+     which Astro's scoping never reaches. Fully opaque — no blend trick. */
+  :global(.step-mark-svg) {
     width: 100%;
     height: auto;
-    transition:
-      transform 700ms var(--ease-out-expo),
-      opacity   700ms var(--ease-out-expo);
-    opacity: 0;
+    max-width: none;
   }
 
-  :global(.assembly-shape-a) {
-    transform: translate(-16px, -12px);
-  }
-
-  :global(.assembly-shape-b) {
-    transform: translate(16px, 12px);
-  }
-
-  :global([data-reveal].is-visible .assembly-shape) {
+  [data-reveal].is-visible .step-mark {
     opacity: 1;
-    transform: translate(0, 0);
+    transform: scale(1);
   }
 
   /* ── Mobile — 768px and below ───────────────────────────────── */
@@ -287,8 +286,10 @@ const steps = [
       font-size: 1.5rem;
     }
 
-    .step-assembly {
-      display: none;
+    .step-mark {
+      width: 14px;
+      top: -4px;
+      right: -10px;
     }
 
     .method-intro {
