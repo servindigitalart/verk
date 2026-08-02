@@ -1,23 +1,22 @@
 ---
 /**
- * Systems.astro — Phase 5.1
+ * Systems.astro — Phase 5.2 "Color Rhythm"
  *
- * Iteration note: Phase 5 gave each of the six capability chapters a
- * genuinely different grid (dark feature, quiet feature, 2-col diagram,
- * diptych, 3-up poster, calm cream-warm feature). Reviewed on the live
- * site, that read exactly as the brief described: "los proyectos parecen
- * pertenecer a sistemas de diseño diferentes." Variety between chapters
- * was the wrong lever — uniformity is.
+ * Composition unchanged from 5.1 (one consistent single-column rhythm
+ * across all six chapters — see git history for that reasoning). What
+ * changes here: Sistemas becomes the site's second dark chapter —
+ * near-black surface, violet as its accent (already true — the "AI"
+ * architecture layer already tints violet; now the whole section agrees
+ * with that one existing accent, shared with Servicios).
  *
- * What changed: every chapter now shares one identical composition — a
- * single column, one type scale (large for the anchor, compact for
- * support entries), one spacing rhythm. The only structural exception is
- * Sonoro's dark-inset "featured" treatment, which isn't a layout choice —
- * doc 16 Part 2 gives it that emphasis specifically because it's the
- * single deepest piece of evidence and opens the whole section; every
- * other chapter, anchor or support, uses the exact same neutral row.
- * The six capabilities (doc 16 Part 1) are unchanged — nothing was
- * reclassified, only the container got simpler.
+ * Every SystemEntry in this section now receives an explicit tone="dark"
+ * (SystemEntry.astro Phase 5.2) so text/border colors invert correctly —
+ * previously only the Sonoro "featured" row had dark-mode styling; now
+ * every row does, uniformly, which is what actually keeps six chapters
+ * of varying content still reading as "one system."
+ *
+ * Header: data-theme="violet" — shared with Servicios, the site's other
+ * near-black + violet chapter.
  */
 
 import SystemEntry from './SystemEntry.astro';
@@ -261,7 +260,7 @@ const chapters = [
 ];
 ---
 
-<section class="systems section section-light" id="proyectos" aria-label="Sistemas" data-theme="light">
+<section class="systems section section-dark" id="proyectos" aria-label="Sistemas" data-theme="violet">
 
   <div class="container systems-container">
 
@@ -290,9 +289,9 @@ const chapters = [
           </header>
 
           <div class="chapter-body">
-            <SystemEntry {...chapter.anchor} />
+            <SystemEntry {...chapter.anchor} tone="dark" />
             {chapter.support.map((s) => (
-              <SystemEntry {...s} />
+              <SystemEntry {...s} tone="dark" />
             ))}
           </div>
         </div>
@@ -328,7 +327,7 @@ const chapters = [
     font-weight: var(--weight-bold);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-tight);
-    color: var(--color-ink);
+    color: var(--color-cream);
   }
 
   .systems-line {
@@ -340,7 +339,7 @@ const chapters = [
     font-family: var(--font-body);
     font-size: var(--text-lg);
     line-height: var(--leading-relaxed);
-    color: var(--color-grey-mid);
+    color: var(--color-grey-mid-dark);
     margin: 0;
     max-width: 520px;
   }
@@ -362,7 +361,7 @@ const chapters = [
     text-transform: uppercase;
     letter-spacing: var(--tracking-wider);
     font-size: var(--text-2xs);
-    color: var(--color-grey-soft);
+    color: var(--color-grey-dim-dark);
     margin: 0 0 var(--space-4);
   }
 
@@ -372,7 +371,7 @@ const chapters = [
     font-size: var(--text-xl);
     line-height: var(--leading-snug);
     letter-spacing: var(--tracking-snug);
-    color: var(--color-ink);
+    color: var(--color-cream);
     margin: 0;
   }
 
@@ -382,9 +381,10 @@ const chapters = [
   }
 
   /* Every entry, in every chapter, gets the same hairline rule — the
-     one uniform separator, regardless of anchor/support or chapter. */
+     one uniform separator, regardless of anchor/support or chapter.
+     border-dark, not border-medium — this section is dark now. */
   .chapter-body :global(.system-entry) {
-    border-top: 1px solid var(--color-border-medium);
+    border-top: 1px solid var(--color-border-dark);
   }
 
   /* Sonoro's dark-featured row supplies its own boundary (rounded, inset)

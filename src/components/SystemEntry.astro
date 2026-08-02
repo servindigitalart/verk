@@ -57,6 +57,10 @@ interface Props {
   size?: 'xl' | 'lg' | 'md' | 'sm';
   closing?: boolean;
   masked?: boolean;
+  /** Phase 5.2: lets a whole section (e.g. Sistemas, now near-black) force
+   * every entry — not just the featured one — into dark-appropriate text/
+   * border colors. Defaults to the old logic (dark only when featured). */
+  tone?: 'light' | 'dark';
 }
 
 const {
@@ -76,12 +80,13 @@ const {
   size = 'md',
   closing = false,
   masked = false,
+  tone: toneProp,
 } = Astro.props;
 
 const rankLabel = rank !== undefined ? String(rank).padStart(2, '0') : null;
 const isFeatured = variant === 'featured';
 const isConceptual = variant === 'conceptual';
-const tone = isFeatured ? 'dark' : 'light';
+const tone = toneProp ?? (isFeatured ? 'dark' : 'light');
 ---
 
 <article
@@ -89,6 +94,7 @@ const tone = isFeatured ? 'dark' : 'light';
     'system-entry',
     `entry-${variant}`,
     `entry-${size}`,
+    `entry-tone-${tone}`,
     closing && 'entry-closing',
   ]}
 >
@@ -114,7 +120,7 @@ const tone = isFeatured ? 'dark' : 'light';
           name
         )}
       </h3>
-      <ProjectStatus state={status} />
+      <ProjectStatus state={status} tone={tone} />
     </div>
   </div>
 
@@ -122,7 +128,7 @@ const tone = isFeatured ? 'dark' : 'light';
 
   <div class="entry-capabilities">
     {capabilities.map((c) => (
-      <CapabilityLabel label={c.label} kind={c.kind} />
+      <CapabilityLabel label={c.label} kind={c.kind} tone={tone} />
     ))}
   </div>
 
@@ -162,6 +168,16 @@ const tone = isFeatured ? 'dark' : 'light';
     border-bottom: 1px solid var(--color-border-medium);
   }
 
+  /* Dark-tone rows (Phase 5.2: whenever the whole section is dark, not
+     just the featured row) need the hairline itself inverted too. */
+  .entry-tone-dark {
+    border-top-color: var(--color-border-dark);
+  }
+
+  .entry-tone-dark.entry-closing {
+    border-bottom-color: var(--color-border-dark);
+  }
+
   .entry-head {
     display: flex;
     align-items: center;
@@ -174,6 +190,10 @@ const tone = isFeatured ? 'dark' : 'light';
     color: var(--color-grey-light);
     flex-shrink: 0;
     width: 2ch;
+  }
+
+  .entry-tone-dark .entry-rank {
+    color: var(--color-grey-dim-dark);
   }
 
   .entry-heading {
@@ -192,6 +212,10 @@ const tone = isFeatured ? 'dark' : 'light';
     margin: 0;
   }
 
+  .entry-tone-dark .entry-name {
+    color: var(--color-cream);
+  }
+
   .entry-name-link {
     display: inline-flex;
     align-items: center;
@@ -203,6 +227,10 @@ const tone = isFeatured ? 'dark' : 'light';
     flex-shrink: 0;
     color: var(--color-grey-soft);
     transition: transform var(--duration-normal) var(--ease-out-expo);
+  }
+
+  .entry-tone-dark .entry-name-arrow {
+    color: var(--color-grey-mid-dark);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -218,6 +246,10 @@ const tone = isFeatured ? 'dark' : 'light';
     color: var(--color-grey-mid);
     max-width: 62ch;
     margin: 0 0 var(--space-4);
+  }
+
+  .entry-tone-dark .entry-problem {
+    color: var(--color-grey-mid-dark);
   }
 
   .entry-capabilities {
@@ -261,6 +293,10 @@ const tone = isFeatured ? 'dark' : 'light';
   @media (hover: hover) and (pointer: fine) {
     .entry-toggle:hover {
       color: var(--color-ink);
+    }
+
+    .entry-tone-dark .entry-toggle:hover {
+      color: var(--color-cream);
     }
   }
 
@@ -313,6 +349,11 @@ const tone = isFeatured ? 'dark' : 'light';
     margin: 0;
   }
 
+  .entry-tone-dark .entry-system,
+  .entry-tone-dark .entry-how {
+    color: var(--color-grey-mid-dark);
+  }
+
   .entry-why {
     font-family: var(--font-body);
     font-size: var(--text-sm);
@@ -322,6 +363,11 @@ const tone = isFeatured ? 'dark' : 'light';
     margin: 0;
     padding-top: var(--space-2);
     border-top: 1px solid var(--color-border-light);
+  }
+
+  .entry-tone-dark .entry-why {
+    color: var(--color-cream);
+    border-top-color: var(--color-border-dark);
   }
 
   /* ── Size scale — type weight, not just logo size ───────────── */
@@ -368,34 +414,16 @@ const tone = isFeatured ? 'dark' : 'light';
     height: auto;
   }
 
+  /* Color is handled uniformly by .entry-tone-dark (above) — featured
+     rows always resolve tone='dark' by default, so no duplicate color
+     rules are needed here, only the stacking-context fix for the
+     absolutely-positioned isotipo mark behind the content. */
   .entry-featured .entry-head,
   .entry-featured .entry-problem,
   .entry-featured .entry-capabilities,
   .entry-featured .entry-detail--open {
     position: relative;
     z-index: 1;
-  }
-
-  .entry-featured .entry-name {
-    color: var(--color-cream);
-  }
-
-  .entry-featured .entry-rank {
-    color: var(--color-grey-dim-dark);
-  }
-
-  .entry-featured .entry-problem {
-    color: var(--color-grey-mid-dark);
-  }
-
-  .entry-featured .entry-system,
-  .entry-featured .entry-how {
-    color: var(--color-grey-mid-dark);
-  }
-
-  .entry-featured .entry-why {
-    color: var(--color-cream);
-    border-top-color: var(--color-border-dark);
   }
 
   /* ── Mobile — recompose, don't just stack ────────────────────── */

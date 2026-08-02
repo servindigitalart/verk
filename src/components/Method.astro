@@ -1,21 +1,21 @@
 ---
 /**
- * Method.astro — Phase 5
+ * Method.astro — Phase 5.2 "Color Rhythm"
  *
- * Structure, copy and rhythm unchanged (approved: "la estructura es muy
- * buena, no quiero cambiar el contenido"). What's elevated:
- *   - Step numerals scale up substantially — they earn the "sienten
- *     especiales" the brief asked for through scale, not ornament.
- *   - A single spine connects all four numerals — the steps stop reading
- *     as four separate items and start reading as one continuous line.
- *   - Step 04 ("Verificamos") is where the isotipo's two shapes assemble
- *     into the complete mark — doc 11's own reading of the isotipo
- *     ("dos sistemas en equilibrio dinámico") made literal at the exact
- *     step that verifies the system works. A quiet detail, not the site's
- *     signature moment (that's the cursor, docs/19) — this one rewards
- *     someone who's actually reading, nothing more.
- *   - Real scroll-triggered stagger reveal (150ms/step, per doc 04's
- *     already-written standard) — previously entirely static.
+ * Structure, copy and rhythm unchanged, as instructed. What changes here:
+ * Método flips from a dark chapter to a light one — cream-warm surface
+ * (the same token Servicios used to carry, now put to use here instead),
+ * lime as its accent (already true — the final step's dot has been lime
+ * since Phase 5.1; nothing new to add, just a chapter whose whole
+ * atmosphere now agrees with that one existing accent).
+ *
+ * This creates the alternation the brief asked for: Hero (cream) →
+ * Servicios (near-black) → Método (cream-warm) → Sistemas (near-black) →
+ * CTA (ink-deep, the climax) → Footer (cream, the resolution). No two
+ * adjacent chapters share a tone.
+ *
+ * Header: data-theme="lime-light" — same dark pill as the base (light)
+ * state, with a lime-dust edge instead of neutral.
  */
 
 import Isotipo from './Isotipo.astro';
@@ -44,7 +44,7 @@ const steps = [
 ];
 ---
 
-<section class="method section section-dark" id="metodo" aria-label="Método" data-theme="dark">
+<section class="method section section-light" id="metodo" aria-label="Método" data-theme="lime-light">
 
   <div class="container method-container">
 
@@ -69,7 +69,7 @@ const steps = [
             {step.num}
             {step.num === '04' && (
               <span class="step-mark" aria-hidden="true">
-                <Isotipo tone="cream" class="step-mark-svg" />
+                <Isotipo tone="ink" class="step-mark-svg" />
               </span>
             )}
           </span>
@@ -89,11 +89,10 @@ const steps = [
   /* ── Section ────────────────────────────────────────────────── */
 
   .method {
-    /* Surface-mid, not surface-dark — otherwise this reads as literally
-       identical to the Ticker and Footer, which is exactly the "sections
-       feel too similar" complaint. First dark chapter gets its own,
-       slightly less dense black. */
-    background-color: var(--color-surface-mid);
+    /* Cream-warm, not plain cream — Método is a light chapter now, but a
+       different light than Hero/Footer's pure cream, same tonal-variation
+       principle that used to distinguish Servicios (now dark instead). */
+    background-color: var(--color-cream-warm);
     overflow: hidden;
   }
 
@@ -115,13 +114,13 @@ const steps = [
     margin-bottom: var(--space-16);
   }
 
+  /* Item 7 (doc 11): 20–24px gap between label and headline. Color is
+     intentionally not overridden here — .text-label's own light-context
+     default (grey-soft) is already correct now that this section is light. */
   .method-lbl {
     display: block;
     margin-bottom: var(--space-5);
-    color: var(--color-grey-dim-dark);
   }
-
-  /* Item 7 (doc 11): 20–24px gap between label and headline */
 
   .method-headline {
     margin: 0 0 var(--space-8);
@@ -130,14 +129,14 @@ const steps = [
     font-weight: var(--weight-bold);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-tight);
-    color: var(--color-cream);
+    color: var(--color-ink);
   }
 
   .method-intro {
     font-family: var(--font-body);
     font-size: var(--text-lg);
     line-height: var(--leading-relaxed);
-    color: var(--color-grey-mid-dark);
+    color: var(--color-grey-mid);
     margin: 0;
     max-width: 480px;
   }
@@ -163,7 +162,7 @@ const steps = [
     bottom: var(--space-12);
     left: 88px;
     width: 1px;
-    background-color: var(--color-border-dark);
+    background-color: var(--color-border-medium);
   }
 
   /* ── Step row ───────────────────────────────────────────────── */
@@ -180,7 +179,7 @@ const steps = [
     grid-template-columns: 72px 1fr;
     gap: var(--space-8);
     padding-block: var(--space-10);
-    border-top: 1px solid var(--color-border-dark);
+    border-top: 1px solid var(--color-border-medium);
     align-items: start;
   }
 
@@ -189,7 +188,7 @@ const steps = [
     font-family: var(--font-mono);
     font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
     font-weight: var(--weight-medium);
-    color: var(--color-grey-dim-dark);
+    color: var(--color-grey-light);
     line-height: 1;
   }
 
@@ -204,7 +203,7 @@ const steps = [
     height: 6px;
     margin-top: -3px;
     border-radius: 50%;
-    background-color: var(--color-grey-dim-dark);
+    background-color: var(--color-grey-light);
   }
 
   .method-step--final .step-num::after {
@@ -217,7 +216,7 @@ const steps = [
     font-weight: var(--weight-bold);
     line-height: var(--leading-snug);
     letter-spacing: var(--tracking-snug);
-    color: var(--color-cream);
+    color: var(--color-ink);
     margin: 0 0 var(--space-4);
   }
 
@@ -225,7 +224,7 @@ const steps = [
     font-family: var(--font-body);
     font-size: var(--text-base);
     line-height: var(--leading-relaxed);
-    color: var(--color-grey-mid-dark);
+    color: var(--color-grey-mid);
     margin: 0;
     max-width: 52ch;
   }

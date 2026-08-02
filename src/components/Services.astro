@@ -1,26 +1,19 @@
 ---
 /**
- * Services.astro — Phase 5.1
+ * Services.astro — Phase 5.2 "Color Rhythm"
  *
- * Iteration note: the índice + continuous-column device (Phase 5) didn't
- * land either — reviewed on the live site, the IA entry's dark inset still
- * read as "the one row that's different," which was the exact complaint
- * about the original four-row grid it replaced. The real problem was never
- * the container (rows vs. column vs. index) — it was that IA was the only
- * discipline with a distinct *material*. Fixed by removing the material
- * difference entirely: all four disciplines now share one identical
- * treatment (a Geist Mono numeral — the same device Método uses for its
- * steps, creating an intentional echo between sections — plus a large
- * display name, plus a disclosure for the body). IA is differentiated by
- * exactly one thing: its numeral is violet instead of ink. That is the
- * full extent of the difference, which is what doc 11's color law actually
- * asks for (violet marks intelligence; it doesn't require a different
- * surface to do it).
+ * Composition unchanged from 5.1 (the staggered numeral cascade — kept
+ * per instruction not to touch structure/components). What changes here
+ * is purely the chapter's atmosphere: Servicios becomes the site's first
+ * dark chapter — near-black surface, violet as its one accent (the IA
+ * numeral, already violet, is now the section's whole color identity,
+ * not a special case within it). This is what actually answers "cada
+ * sección debe sentirse como un nuevo capítulo" — alternating cream and
+ * near-black instead of cream and cream-warm.
  *
- * Composition: a staggered cascade (increasing left offset per entry) —
- * an editorial/poster rhythm, not a table, not cards, not a dashboard.
- *
- * Surface: --color-cream-warm, unchanged from Phase 5.
+ * Header: data-theme="violet" — Nav.astro inverts its pill to cream and
+ * tints its edge violet for this chapter (shared with Sistemas, the
+ * other violet-accent chapter).
  */
 
 const disciplines = [
@@ -52,7 +45,7 @@ const disciplines = [
 ];
 ---
 
-<section class="services section section-light" id="servicios" aria-label="Servicios" data-theme="warm">
+<section class="services section section-dark" id="servicios" aria-label="Servicios" data-theme="violet">
 
   <div class="container services-container">
 
@@ -99,10 +92,9 @@ const disciplines = [
 </section>
 
 <style>
-  /* ── Section — cream-warm surface, distinct from the Hero's cream ──── */
+  /* ── Section — near-black, this chapter's whole atmosphere ───── */
 
   .services {
-    background-color: var(--color-cream-warm);
     overflow: hidden;
   }
 
@@ -129,7 +121,7 @@ const disciplines = [
     font-weight: var(--weight-bold);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-tight);
-    color: var(--color-ink);
+    color: var(--color-cream);
   }
 
   .services-line {
@@ -141,7 +133,7 @@ const disciplines = [
     font-family: var(--font-body);
     font-size: var(--text-lg);
     line-height: var(--leading-relaxed);
-    color: var(--color-grey-mid);
+    color: var(--color-grey-mid-dark);
     margin: 0;
     max-width: 480px;
   }
@@ -167,19 +159,19 @@ const disciplines = [
     align-items: baseline;
     gap: var(--space-5);
     padding-block: var(--space-6);
-    border-top: 1px solid var(--color-border-medium);
+    border-top: 1px solid var(--color-border-dark);
   }
 
   .discipline-1 { padding-left: 0; }
   .discipline-2 { padding-left: 6%; }
   .discipline-3 { padding-left: 13%; }
-  .discipline-4 { padding-left: 4%; border-bottom: 1px solid var(--color-border-medium); }
+  .discipline-4 { padding-left: 4%; border-bottom: 1px solid var(--color-border-dark); }
 
   .discipline-num {
     flex-shrink: 0;
     font-size: clamp(1.25rem, 0.9rem + 1.5vw, 2rem);
     font-weight: var(--weight-medium);
-    color: var(--color-grey-light);
+    color: var(--color-grey-dim-dark);
     line-height: 1;
   }
 
@@ -198,7 +190,7 @@ const disciplines = [
     font-size: clamp(1.75rem, 1.1rem + 3vw, 3.5rem);
     letter-spacing: var(--tracking-snug);
     line-height: 1.1;
-    color: var(--color-ink);
+    color: var(--color-cream);
     cursor: pointer;
     list-style: none;
     transition: color var(--duration-fast) var(--ease-out-expo);
@@ -215,7 +207,7 @@ const disciplines = [
     font-family: var(--font-mono);
     font-size: 0.4em;
     vertical-align: middle;
-    color: var(--color-grey-soft);
+    color: var(--color-grey-dim-dark);
     transition: transform var(--duration-normal) var(--ease-out-expo);
   }
 
@@ -229,7 +221,7 @@ const disciplines = [
 
   @media (hover: hover) and (pointer: fine) {
     .discipline-name:hover {
-      color: var(--color-grey-mid);
+      color: var(--color-grey-mid-dark);
     }
   }
 
@@ -237,7 +229,7 @@ const disciplines = [
     font-family: var(--font-body);
     font-size: var(--text-base);
     line-height: var(--leading-relaxed);
-    color: var(--color-grey-mid);
+    color: var(--color-grey-mid-dark);
     max-width: 58ch;
     margin: var(--space-4) 0 0;
   }

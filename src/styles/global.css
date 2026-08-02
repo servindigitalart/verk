@@ -487,6 +487,14 @@ a {
   color: var(--color-grey-soft);
 }
 
+/* Dark-context counterpart — .pill-default's black-tint background
+   (border-light) is invisible against a near-black page; this uses a
+   cream tint instead, matching ArchitectureStrip's .arch-dark treatment. */
+.pill-default-dark {
+  background-color: rgba(240, 238, 233, 0.08);
+  color: var(--color-grey-mid-dark);
+}
+
 .pill-lime {
   background-color: var(--color-lime-tint);
   color: var(--color-lime);

@@ -1,14 +1,21 @@
 ---
 /**
- * Footer.astro — Phase 5, "Epílogo"
+ * Footer.astro — Phase 5.2, "Epílogo"
  *
- * Doc 11 Part 10 has an explicit rule this footer never actually followed:
- * "el footer siempre abre con una oración declarativa. No 'contáctanos'."
- * There was no headline at all until now — a gap against the brand's own
- * lock, not a design decision. Fixed here, plus the one closing gesture:
- * the isotipo as punctuation (docs/18 Part 4, row 5) — the single
- * exception to "headlines never end in punctuation," because this is the
- * one headline that is allowed to end the whole site.
+ * Doc 11 Part 10 rule: "el footer siempre abre con una oración
+ * declarativa." Headline + isotipo-as-punctuation unchanged from 5.1.
+ *
+ * Color rhythm iteration: the Footer flips from dark to cream — the
+ * calm resolution after the CTA's climax (ink-deep, the darkest point
+ * on the site). Ending the whole sequence on light rather than
+ * continuing dark avoids three consecutive dark chapters (Sistemas →
+ * CTA → Footer) and gives the closing headline real confidence the way
+ * a colophon page in a printed book reads: bold black on paper, not
+ * another dark screen. The lime WhatsApp button is unchanged — it
+ * already worked on cream just as well as on dark.
+ *
+ * Header: data-theme="light" — shared with Hero, the site's other plain
+ * cream chapter with no accent — a deliberate bookend.
  */
 
 import Isotipo from './Isotipo.astro';
@@ -28,11 +35,11 @@ const secondaryLinks = [
 ];
 ---
 
-<footer class="footer section section-dark" role="contentinfo" data-theme="dark">
+<footer class="footer section section-light" role="contentinfo" data-theme="light">
   <div class="container">
 
     <p class="footer-headline" data-reveal>
-      Seguimos construyendo<Isotipo tone="cream" class="footer-period" />
+      Seguimos construyendo<Isotipo tone="ink" class="footer-period" />
     </p>
 
     <div class="footer-inner">
@@ -100,7 +107,7 @@ const secondaryLinks = [
 
 <style>
   .footer {
-    border-top: 1px solid var(--color-border-dark);
+    border-top: 1px solid var(--color-border-medium);
   }
 
   /* ── Epilogue headline — the declarative sentence doc 11 always
@@ -120,7 +127,7 @@ const secondaryLinks = [
     font-size: clamp(1.75rem, 1.2rem + 2.5vw, 3rem);
     letter-spacing: var(--tracking-tight);
     line-height: var(--leading-tight);
-    color: var(--color-cream);
+    color: var(--color-ink);
     margin: 0 0 var(--space-16);
   }
 
@@ -138,7 +145,7 @@ const secondaryLinks = [
     grid-template-columns: 1fr 1fr 1fr;
     gap: var(--space-16);
     padding-bottom: var(--space-16);
-    border-bottom: 1px solid var(--color-border-dark);
+    border-bottom: 1px solid var(--color-border-medium);
   }
 
   .footer-wordmark {
@@ -146,19 +153,19 @@ const secondaryLinks = [
     font-size: clamp(1.75rem, 1.1rem + 2.5vw, 3.5rem);
     font-weight: var(--weight-black);
     letter-spacing: var(--tracking-tight);
-    color: var(--color-cream);
+    color: var(--color-ink);
     line-height: 1;
     display: block;
     margin-bottom: var(--space-4);
   }
 
   .footer-tagline {
-    color: var(--color-grey-mid-dark);
+    color: var(--color-grey-mid);
     font-weight: var(--weight-medium);
   }
 
   .footer-nav-label {
-    color: var(--color-grey-dim-dark);
+    color: var(--color-grey-soft);
     margin-bottom: var(--space-6);
   }
 
@@ -171,16 +178,16 @@ const secondaryLinks = [
   .footer-link {
     font-family: var(--font-body);
     font-size: var(--text-sm);
-    color: var(--color-grey-mid-dark);
+    color: var(--color-grey-mid);
     transition: color var(--duration-fast) var(--ease-out-expo);
   }
 
   .footer-link:hover {
-    color: var(--color-cream);
+    color: var(--color-ink);
   }
 
   .footer-cta-text {
-    color: var(--color-grey-mid-dark);
+    color: var(--color-grey-mid);
     margin-bottom: var(--space-6);
   }
 
@@ -192,7 +199,7 @@ const secondaryLinks = [
   }
 
   .footer-copy {
-    color: var(--color-grey-dim-dark);
+    color: var(--color-grey-soft);
   }
 
   .footer-legal {
@@ -203,12 +210,12 @@ const secondaryLinks = [
   .footer-link-sm {
     font-family: var(--font-body);
     font-size: var(--text-xs);
-    color: var(--color-grey-dim-dark);
+    color: var(--color-grey-soft);
     transition: color var(--duration-fast) var(--ease-out-expo);
   }
 
   .footer-link-sm:hover {
-    color: var(--color-grey-mid-dark);
+    color: var(--color-grey-mid);
   }
 
   @media (max-width: 1024px) {

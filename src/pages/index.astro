@@ -33,28 +33,6 @@ import Footer from '../components/Footer.astro';
 
     <Hero />
 
-    <!-- Marquee band — the pulse between chapters, doc 18 Part 9.1 -->
-    <div class="ticker section-dark" aria-hidden="true" role="presentation" data-theme="dark">
-      <div class="ticker-inner">
-        {Array.from({ length: 2 }, () => (
-          <div class="ticker-track">
-            <span class="ticker-item text-label">Sitios Web</span>
-            <span class="ticker-sep" aria-hidden="true">·</span>
-            <span class="ticker-item text-label">Automatizaciones</span>
-            <span class="ticker-sep" aria-hidden="true">·</span>
-            <span class="ticker-item text-label">Integraciones CRM</span>
-            <span class="ticker-sep" aria-hidden="true">·</span>
-            <span class="ticker-item text-label">Herramientas con IA</span>
-            <span class="ticker-sep" aria-hidden="true">·</span>
-            <span class="ticker-item text-label">WhatsApp</span>
-            <span class="ticker-sep" aria-hidden="true">·</span>
-            <span class="ticker-item text-label">Lead Capture</span>
-            <span class="ticker-sep" aria-hidden="true">·</span>
-          </div>
-        ))}
-      </div>
-    </div>
-
     <Services />
     <Method />
     <Systems />
@@ -64,37 +42,3 @@ import Footer from '../components/Footer.astro';
 
   <Footer />
 </Layout>
-
-<style>
-  /* ── Ticker (marquee band) ─────────────────────────────────── */
-
-  .ticker {
-    overflow: hidden;
-    padding-block: var(--space-5);
-    border-top: 1px solid var(--color-border-dark);
-    border-bottom: 1px solid var(--color-border-dark);
-  }
-
-  .ticker-inner {
-    display: flex;
-    width: max-content;
-    animation: marquee 50s linear infinite;
-  }
-
-  .ticker-track {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    padding-right: var(--space-6);
-    flex-shrink: 0;
-  }
-
-  .ticker-item {
-    color: rgba(240, 238, 233, 0.35);
-  }
-
-  .ticker-sep {
-    color: rgba(240, 238, 233, 0.15);
-    font-size: 10px;
-  }
-</style>

@@ -129,47 +129,51 @@ const navLinks = [
 
   /* ── Live header — reacts to the chapter behind it ───────────
    * Driven by [data-scroll-theme] on <html>, written by
-   * src/scripts/nav-theme.ts (Phase 5, docs/18 Part 3). Paused during
-   * the Hero's own entrance so the nav never reacts mid-appearance.
-   * One shared duration/easing across background/border/blur — doc 18
-   * is explicit that desynced timings are what makes a theme switch
-   * feel like a hack instead of something organic.
+   * src/scripts/nav-theme.ts. Paused during the Hero's own entrance so
+   * the nav never reacts mid-appearance. One shared duration/easing
+   * across background/border/blur — a desynced timing is what makes a
+   * theme switch feel like a hack instead of something organic.
+   *
+   * Four keys, reused deliberately rather than one-per-section — chapters
+   * that share a surface tone AND an accent share a nav state, which is
+   * itself a small echo between chapters that belong to the same family:
+   *   light      — Hero, Footer (cream, no accent) — the base pill above.
+   *   lime-light — Método (cream, lime accent) — same pill, lime-tinted edge.
+   *   violet     — Servicios, Sistemas (near-black, violet accent) — pill inverts.
+   *   feature    — CTA (ink-deep, lime accent, the decision moment) — deepest glass.
    */
 
-  :global(html[data-scroll-theme='dark']) .nav-pill {
-    background-color: rgba(240, 238, 233, 0.88);
-    border-color: rgba(15, 15, 15, 0.10);
+  /* Método — cream bg, same dark pill as the base state, lime-dust edge. */
+  :global(html[data-scroll-theme='lime-light']) .nav-pill {
+    border-color: rgba(191, 234, 0, 0.14);
   }
 
-  :global(html[data-scroll-theme='dark']) .nav-wordmark {
+  /* Servicios + Sistemas — near-black bg, pill inverts to cream, violet edge. */
+  :global(html[data-scroll-theme='violet']) .nav-pill {
+    background-color: rgba(240, 238, 233, 0.88);
+    border-color: rgba(107, 106, 244, 0.22);
+  }
+
+  :global(html[data-scroll-theme='violet']) .nav-wordmark {
     color: var(--color-ink);
   }
 
-  :global(html[data-scroll-theme='dark']) .nav-divider {
+  :global(html[data-scroll-theme='violet']) .nav-divider {
     background-color: rgba(15, 15, 15, 0.14);
   }
 
-  :global(html[data-scroll-theme='dark']) .nav-link {
+  :global(html[data-scroll-theme='violet']) .nav-link {
     color: rgba(15, 15, 15, 0.55);
   }
 
   @media (hover: hover) and (pointer: fine) {
-    :global(html[data-scroll-theme='dark']) .nav-link:hover {
+    :global(html[data-scroll-theme='violet']) .nav-link:hover {
       color: var(--color-ink);
       background-color: rgba(15, 15, 15, 0.08);
     }
   }
 
-  /* Warm state — Servicios only. Same dark-pill contrast logic as the
-     default (light) state, but the border carries a faint lime dust
-     instead of neutral cream — the pill's own small acknowledgment that
-     the surface behind it has shifted temperature, not just brightness. */
-  :global(html[data-scroll-theme='warm']) .nav-pill {
-    border-color: rgba(191, 234, 0, 0.10);
-  }
-
-  /* Feature state — the CTA chapter only. The nav acknowledges it's the
-     decision moment: deeper glass, a lime-tinted edge instead of neutral. */
+  /* CTA — the decision moment: deeper glass, lime-tinted edge. */
   :global(html[data-scroll-theme='feature']) .nav-pill {
     background-color: rgba(8, 8, 8, 0.75);
     border-color: rgba(191, 234, 0, 0.22);

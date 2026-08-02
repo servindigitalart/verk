@@ -12,11 +12,13 @@
 interface Props {
   label: string;
   kind?: 'ai' | 'default';
+  tone?: 'light' | 'dark';
 }
 
-const { label, kind = 'default' } = Astro.props;
+const { label, kind = 'default', tone = 'light' } = Astro.props;
+const defaultClass = tone === 'dark' ? 'pill-default-dark' : 'pill-default';
 ---
 
-<span class:list={['pill', kind === 'ai' ? 'pill-violet' : 'pill-default', 'capability-label']}>
+<span class:list={['pill', kind === 'ai' ? 'pill-violet' : defaultClass, 'capability-label']}>
   {label}
 </span>

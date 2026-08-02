@@ -13,13 +13,21 @@
 
 interface Props {
   state: 'Operativo' | 'En Evolución' | 'Investigación' | 'Desarrollo Activo';
+  tone?: 'light' | 'dark';
 }
 
-const { state } = Astro.props;
+const { state, tone = 'light' } = Astro.props;
 const isResearch = state === 'Investigación';
+/*
+ * Phase 5.2: .pill-dark (surface-card, #1E1E1E) was designed as "a dark
+ * badge on a light page" — on Sistemas' new near-black background there's
+ * too little delta between the pill and the page for it to read as a
+ * chip. On a dark-toned section, reuse the cream-tint treatment instead.
+ */
+const statusClass = isResearch ? 'pill-violet' : tone === 'dark' ? 'pill-default-dark' : 'pill-dark';
 ---
 
-<span class:list={['pill', isResearch ? 'pill-violet' : 'pill-dark', 'project-status']}>
+<span class:list={['pill', statusClass, 'project-status']}>
   <span class="status-dot" aria-hidden="true"></span>
   {state}
 </span>

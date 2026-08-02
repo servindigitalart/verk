@@ -35,6 +35,19 @@ export function initNavTheme(): void {
     if (current) root.dataset.scrollTheme = current;
   }, HERO_HOLD_MS);
 
+  /*
+   * rootMargin: '-50% 0px -50% 0px' with threshold: 0 collapses the
+   * observer's intersection zone to a 1px line at the vertical center of
+   * the viewport — a section is "intersecting" exactly when it straddles
+   * that centerline, regardless of the section's own total height. A
+   * plain `threshold: 0.5` (ratio of the TARGET's height) was the actual
+   * bug caught in visual QA: it works for short sections but never fires
+   * for Sistemas (six chapters, thousands of px tall) — the header stayed
+   * stuck on Método's theme for the section's entire scroll range, a dark
+   * pill sitting on Sistemas' near-black background. This fix matches the
+   * same viewport-midpoint logic dominantTheme() already used for the
+   * one-time post-hero-hold check above.
+   */
   const observer = new IntersectionObserver(
     (entries) => {
       if (paused) return;
@@ -44,7 +57,7 @@ export function initNavTheme(): void {
         if (theme) root.dataset.scrollTheme = theme;
       }
     },
-    { threshold: 0.5 }
+    { threshold: 0, rootMargin: '-50% 0px -50% 0px' }
   );
 
   sections.forEach((section) => observer.observe(section));
