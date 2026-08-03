@@ -1,19 +1,26 @@
 ---
 /**
- * Nav.astro — Final navigation.
- * Phase 2A implementation.
+ * Nav.astro — Phase 2A (desktop) + Phase 6 (mobile-native menu)
  *
- * Design decisions:
+ * Desktop design decisions unchanged:
  *   - Dark pill on cream hero creates maximum contrast (doc 11: "dark, floating")
  *   - Centered via left:50% + transform:translateX(-50%) on the wrapper
- *     The pill itself only handles vertical entrance — no transform conflict
  *   - Entrance: 400ms delay on first visit, immediate on subsequent navigations
- *     (sessionStorage flag prevents re-animating on ViewTransition page changes)
  *   - Hover: mechanical — background fill, no movement, no spring
- *   - Active state: lime dot + cream text (Phase 4 IntersectionObserver will wire this)
+ *   - Active state: lime dot + cream text
  *
- * Items (Phase 2A): Servicios | Método | Proyectos | Contacto
- * CTA: Auditoría
+ * Phase 6 mobile audit, finding 1: below 768px, .nav-links was simply
+ * display:none with nothing replacing it — Servicios/Método/Proyectos/
+ * Contacto were unreachable except by scrolling. This adds a real menu:
+ * a toggle button (≤768px only) that opens a full-screen overlay with the
+ * same four links at a scale built for a thumb, not a cursor — see the
+ * overlay's own styles below for the mobile-specific rhythm (this is not
+ * the desktop pill's `.nav-links` reused at a bigger size).
+ *
+ * Also mobile-only (Phase 6, findings 6 and 8): the wrapper's top offset
+ * respects env(safe-area-inset-top), and the pill hides on scroll-down /
+ * reveals on scroll-up below 768px — desktop's pill stays exactly as it
+ * was, always visible.
  */
 
 const navLinks = [
@@ -35,7 +42,8 @@ const navLinks = [
     <!-- Visual separator -->
     <span class="nav-divider" aria-hidden="true"></span>
 
-    <!-- Navigation links -->
+    <!-- Navigation links — desktop only from 769px up; hidden below that
+         in favor of the menu toggle + overlay (mobile-native, not reused). -->
     <ul class="nav-links" role="list">
       {navLinks.map(({ href, label }) => (
         <li>
@@ -46,13 +54,55 @@ const navLinks = [
       ))}
     </ul>
 
-    <!-- Primary CTA -->
+    <!-- Mobile menu toggle — the icon morphs between two states via CSS,
+         no separate open/close asset. aria-expanded is wired by nav.ts. -->
+    <button
+      type="button"
+      class="nav-menu-toggle"
+      data-nav-toggle
+      aria-expanded="false"
+      aria-controls="mobile-nav-menu"
+      aria-label="Abrir menú de navegación"
+    >
+      <span class="nav-menu-icon" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <!-- Primary CTA — desktop only; the overlay carries its own CTA on mobile -->
     <a href="#contacto" class="nav-cta" data-cursor-tone="action">
       Auditoría
     </a>
 
   </nav>
 </header>
+
+<!--
+  Mobile menu overlay — deliberately a SIBLING of <header>, not nested
+  inside it. .nav-wrapper carries `transform: translateX(-50%)` for its
+  own centering, and a `transform` on an ancestor creates a new
+  containing block for any `position: fixed` descendant — the overlay
+  was resolving `inset:0` against the pill's own small box (~100×50px)
+  instead of the viewport. Real bug, caught in Playwright visual QA
+  (computed rect was 102×52px, not the viewport). Moving the overlay
+  outside the transformed ancestor fixes it; everything else (styles,
+  script wiring) is unchanged.
+-->
+<div class="nav-menu-overlay" id="mobile-nav-menu" data-nav-overlay inert>
+  <ul class="nav-menu-list" role="list">
+    {navLinks.map(({ href, label }, i) => (
+      <li style={`--i:${i}`}>
+        <a href={href} class="nav-menu-link" data-nav-overlay-link>
+          {label}
+        </a>
+      </li>
+    ))}
+  </ul>
+  <a href="#contacto" class="btn btn-primary nav-menu-cta" data-nav-overlay-link data-cursor-tone="action">
+    Solicitar auditoría
+  </a>
+</div>
 
 <!-- Nav entrance — first visit animates, subsequent navigations skip -->
 <script>
@@ -73,6 +123,80 @@ const navLinks = [
   document.addEventListener('astro:page-load', initNav);
 </script>
 
+<!-- Mobile menu open/close + scroll-aware hide (Phase 6) -->
+<script>
+  function initMobileMenu(): void {
+    const wrapper = document.querySelector<HTMLElement>('.nav-wrapper');
+    const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+    const overlay = document.querySelector<HTMLElement>('[data-nav-overlay]');
+    if (!wrapper || !toggle || !overlay) return;
+
+    const links = overlay.querySelectorAll<HTMLElement>('[data-nav-overlay-link]');
+
+    function closeMenu(): void {
+      toggle!.setAttribute('aria-expanded', 'false');
+      toggle!.setAttribute('aria-label', 'Abrir menú de navegación');
+      overlay!.classList.remove('is-open');
+      overlay!.setAttribute('inert', '');
+      document.body.classList.remove('nav-menu-locked');
+    }
+
+    function openMenu(): void {
+      toggle!.setAttribute('aria-expanded', 'true');
+      toggle!.setAttribute('aria-label', 'Cerrar menú de navegación');
+      overlay!.classList.add('is-open');
+      overlay!.removeAttribute('inert');
+      document.body.classList.add('nav-menu-locked');
+    }
+
+    toggle.addEventListener('click', () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen) closeMenu();
+      else openMenu();
+    });
+
+    links.forEach((link) => link.addEventListener('click', closeMenu));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') closeMenu();
+    });
+
+    // Scroll-aware hide/reveal — mobile only. Desktop's pill always stays put.
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    function onScroll(): void {
+      if (!mobileQuery.matches || overlay!.classList.contains('is-open')) {
+        ticking = false;
+        return;
+      }
+      const y = window.scrollY;
+      const delta = y - lastY;
+      if (y > 120 && delta > 4) {
+        wrapper!.classList.add('is-hidden');
+      } else if (delta < -4 || y < 120) {
+        wrapper!.classList.remove('is-hidden');
+      }
+      lastY = y;
+      ticking = false;
+    }
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          requestAnimationFrame(onScroll);
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
+  }
+
+  document.addEventListener('astro:page-load', initMobileMenu);
+</script>
+
 <style>
   /* ── Positioning wrapper ──────────────────────────────────── */
   /*
@@ -82,13 +206,30 @@ const navLinks = [
    */
   .nav-wrapper {
     position: fixed;
-    top: var(--space-6);
+    /* max() with the safe-area inset — on a notched/Dynamic-Island phone
+       the pill clears it; on everything else this is just --space-6. */
+    top: max(var(--space-6), env(safe-area-inset-top));
     left: 50%;
     transform: translateX(-50%);
-    z-index: var(--z-floating);
+    /*
+     * Above --z-overlay (the mobile menu, Phase 6), not just
+     * --z-floating — the pill's toggle button morphs into the close (X)
+     * icon while the menu is open and must stay tappable on top of the
+     * overlay it controls. Caught in Playwright QA: the second tap to
+     * close was silently swallowed by the overlay sitting above it.
+     */
+    z-index: var(--z-modal);
     pointer-events: none;
     /* Prevent the pill from wrapping on small screens */
     white-space: nowrap;
+    transition: transform var(--duration-normal) var(--ease-out-expo), opacity var(--duration-normal) var(--ease-out-expo);
+  }
+
+  /* Scroll-aware hide — mobile only (toggled by nav.ts, gated to ≤768px
+     there). Slides up and fades rather than a hard cut. */
+  .nav-wrapper.is-hidden {
+    transform: translateX(-50%) translateY(-140%);
+    opacity: 0;
   }
 
   /* ── Pill ─────────────────────────────────────────────────── */
@@ -115,8 +256,8 @@ const navLinks = [
      * change read as physical instead of "a CSS transition happened."
      */
     transition:
-      opacity           600ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform         600ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity           600ms var(--ease-out-expo),
+      transform         600ms var(--ease-out-expo),
       background-color  650ms var(--ease-spring),
       border-color       650ms var(--ease-spring),
       backdrop-filter    650ms var(--ease-spring);
@@ -295,7 +436,7 @@ const navLinks = [
 
   @media (hover: hover) and (pointer: fine) {
     .nav-cta:hover {
-      background-color: #CEFF00;
+      background-color: var(--color-lime-hover);
     }
   }
 
@@ -303,13 +444,185 @@ const navLinks = [
     transform: scale(0.97);
   }
 
+  /* ── Mobile menu toggle ───────────────────────────────────────
+   * Hidden by default (desktop) — shown only ≤768px, see media query
+   * below. Two-line icon that rotates into an X — one element, two
+   * states, no separate open/close asset to swap.
+   */
+
+  .nav-menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: var(--space-1);
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .nav-menu-icon {
+    position: relative;
+    width: 16px;
+    height: 12px;
+  }
+
+  .nav-menu-icon span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    border-radius: 1px;
+    background-color: var(--color-cream);
+    transition:
+      transform 300ms var(--ease-spring),
+      opacity   200ms var(--ease-out-expo),
+      top       300ms var(--ease-spring),
+      background-color 300ms var(--ease-out-expo);
+  }
+
+  :global(html[data-scroll-theme='violet']) .nav-menu-icon span,
+  :global(html[data-scroll-theme='feature']) .nav-menu-icon span {
+    background-color: var(--color-cream);
+  }
+
+  :global(html[data-scroll-theme='violet']) .nav-menu-icon span {
+    background-color: var(--color-ink);
+  }
+
+  .nav-menu-icon span:first-child { top: 0; }
+  .nav-menu-icon span:last-child { top: 10px; }
+
+  [aria-expanded='true'] .nav-menu-icon span:first-child {
+    top: 5px;
+    transform: rotate(45deg);
+  }
+
+  [aria-expanded='true'] .nav-menu-icon span:last-child {
+    top: 5px;
+    transform: rotate(-45deg);
+  }
+
+  /* ── Mobile menu overlay ──────────────────────────────────────
+   * A distinct surface (ink, full-screen), not the desktop nav-links
+   * reused at a bigger size — links get real thumb-sized targets and
+   * their own entrance stagger.
+   */
+
+  .nav-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-12);
+    background-color: rgba(15, 15, 15, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 350ms var(--ease-out-expo),
+      visibility 0s linear 350ms;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .nav-menu-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 350ms var(--ease-out-expo),
+      visibility 0s linear 0s;
+  }
+
+  .nav-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .nav-menu-list li {
+    overflow: hidden;
+  }
+
+  .nav-menu-link {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    font-size: clamp(2rem, 1.5rem + 4vw, 2.75rem);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-cream);
+    padding: var(--space-3) var(--space-4);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 400ms var(--ease-out-expo),
+      transform 400ms var(--ease-out-expo),
+      color 150ms ease;
+  }
+
+  .nav-menu-overlay.is-open .nav-menu-link {
+    opacity: 1;
+    transform: translateY(0);
+    /* Stagger via the inline --i custom property set per <li> in the markup */
+    transition-delay: calc(var(--i, 0) * 60ms + 80ms);
+  }
+
+  .nav-menu-link:active {
+    color: var(--color-lime);
+  }
+
+  .nav-menu-cta {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 400ms var(--ease-out-expo),
+      transform 400ms var(--ease-out-expo);
+    transition-delay: 380ms;
+    font-size: var(--text-base);
+    padding: var(--space-4) var(--space-8);
+  }
+
+  .nav-menu-overlay.is-open .nav-menu-cta {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-menu-link,
+    .nav-menu-cta {
+      transition: opacity 150ms linear !important;
+      transform: none !important;
+      transition-delay: 0ms !important;
+    }
+  }
+
   /* ── Responsive ───────────────────────────────────────────── */
 
-  /* Tablet: hide nav links — show wordmark + CTA only */
+  /* Mobile: hide the desktop link list, show the menu toggle instead —
+     the overlay (above) is the real mobile nav, not a hidden fallback. */
   @media (max-width: 768px) {
     .nav-links,
     .nav-divider {
       display: none;
+    }
+
+    .nav-cta {
+      display: none;
+    }
+
+    .nav-menu-toggle {
+      display: flex;
     }
 
     .nav-pill {
@@ -326,10 +639,6 @@ const navLinks = [
   @media (max-width: 390px) {
     .nav-pill {
       padding: 5px 5px 5px 14px;
-    }
-
-    .nav-cta {
-      padding: 7px 14px;
     }
   }
 

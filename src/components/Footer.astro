@@ -116,12 +116,18 @@ const secondaryLinks = [
    * purely typographic weight/contrast, not scale: --weight-black instead
    * of bold, tighter tracking, and the isotipo period sized up slightly
    * relative to the text so it reads as a real mark, not an afterthought.
+   *
+   * Phase 6 mobile audit, finding 3: this was `display:flex` with the
+   * text and the <Isotipo> mark as siblings, `flex-wrap` never set. On a
+   * phone the text wraps to two lines on its own, but the flex row
+   * itself doesn't — the mark stayed pinned to the row's single line,
+   * visually detached from "construyendo." Fixed by making the headline
+   * plain inline text flow (not flex), with the mark as a trailing
+   * inline-block glyph — like a period character, it now wraps as part
+   * of the last word instead of floating independently.
    */
 
   .footer-headline {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-3);
     font-family: var(--font-display);
     font-weight: var(--weight-black);
     font-size: clamp(1.75rem, 1.2rem + 2.5vw, 3rem);
@@ -134,9 +140,11 @@ const secondaryLinks = [
   /* :global() — sizes the <svg> rendered inside the <Isotipo> child;
      Astro's scoping doesn't reach across that component boundary. */
   :global(.footer-period) {
+    display: inline-block;
     width: 0.52em;
     height: auto;
-    flex-shrink: 0;
+    margin-left: var(--space-3);
+    vertical-align: baseline;
     transform: translateY(0.1em);
   }
 

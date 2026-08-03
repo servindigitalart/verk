@@ -235,19 +235,29 @@ const disciplines = [
   }
 
   /* ── Mobile — 768px and below ─────────────────────────────────── */
+  /*
+   * Phase 6 mobile audit, finding 4: this used to reset every offset to
+   * 0 — the cascade (the section's whole reason for not being "four
+   * rows") disappeared completely, leaving an unstaggered list
+   * indistinguishable from the pre-Phase-5 grid. Fixed with fixed-px
+   * offsets (not percentages) scaled for a narrow column: small enough
+   * that "Automatizaciones"/"Herramientas con IA" never risk an awkward
+   * wrap at 320–430px, present enough that the eye still reads a
+   * staircase, not a list. Vertical padding also increases slightly
+   * per step (space-5 → space-6) so the cascade reads in the vertical
+   * rhythm too, not just the horizontal one.
+   */
 
   @media (max-width: 768px) {
-    .discipline-1,
-    .discipline-2,
-    .discipline-3,
-    .discipline-4 {
-      padding-left: 0;
-    }
-
     .discipline {
       gap: var(--space-3);
       padding-block: var(--space-5);
     }
+
+    .discipline-1 { padding-left: 0; }
+    .discipline-2 { padding-left: 14px; padding-block: var(--space-6); }
+    .discipline-3 { padding-left: 26px; }
+    .discipline-4 { padding-left: 8px; padding-block: var(--space-6); }
 
     .discipline-num {
       font-size: 1.125rem;

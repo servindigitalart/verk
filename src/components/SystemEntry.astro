@@ -275,6 +275,18 @@ const tone = toneProp ?? (isFeatured ? 'dark' : 'light');
     transition: color var(--duration-fast) var(--ease-out-expo);
   }
 
+  /* Phase 6 mobile audit, finding 5: 8px vertical padding + this line's
+     own height was ~36px tap-height — below the 44px (iOS)/48dp
+     (Material) minimum. Every system's disclosure toggle was affected.
+     min-height + a negative margin keeps the visual row-height/rhythm
+     identical while the actual hit area grows to a real touch target. */
+  @media (max-width: 768px) {
+    .entry-toggle {
+      min-height: 44px;
+      margin-block: -8px;
+    }
+  }
+
   .entry-toggle::-webkit-details-marker {
     display: none;
   }

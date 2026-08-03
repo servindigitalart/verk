@@ -44,7 +44,10 @@ const fullTitle = title === 'Verk' ? 'Verk — Infraestructura Digital' : `${tit
 <html lang="es" class="no-js">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- viewport-fit=cover: required for env(safe-area-inset-*) to activate
+         on notched/Dynamic-Island devices (Phase 6 mobile audit, finding 6) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#F0EEE9" />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Primary meta -->
@@ -84,6 +87,11 @@ const fullTitle = title === 'Verk' ? 'Verk — Infraestructura Digital' : `${tit
     </script>
   </head>
   <body>
+    <!-- Skip-link (Phase 6 mobile audit, finding 7) — invisible until
+         focused; lets keyboard/screen-reader users bypass the nav (now a
+         real interactive menu on mobile, not just a couple of links). -->
+    <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
     <slot />
 
     <!-- Lenis smooth scroll — loads after page content -->
