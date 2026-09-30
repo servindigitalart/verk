@@ -1,0 +1,113 @@
+---
+/**
+ * bot.astro — Public identity page for VerkProspectBot.
+ *
+ * The crawler's User-Agent points here: VerkProspectBot/0.1 (+https://verk-site.netlify.app/bot).
+ * Temporary public identity until the production domain exists; no dedicated contact yet.
+ * Every limit stated on this page is enforced in verk-prospect-engine (docs/01 Website
+ * intelligence → Fetch policy). Change them there first, then here.
+ */
+
+import Layout from '../layouts/Layout.astro';
+
+const userAgent = 'VerkProspectBot/0.1 (+https://verk-site.netlify.app/bot)';
+---
+
+<Layout
+  title="VerkProspectBot"
+  description="Qué es VerkProspectBot, qué solicita, cómo respeta robots.txt, sus límites de solicitudes y cómo excluir tu sitio."
+>
+  <main id="main-content" class="section section-light">
+    <article class="container-narrow prose bot-page">
+      <p><a href="/" class="link-line">← Verk</a></p>
+
+      <h1>VerkProspectBot</h1>
+
+      <p>
+        Si ves este agente en los registros de tu servidor, esta página explica quién es, qué hace y
+        cómo detenerlo.
+      </p>
+      <pre><code>{userAgent}</code></pre>
+
+      <h2>Quién es y para qué sirve</h2>
+      <p>
+        VerkProspectBot es el rastreador de <a href="/" class="link-line">Verk</a>, un estudio de
+        infraestructura digital en México. Revisa la página de inicio pública de sitios de empresas
+        para evaluar aspectos básicos de su presencia web: si el sitio responde, si usa HTTPS, si es
+        apto para móviles y si ofrece una forma de contacto. Usamos ese diagnóstico para identificar
+        empresas a las que nuestros servicios podrían ser útiles.
+      </p>
+
+      <h2>Qué solicita</h2>
+      <ul>
+        <li>Tu archivo <code>/robots.txt</code>, siempre antes que cualquier otra cosa.</li>
+        <li>
+          Tu página de inicio (<code>/</code>), y sólo si <code>robots.txt</code> lo permite. Si
+          HTTPS falla, un único intento por HTTP.
+        </li>
+      </ul>
+      <p>
+        No sigue enlaces, no envía formularios, no ejecuta JavaScript, no inicia sesión y no
+        descarga imágenes ni otros recursos. Lee como máximo 512 KB de HTML por página.
+      </p>
+
+      <h2>robots.txt</h2>
+      <p>
+        VerkProspectBot respeta <code>robots.txt</code> sin excepciones y no tiene forma de
+        ignorarlo. Si tu <code>robots.txt</code> no responde por un error de red o del servidor, no
+        solicitamos tu página. Para bloquearlo:
+      </p>
+      <pre><code>User-agent: VerkProspectBot
+Disallow: /</code></pre>
+
+      <h2>Límites de solicitudes</h2>
+      <ul>
+        <li>Como máximo una visita a tu página de inicio por ejecución.</li>
+        <li>Al menos 1 segundo entre solicitudes al mismo servidor.</li>
+        <li>Como máximo 5 solicitudes simultáneas en total, entre todos los sitios.</li>
+        <li>10 segundos de espera máxima por solicitud y como máximo 3 redirecciones.</li>
+      </ul>
+      <p>
+        No usa proxies, no oculta su identidad, no resuelve CAPTCHAs ni intenta evadir bloqueos. Un
+        bloqueo se registra y se respeta.
+      </p>
+
+      <h2>Cómo excluir tu sitio</h2>
+      <p>
+        Por ahora, el mecanismo de exclusión es <code>robots.txt</code>: con las dos líneas de arriba,
+        VerkProspectBot no solicitará tu página de inicio. Todavía no tenemos un correo de contacto
+        dedicado para este rastreador; lo publicaremos en esta página cuando configuremos nuestro
+        dominio de producción.
+      </p>
+
+      <h2 lang="en">In English</h2>
+      <p lang="en">
+        VerkProspectBot is the crawler of Verk, a digital infrastructure studio in Mexico. It reads
+        <code>/robots.txt</code> first and then, only if allowed, your public homepage once per run:
+        no link following, no forms, no JavaScript, at most 512 KB of HTML, at least 1 second between
+        requests to your server, 5 concurrent requests in total. It never evades blocks. To opt out,
+        use robots.txt: <code>User-agent: VerkProspectBot</code> / <code>Disallow: /</code>. A dedicated
+        contact address will be published here once our production domain is configured.
+      </p>
+    </article>
+  </main>
+</Layout>
+
+<style>
+  .bot-page {
+    padding-block: var(--space-2xl, 6rem);
+  }
+  .bot-page h2 {
+    margin-top: 2.5rem;
+  }
+  .bot-page pre {
+    overflow-x: auto;
+    padding: 1rem;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    white-space: pre;
+  }
+  .bot-page ul {
+    padding-left: 1.25rem;
+  }
+</style>
