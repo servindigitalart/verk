@@ -28,79 +28,25 @@
  *   45 = Light  55 = Roman  65 = Medium  75 = Bold  95 = Black
  */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Display';
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskDSPro-45Lt.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Display';   font-weight: 300;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskDSPro-45Lt.woff2') format('woff2'); } */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Display';
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskDSPro-55Rg.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Display';   font-weight: 400;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskDSPro-55Rg.woff2') format('woff2'); } */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Display';
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskDSPro-65Md.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Display';   font-weight: 500;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskDSPro-65Md.woff2') format('woff2'); } */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Display';
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskDSPro-75Bd.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Display';   font-weight: 700;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskDSPro-75Bd.woff2') format('woff2'); } */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Display';
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskDSPro-95Bl.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Display';   font-weight: 900;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskDSPro-95Bl.woff2') format('woff2'); } */
 
 /* ─── Neue Haas Grotesk Text ────────────────────────────────── */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Text';
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskTXPro-45Lt.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Text';   font-weight: 300;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskTXPro-45Lt.woff2') format('woff2'); } */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Text';
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskTXPro-55Rg.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Text';   font-weight: 400;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskTXPro-55Rg.woff2') format('woff2'); } */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Text';
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskTXPro-65Md.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Text';   font-weight: 500;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskTXPro-65Md.woff2') format('woff2'); } */
 
-@font-face {
-  font-family: 'Neue Haas Grotesk Text';
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NHaasGroteskTXPro-75Bd.woff2') format('woff2');
-}
+/* desactivada 2026-11-05 (woff2 no subido → 404 en /bot; ver docs/24) · @font-face {   font-family: 'Neue Haas Grotesk Text';   font-weight: 700;   font-style: normal;   font-display: swap;   src: url('/fonts/NHaasGroteskTXPro-75Bd.woff2') format('woff2'); } */
 
 /* ─── Semantic HTML elements ────────────────────────────────── */
 

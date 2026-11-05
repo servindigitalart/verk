@@ -1,0 +1,22 @@
+---
+// 404 · misma identidad que la home, sin hero WebGL. Netlify sirve dist/404.html para cualquier ruta inexistente.
+import Experience from '../layouts/Experience.astro';
+import { ISOTIPO, WORDMARK } from '../components/site/brand';
+---
+<Experience title="Página no encontrada — Verk" description="Esta página no existe." noIndex>
+  <main class="page-grid" id="main">
+    <section class="sec nf" data-surface="cream" aria-labelledby="t-404">
+      <a class="nf-wm" href="/" aria-label="Verk — inicio"><svg viewBox="0 0 902 217" fill="currentColor" aria-hidden="true" set:html={WORDMARK} /></a>
+      <p class="label muted">404</p>
+      <h1 class="h2" id="t-404">Esta página no existe.</h1>
+      <p class="lead">Puede que el enlace haya cambiado. El resto del sistema sigue en su sitio.</p>
+      <p><a class="btn btn-ink" href="/">Volver al inicio</a></p>
+      <svg class="nf-mark" viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} />
+    </section>
+  </main>
+</Experience>
+<style>
+  .nf { min-height: 100svh; align-content: center; }
+  .nf-wm svg { width: 96px; height: auto; margin-bottom: 24px; }
+  .nf-mark { justify-self: end; height: min(30svh, 240px); width: auto; color: var(--violet); }
+</style>

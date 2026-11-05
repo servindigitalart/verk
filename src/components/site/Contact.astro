@@ -1,0 +1,13 @@
+---
+// Contacto (lime). Copy del sitio en producción (src/components/CTA.astro). Único destino de WhatsApp del sitio:
+// los CTA del header y del menú llevan aquí (#contacto); este botón abre la conversación (src/data/contact.js).
+import { ISOTIPO } from './brand';
+import { WHATSAPP_URL as wa } from '../../data/contact.js';
+---
+<section class="sec contact" id="contacto" data-surface="lime" data-contact aria-labelledby="t-con">
+  <p class="label">05 · Contacto</p>
+  <h2 class="h2" id="t-con">Ya viste cómo pensamos.<br> Ahora construyamos el tuyo.</h2>
+  <p class="lead">Analizamos tu presencia digital y te entregamos un plan concreto. Sin compromiso.</p>
+  <p><a class="btn btn-ink c-cta" href={wa} target="_blank" rel="noopener noreferrer">Solicitar auditoría<span class="sr-only"> por WhatsApp (abre una pestaña nueva)</span><svg viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} /></a></p>
+  <svg class="c-mark" viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} />
+</section>

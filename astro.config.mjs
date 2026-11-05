@@ -2,8 +2,10 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  // Update to confirmed domain before deployment
-  site: 'https://verk.mx',
+  // Dominio canónico. Netlify define URL con el dominio principal del sitio en cada build (hoy verk-site.netlify.app;
+  // cuando se conecte el dominio propio como principal, pasará a ser ese). Fuera de Netlify se usa el dominio previsto,
+  // verk.mx, que todavía NO resuelve (2026-11-05): ver docs/24-production-readiness.md.
+  site: process.env.CONTEXT === 'production' && process.env.URL ? process.env.URL : 'https://verk.mx',
 
   // Static output — deploys as prebuilt HTML/CSS/JS to Netlify.
   // If SSR or server functions (contact form, etc.) are added later,

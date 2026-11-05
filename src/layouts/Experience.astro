@@ -1,0 +1,52 @@
+---
+/**
+ * Experience.astro — layout del rediseño (integración F3). Solo lo usa la home.
+ * Layout.astro (y con él /bot) queda intacto. Sin ClientRouter, Lenis ni cursor propio: scroll nativo (el header
+ * geo + wipe se sincroniza en el evento scroll) y un único reloj por pieza animada.
+ */
+import '@fontsource/geist-mono/latin-400.css';
+import '@fontsource/geist-mono/latin-500.css';
+import '../styles/site.css';
+
+interface Props { title: string; description: string; noIndex?: boolean }
+const { title, description, noIndex = false } = Astro.props;
+// Dominio canónico: `site` de astro.config.mjs (dominio principal de Netlify en producción; ver docs/24)
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL('/og/verk-og.png', Astro.site).href;     // 1200×630, scripts/og-image.mjs
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#F0EEE9" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noIndex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonicalUrl} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Verk: wordmark e isotipo" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:site_name" content="Verk" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- estados ocultos solo con JS; la marca del hero espera al campo salvo con reduced-motion (respaldo CSS a 2.5 s) -->
+    <script is:inline>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('mark-pending');</script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Saltar al contenido</a>
+    <slot />
+    <script>import '../scripts/site/boot.js';</script>
+  </body>
+</html>

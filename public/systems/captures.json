@@ -1,0 +1,30 @@
+{
+  "capturado": "2026-11-05",
+  "viewport": "1440×900, primera pantalla",
+  "sitios": {
+    "sis-03": {
+      "url": "https://prisma-site-eight.vercel.app/",
+      "archivo": "/systems/sis-03-site.webp",
+      "w": 1280,
+      "h": 800,
+      "kb": 27,
+      "titulo": "PRISMA — Identidad Cromática del Cine"
+    },
+    "sis-05": {
+      "url": "https://cleansolaraus.com/",
+      "archivo": "/systems/sis-05-site.webp",
+      "w": 1280,
+      "h": 800,
+      "kb": 37.1,
+      "titulo": "CleanSolarAus — Solar Panel Cleaning & Maintenance Guides for Australia"
+    },
+    "sis-10": {
+      "url": "https://waterlu.com.mx/",
+      "archivo": "/systems/sis-10-site.webp",
+      "w": 1280,
+      "h": 800,
+      "kb": 62.3,
+      "titulo": "WATERLÜ — Agua Cool para Restaurantes"
+    }
+  }
+}

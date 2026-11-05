@@ -1,0 +1,17 @@
+---
+const services = [
+  ['Sitios Web', 'Tu sitio web no es una vitrina. Es el primer paso de un sistema que convierte visitas en conversaciones reales.'],
+  ['Automatizaciones', 'Cada tarea que se repite puede automatizarse. Construimos los flujos que ejecutan seguimientos, confirmaciones y recordatorios sin intervención.'],
+  ['Integraciones CRM', 'Cuando tus herramientas no hablan entre sí, los clientes potenciales se pierden. Conectamos CRM, WhatsApp, formularios y calendario para que nada quede sin respuesta.'],
+  ['Herramientas con IA', 'Las herramientas de IA genéricas no conocen tu negocio. Construimos las tuyas: entrenadas en tu operación, útiles desde el primer día.'],
+];
+---
+<section class="sec" id="servicios" data-surface="violet" aria-labelledby="t-svc">
+  <p class="label">02 · Servicios</p>
+  <h2 class="h2" id="t-svc">Cuatro disciplinas.<br> Un sistema.</h2>
+  <div class="svc-rows">
+    {services.map(([name, body], i) => (
+      <article class="svc"><span class="label">{String(i + 1).padStart(2, '0')}</span><h3><i class="svc-bar" aria-hidden="true"></i>{name}</h3><p>{body}</p></article>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,22 @@
+---
+// Header flotante (F3): píldora geo + wipe con indicador A+B «ruta + isotipo». Estado en src/scripts/site/header.js.
+import { ISOTIPO, WORDMARK } from './brand';
+const links = [['#servicios', 'Servicios'], ['#metodo', 'Método'], ['#sistemas', 'Sistemas'], ['#contacto', 'Contacto']];
+const iso = `<svg viewBox="0 0 567 739" fill="currentColor">${ISOTIPO}</svg>`;
+---
+<header class="nav" data-nav-root>
+  <div class="pill" data-pill data-v="cream">
+    <a class="nav-mark" href="#top" aria-label="Verk — inicio"><svg viewBox="0 0 902 217" fill="currentColor" aria-hidden="true" set:html={WORDMARK} /></a>
+    <nav class="nav-links" aria-label="Secciones">
+      {links.map(([h, l]) => <a href={h}>{l}</a>)}
+      <span class="ind" data-kind="route-mark" aria-hidden="true"><span class="route"><i></i><b></b><b></b><b></b><b></b><span class="imark" set:html={iso} /></span></span>
+    </nav>
+    <span class="ind-m" aria-hidden="true"><span class="route"><i></i>{[0, 1, 2, 3].map((i) => <b style={`left:${(i * 64) / 3}px`}></b>)}<span class="imark" set:html={iso} /></span><span data-name>Inicio</span></span>
+    <a class="btn nav-cta" href="#contacto">Auditoría</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">Menú</button>
+  </div>
+</header>
+<div class="menu" id="menu" hidden>
+  {links.map(([h, l]) => <a href={h}>{l}</a>)}
+  <a class="btn btn-lime" href="#contacto">Solicitar auditoría</a>
+</div>

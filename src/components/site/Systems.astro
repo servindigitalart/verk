@@ -1,0 +1,37 @@
+---
+// Sistemas · propuesta 1 de F3 (índice editorial asimétrico): lista tipográfica + visor del sistema activo + panel de
+// exploración (src/scripts/site/portfolio.js). Todo el contenido está en el HTML: sin JS se lee completo.
+import { SYSTEMS, EMBED_CHECKED } from '../../data/systems.js';
+import { t } from '../../scripts/site/icons.js';
+const pad = (i: number) => String(i + 1).padStart(2, '0');
+const cap = (s: any) => s.cap.join(' · ');
+const c: Record<string, number> = {}; for (const s of SYSTEMS) c[s.state] = (c[s.state] ?? 0) + 1;
+const count = `${SYSTEMS.length} sistemas · ${c.op ?? 0} operativos (1 ⏳) · ${c.evo ?? 0} en evolución · ${c.inv ?? 0} en investigación · ${c.dev ?? 0} en desarrollo activo`;
+const data = JSON.stringify({ checked: EMBED_CHECKED, systems: SYSTEMS }).replace(/</g, '\\u003c');
+---
+<section id="sistemas" data-surface="ink" aria-labelledby="t-sys">
+  <div class="pf pf-index" data-pf="index">
+    <header class="pf-head"><p class="label muted">04 · Sistemas</p><h2 class="h2" id="t-sys">Sistemas.</h2><p class="pf-count label muted" set:html={t(count)} /></header>
+    <ol class="ix-list">
+      {SYSTEMS.map((s: any, i: number) => (
+        <li class="ix-row" data-id={s.id}><button class="ix-btn" type="button" data-open={s.id} aria-haspopup="dialog" aria-current={i === 0 ? 'true' : undefined}>
+          <span class="ix-id label">{s.id}</span><span class="ix-name">{s.name}</span><span class="ix-cap label">{cap(s)}</span>
+          <span class="st" data-state={s.state}><i aria-hidden="true"></i><Fragment set:html={t(s.stateLabel + (s.statePending ? ' ⏳' : ''))} /></span>
+        </button></li>
+      ))}
+    </ol>
+    <aside class="ix-viewer" aria-label="Vista del sistema activo">
+      {SYSTEMS.map((s: any, i: number) => (
+        <article class="ix-card" data-id={s.id} hidden={i !== 0} aria-label={s.name}>
+          {s.logo
+            ? <div class={`plate plate-${s.logo.kind}`} style={`--plate:${s.logo.plate}`}><img src={s.logo.src} width={s.logo.w} height={s.logo.h} alt={`Logo de ${s.name}`} loading="lazy" decoding="async" /></div>
+            : <div class="plate plate-none"><span class="pn-name">{s.name}</span><span class="pn-note" set:html={t('Logo pendiente ⏳')} /></div>}
+          <p class="ix-glosa">{s.title ?? s.glosa}{s.pending && <> <span class="label" set:html={t('⏳ contenido pendiente')} /></>}</p>
+          <ol class="layers">{s.layers.map(([k, v]: [string, string], j: number) => <li><span class="ly-n">{pad(j)}</span><span class="ly-k">{k}</span><span class="ly-v" set:html={t(v)} /></li>)}</ol>
+          <p class="ix-act"><span class="label muted">{s.id} · {cap(s)}</span><span class="label" set:html={t('Explorar →')} /></p>
+        </article>
+      ))}
+    </aside>
+  </div>
+  <script type="application/json" id="sys-data" set:html={data} />
+</section>
