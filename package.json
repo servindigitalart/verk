@@ -10,7 +10,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "qa": "playwright test",
+    "qa:local": "QA_LOCAL=1 playwright test",
+    "qa:a11y": "playwright test a11y",
+    "qa:perf": "playwright test perf",
+    "qa:shots": "playwright test sections",
+    "qa:lighthouse": "node scripts/qa/lighthouse.mjs",
+    "qa:report": "playwright show-report qa-artifacts/report",
+    "lab": "python3 -m http.server 4400 --bind 127.0.0.1"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -20,7 +28,15 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@axe-core/playwright": "^4.14.0",
+    "@fontsource-variable/instrument-sans": "^5.3.0",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^22.0.0",
+    "@types/three": "^0.187.0",
+    "gsap": "^3.15.0",
+    "lighthouse": "^12.8.2",
+    "motion": "^14.9.0",
+    "three": "^0.187.0",
     "typescript": "^5.7.0"
   }
 }

@@ -142,6 +142,37 @@ Políticas de embebido reverificadas el 2026-11-05.
   - Se reactivan cuando haya licencia web.
 - **`<pre>` desplazable.** Ahora es enfocable con el teclado (`tabindex="0"`), requisito de axe `scrollable-region-focusable`.
 
+## Publicación (verificada)
+
+**Push**
+- Commit `f9510d7` («feat: integrate F3 generative experience into the production site»), `f8d12af..f9510d7` a `origin/main`, 2026-11-05 23:49:45 UTC.
+- Antes del push se verificó un build limpio desde el commit (`npm ci` con el lockfile del commit, `CONTEXT=production`).
+
+**Netlify**
+- Desplegó automáticamente desde `main`; la home nueva se sirvió desde las 23:50:16 UTC.
+- No hay CLI de Netlify ni acceso al panel en este equipo: se verificó el resultado publicado, no el log del build.
+
+**Verificación de https://verk-site.netlify.app/** (`scripts/qa/verify-deploy.mjs`, 1440 y 390)
+
+| | Resultado |
+|---|---|
+| Hero | Campo WebGL activo (≈330 frames en 5 s), Worker de geometría cargado, sin scroll horizontal |
+| Metadatos | Canonical y `og:image` en `verk-site.netlify.app` |
+| Navegación | Anclas `#top`, `#servicios`, `#metodo`, `#sistemas`, `#contacto` y `#main` existen |
+| Portfolio | Panel de Sonoro con iframe cargado; WATERLÜ con captura real y «Abrir sitio» |
+| WhatsApp | Un único enlace; `wa.me` responde 302 a `api.whatsapp.com/send/?phone=524793201003…` con el mensaje |
+| Rutas | `/bot` 200 · `/robots.txt` 200 (sitemap en el dominio servido) · `/sitemap-index.xml` 200 · `/og/verk-og.png` 200 · `/posters/hero-fluid.avif` 200 · ruta inexistente → 404 con la página propia |
+| Errores | Sin errores propios. El único 404 de consola es la analítica interna de Sonoro dentro de su iframe |
+
+**Rendimiento y pruebas en producción**
+
+| | Rendimiento | Accesibilidad | Buenas prácticas | SEO | LCP | CLS | TBT |
+|---|---|---|---|---|---|---|---|
+| Lighthouse móvil | 100 | 100 | 100 | 100 | 1.0 s | 0 | 0–10 ms |
+| Lighthouse escritorio | 100 | 100 | 100 | 100 | 0.3 s | 0 | 0 ms |
+
+`tests/qa` contra producción: 34/35. El presupuesto de tareas largas en móvil (CPU ×4) es intermitente: falla en paralelo y pasa en solitario (128 ms, LCP 840 ms).
+
 ## B. Pendiente por información tuya
 1. **Licencia de NHG.** Elegir Monotype autoalojada o Adobe Fonts, y comprarla.
 2. **Dominio definitivo.** Conectar `verk.mx` (o el elegido) en Netlify como dominio principal (DNS). No se ha tocado.

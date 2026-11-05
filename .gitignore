@@ -30,3 +30,9 @@ pnpm-debug.log*
 
 # TypeScript build info
 *.tsbuildinfo
+
+# QA artifacts (Playwright, Lighthouse, screenshots)
+qa-artifacts/
+test-results/
+playwright-report/
+docs/screenshots/
