@@ -1,7 +1,7 @@
 // VERK · header adaptativo (Morphing Navigation).
 //   geo    la superficie bajo la píldora se lee en el propio evento `scroll` (antes de pintar) → mismo frame
 //   shift  al cambiar de superficie, el fondo de la píldora viaja por un degradado origen → acento → destino
-//          (mismo sentido que el scroll); el texto cambia de color a mitad del barrido. Geometría constante.
+//          (mismo sentido que el scroll, 420 ms, una sola animación WAAPI reversible); el texto cambia a mitad.
 //   glow   el isotipo de progreso recibe un brillo breve de su propio color en cada cambio de sección
 //   prog   el isotipo oficial se construye con el recorrido (--fill, barrido a 45°) y avanza un paso en cada sección
 // El marcado del indicador lo emite Header.astro; aquí solo se actualiza el estado.
@@ -45,7 +45,9 @@ export function initHeader() {
     pill.style.setProperty('--fill', fill.toFixed(4));
     if (k !== active) {
       // al llegar a una sección nueva, las barras del isotipo de la ruta dan un paso por su eje (1-2-3)
-      if (active !== -1) { all('.prog-mark').forEach((m) => m.classList.add('step')); setTimeout(() => all('.prog-mark').forEach((m) => m.classList.remove('step')), 300); }
+      // paso 1-2-3 de las barras. Clase propia del header: «step» colisionaba con la ruta de Método (.step::after,
+      // una línea ink de 3 px) y dibujaba una línea negra sobre el isotipo durante 300 ms.
+      if (active !== -1) { markEl?.classList.add('prog-step'); clearTimeout(stepT); stepT = setTimeout(() => markEl?.classList.remove('prog-step'), 300); }
       active = k;
       const name = NAMES[ORDER[k]], num = String(k + 1).padStart(2, '0');
       all('[data-name]').forEach((n) => { if (n.textContent !== name) n.textContent = name; });
@@ -54,19 +56,44 @@ export function initHeader() {
     hide(y);
   };
 
-  // transición cromática: el fondo recorre un degradado del color de origen al de destino pasando por el acento
-  // del destino; el texto y el CTA cambian a mitad del recorrido (CSS). Se reinicia limpiamente si llega otro cambio.
-  let shiftT = 0;
+  // transición cromática: UNA sola animación (Web Animations API) del fondo de la píldora por un degradado
+  // origen → acento del destino → destino, en el sentido del scroll (420 ms). Determinista e interrumpible:
+  //   · si el destino nuevo es el origen de la animación en curso (el usuario invierte el scroll), la misma animación
+  //     se invierte desde su punto actual (sin saltos ni reinicio);
+  //   · si es otro destino, se cancela y empieza otra desde el último destino: siempre prevalece el último válido;
+  //   · al terminar se limpia el degradado y queda el color sólido de la superficie (sin timeouts pendientes).
+  // Texto, CTA y relleno del isotipo cambian con una transición corta a mitad del barrido (CSS). Geometría constante.
+  const bg = pill.querySelector('.pill-bg');
+  let anim = null, animFrom = '', animTo = '', glowAnim = null, stepT = 0;
+  const T = 420, EASE = 'cubic-bezier(.65, 0, .35, 1)';
+  const glow = () => {
+    if (!markEl) return;
+    glowAnim?.cancel();
+    glowAnim = markEl.animate([
+      { filter: 'drop-shadow(0 0 0 transparent)' },
+      { filter: 'drop-shadow(0 0 4px var(--prog)) drop-shadow(0 0 10px color-mix(in srgb, var(--prog) 55%, transparent))', offset: .45 },
+      { filter: 'drop-shadow(0 0 0 transparent)' },
+    ], { duration: T + 80, easing: 'cubic-bezier(.16, 1, .3, 1)' });
+  };
   function shift(v, dir) {
+    const prev = pill.dataset.v;
+    if (reduced) return set(pill, v);
+    if (anim && anim.playState === 'running' && v === animFrom) {    // inversión: la misma animación vuelve atrás
+      set(pill, v); [animFrom, animTo] = [animTo, animFrom]; anim.reverse(); glow(); return;
+    }
     const from = getComputedStyle(pill).getPropertyValue('--pill-bg').trim();
     set(pill, v);
-    if (reduced || !from) return;
-    const cs = getComputedStyle(pill);
-    pill.style.setProperty('--from', from); pill.style.setProperty('--to', cs.getPropertyValue('--pill-bg').trim());
-    pill.style.setProperty('--acc', cs.getPropertyValue('--prog').trim()); pill.style.setProperty('--dir', dir);
-    pill.classList.remove('shift'); markEl?.classList.remove('glow'); void pill.offsetWidth;
-    pill.classList.add('shift'); markEl?.classList.add('glow');
-    clearTimeout(shiftT); shiftT = setTimeout(() => { pill.classList.remove('shift'); markEl?.classList.remove('glow'); }, 900);
+    const cs = getComputedStyle(pill), to = cs.getPropertyValue('--pill-bg').trim(), acc = cs.getPropertyValue('--prog').trim();
+    anim?.cancel();
+    if (!from || !bg) return;
+    const down = dir > 0;
+    bg.style.backgroundImage = `linear-gradient(${down ? 90 : 270}deg, ${from} 0 34%, color-mix(in oklab, ${from}, ${acc} 55%) 44%, ${acc} 50%, color-mix(in oklab, ${to}, ${acc} 55%) 56%, ${to} 66% 100%)`;
+    bg.style.backgroundSize = '320% 100%';
+    animFrom = prev; animTo = v;
+    const a = (anim = bg.animate([{ backgroundPosition: down ? '0% 0' : '100% 0' }, { backgroundPosition: down ? '100% 0' : '0% 0' }], { duration: T, easing: EASE, fill: 'forwards' }));
+    a.onfinish = () => { if (anim !== a) return; anim = null; bg.style.backgroundImage = ''; bg.style.backgroundSize = ''; a.cancel(); };
+    a.oncancel = () => { if (anim === a || anim === null) { bg.style.backgroundImage = ''; bg.style.backgroundSize = ''; } };
+    glow();
   }
   // ── móvil: oculta al bajar, aparece al subir (nunca durante un viaje de navegación) ──
   const mobile = matchMedia('(max-width: 767px)');
@@ -81,7 +108,9 @@ export function initHeader() {
   measure(); update();
   on(window, 'scroll', update, { passive: true });
   on(window, 'resize', () => { measure(); update(); });
-  const ro = new ResizeObserver(() => { measure(); update(); });
+  // medición en el siguiente frame: el link activo en negrita cambia de ancho y re-dispararía el observador en el mismo ciclo
+  let roRaf = 0;
+  const ro = new ResizeObserver(() => { cancelAnimationFrame(roRaf); roRaf = requestAnimationFrame(() => { measure(); update(); }); });
   sections.forEach((s) => ro.observe(s)); ro.observe(linksBox); cleanup.push(() => ro.disconnect());
   document.fonts?.ready.then(() => { measure(); update(); });
 

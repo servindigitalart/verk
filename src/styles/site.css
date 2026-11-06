@@ -103,8 +103,9 @@ img, svg, canvas { display: block; }
 
 /* ═══════════ Header ═══════════
    La píldora conserva su lenguaje, su geometría (siempre redondeada) y la lectura de la superficie bajo ella.
-   · Transición cromática: al cambiar de sección, el fondo recorre un degradado origen → acento del destino → destino
-     en el sentido del scroll (760 ms); texto y CTA cambian a mitad del barrido. Sin cortes, sin cambios de forma.
+   · Transición cromática (header.js, Web Animations API): al cambiar de sección, el fondo recorre un degradado
+     origen → acento del destino → destino en el sentido del scroll (420 ms), reversible si el scroll se invierte;
+     texto, CTA y relleno del isotipo cambian a mitad del barrido. Sin cortes, sin cambios de forma.
    · Progreso: el isotipo oficial (26 px) se construye con el recorrido mediante un barrido a 45° (contorno → relleno);
      en cada sección avanza un paso 1-2-3 por su eje y recibe un brillo breve de su propio color. */
 .nav { position: fixed; z-index: 50; top: max(12px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; transition: transform 200ms var(--ease-ui); }
@@ -112,24 +113,20 @@ img, svg, canvas { display: block; }
   --pill-bg: var(--ink); --pill-fg: var(--cream); --cta-bg: var(--lime); --cta-fg: var(--ink); --prog: var(--lime);
   position: relative; display: flex; align-items: center; gap: clamp(12px, 1.8vw, 24px);
   padding: 10px 10px 10px 22px; white-space: nowrap; color: var(--pill-fg);
-  transition: color 240ms var(--ease-ui) 260ms;
+  transition: color 160ms var(--ease-ui) 140ms;   /* el texto cambia a mitad del barrido cromático (header.js, 420 ms) */
 }
 .pill-bg { position: absolute; inset: 4px; z-index: -1; border-radius: 999px; background: var(--pill-bg); }
 .pill[data-v="violet"] { --pill-bg: var(--cream); --pill-fg: var(--ink); --cta-bg: var(--ink); --cta-fg: var(--lime); --prog: var(--violet); }
 .pill[data-v="cream-warm"] { --pill-bg: var(--violet); --pill-fg: var(--ink); --cta-bg: var(--ink); --cta-fg: var(--lime); --prog: var(--ink); }
 .pill[data-v="ink"] { --pill-bg: var(--cream); --pill-fg: var(--ink); --cta-bg: var(--lime); --cta-fg: var(--ink); --prog: var(--violet); }
 .pill[data-v="lime"] { --pill-bg: var(--ink); --pill-fg: var(--lime); --cta-bg: var(--cream); --cta-fg: var(--ink); --prog: var(--lime); }
-.pill.shift .pill-bg {
-  background-image: linear-gradient(calc(90deg * var(--dir, 1)), var(--from) 0 34%, color-mix(in oklab, var(--from), var(--acc) 55%) 44%, var(--acc) 50%, color-mix(in oklab, var(--to), var(--acc) 55%) 56%, var(--to) 66% 100%);
-  background-size: 320% 100%; animation: pill-shift 760ms cubic-bezier(.65, 0, .35, 1) both; }
-@keyframes pill-shift { from { background-position: 0% 0; } to { background-position: 100% 0; } }
 .nav-mark { display: flex; align-items: center; min-height: 44px; }
 .nav-mark svg { width: 62px; height: auto; }
 .nav-links { position: relative; display: flex; gap: clamp(14px, 1.8vw, 26px); }
 .nav-links a { position: relative; font: 500 14px/1 var(--text); text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
 .nav-links a[aria-current="true"] { font-weight: 700; }   /* el estado activo no depende solo del indicador ni del color */
 .pill .nav-cta { min-height: 40px; padding: 0 18px; font-size: 14px; --b-bg: var(--cta-bg); --b-fg: var(--cta-fg); --b-fill: var(--pill-fg); --b-fill-fg: var(--pill-bg);
-  transition: transform 260ms cubic-bezier(.34, 1.4, .64, 1), color 240ms var(--ease-ui) 260ms, background-color 240ms var(--ease-ui) 260ms; }
+  transition: transform 260ms cubic-bezier(.34, 1.4, .64, 1), color 160ms var(--ease-ui) 140ms, background-color 160ms var(--ease-ui) 140ms; }
 .pill :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .nav-toggle { display: none; min-height: 44px; min-width: 44px; padding: 0 14px; align-items: center; justify-content: center; font: 500 13px var(--mono); color: inherit; background: none; border: 0; border-radius: 999px; cursor: pointer; }
 
@@ -141,17 +138,15 @@ img, svg, canvas { display: block; }
 /* el contorno solo existe donde aún no hay relleno: semiplano complementario (u − v ≥ c), sin trazos superpuestos */
 .prog-ghost { --c: calc(var(--fill, 0) * 2 - 1);
   clip-path: polygon(calc((var(--c) - 3) * 100%) -300%, calc((var(--c) + 3) * 100%) 300%, calc((var(--c) + 9) * 100%) -300%, calc((var(--c) + 3) * 100%) -900%); }
-.prog-fill { transition: color 240ms var(--ease-ui) 260ms; }
-.prog-mark.glow { animation: prog-glow 820ms cubic-bezier(.16, 1, .3, 1); }
-@keyframes prog-glow { 0% { filter: drop-shadow(0 0 0 transparent); } 40% { filter: drop-shadow(0 0 5px var(--prog)) drop-shadow(0 0 12px color-mix(in srgb, var(--prog) 55%, transparent)); } 100% { filter: drop-shadow(0 0 0 transparent); } }
+.prog-fill { transition: color 160ms var(--ease-ui) 140ms; }
 .prog-fill { color: var(--prog);
   /* semiplano u − v ≤ c, c = 2·fill − 1: un barrido perpendicular al eje de las barras, de abajo-izquierda a arriba-derecha */
   --c: calc(var(--fill, 0) * 2 - 1);
   clip-path: polygon(calc((var(--c) - 3) * 100%) -300%, calc((var(--c) + 3) * 100%) 300%, calc((var(--c) - 3) * 100%) 900%, calc((var(--c) - 9) * 100%) 300%); }
 .prog-mark path { transition: transform 260ms var(--ease-ui); }
-.prog-mark.step path:nth-child(1) { transform: translate(60px, -60px); }
-.prog-mark.step path:nth-child(2) { transform: translate(60px, -60px); transition-delay: 40ms; }
-.prog-mark.step path:nth-child(3) { transform: translate(60px, -60px); transition-delay: 80ms; }
+.prog-mark.prog-step path:nth-child(1) { transform: translate(60px, -60px); }
+.prog-mark.prog-step path:nth-child(2) { transform: translate(60px, -60px); transition-delay: 40ms; }
+.prog-mark.prog-step path:nth-child(3) { transform: translate(60px, -60px); transition-delay: 80ms; }
 .prog-k { display: inline-flex; align-items: baseline; gap: 8px; font: 500 12px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
 .prog-k i { font-style: normal; display: none; }
 
@@ -169,7 +164,7 @@ img, svg, canvas { display: block; }
 .menu a:not(.btn) { font: 700 clamp(40px, 12vw, 64px)/1.05 var(--text); letter-spacing: -.03em; text-decoration: none; min-height: 44px; }
 .menu .btn { margin-top: 24px; justify-self: start; }
 .menu :focus-visible { outline-color: var(--lime); }
-@media (prefers-reduced-motion: reduce) { .prog-mark path, .pill, .prog-fill { transition: none !important; } .pill.shift .pill-bg, .prog-mark.glow { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .prog-mark path, .pill, .prog-fill { transition: none !important; } }
 
 /* ═══════════ Sistemas ═══════════ */
 /* Sistemas (propuesta 1 de F3: índice editorial). Sección ink (secuencia aprobada). Textos: cream 16.53:1 · secundario #8C8C8C 5.62:1. */
