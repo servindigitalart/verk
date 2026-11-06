@@ -50,6 +50,7 @@ export async function startField(scene, host = document.querySelector('[data-fie
   async function geoMark() {
     const sdf = await mark.sdf();
     if (ctx.lost) return;
+    env.sdfCPU = sdf;                                   // copia en CPU: zona interactiva del isotipo (modo lima)
     env.sdfTex?.tex && ctx.gl.deleteTexture(env.sdfTex.tex);
     env.sdfTex = ctx.texture(sdf.w, sdf.h, { format: 'RGBA16F', data: sdf.data });
   }
@@ -72,6 +73,30 @@ export async function startField(scene, host = document.querySelector('[data-fie
   function scaleCanvas() {
     env.dpr = Math.min(devicePixelRatio || 1, cfg.dprCap) * api.state.scale;
     canvas.width = Math.round(env.W * env.dpr); canvas.height = Math.round(env.H * env.dpr);
+  }
+  // ── modo lima: el cursor (o el toque) sobre el isotipo lleva marca y partículas de violeta a lima ──
+  // Zona interactiva = las barras + un margen (SDF de la marca en CPU), no todo el hero. ~380 ms de transición.
+  const markEl = host.querySelector('.mark'), subEl = host.querySelector('.sub');
+  let lime = 0, lastSx = '';
+  const VIO = [107, 106, 244], LIM = [191, 234, 0];
+  const overMark = () => {
+    const p = mark.st.ptr, s = env.sdfCPU;
+    if (!s || p.ton < .5 || p.tx < 0) return false;
+    const u = p.tx / env.aspect, v = p.ty; if (u < 0 || u > 1 || v < 0 || v > 1) return false;
+    const i = (Math.min(s.h - 1, Math.floor(v * s.h)) * s.w + Math.min(s.w - 1, Math.floor(u * s.w))) * 4 + 3;
+    return s.data[i] < cfg.limeReach / env.H;
+  };
+  function limeStep(dt) {
+    const target = overMark() ? 1 : 0;
+    lime = reduced ? target : lime + (target - lime) * (1 - Math.exp(-dt * 6.5));
+    if (Math.abs(lime - target) < .002) lime = target;
+    const c = VIO.map((v, i) => Math.round(v + (LIM[i] - v) * lime));
+    if (markEl) markEl.style.color = `rgb(${c})`;
+    // capa óptica del subtítulo: sigue al cursor (luz) y toma el color del modo
+    const p = mark.st.ptr, nx = p.ton ? Math.max(-1, Math.min(1, (p.x * env.H - env.W / 2) / (env.W / 2))) : 0, ny = p.ton ? Math.max(-1, Math.min(1, ((1 - p.y) * env.H - env.H / 2) / (env.H / 2))) : 0;
+    const sx = `${(1.5 - 2.2 * nx).toFixed(2)}|${(1.5 - 2.2 * ny).toFixed(2)}|${c}`;
+    if (subEl && sx !== lastSx) { lastSx = sx; const [a, b] = sx.split('|'); subEl.style.setProperty('--sx', a); subEl.style.setProperty('--sy', b); subEl.style.setProperty('--sub-echo', `rgb(${c} / .55)`); }
+    if (target !== (lime > .5 ? 1 : 0) || (lime > 0 && lime < 1)) dirty = true;
   }
   env.markU = () => ({ uSdf: env.sdfTex, uOff: mark.st.off, uPres: mark.st.pres, uAspect: env.aspect });
 
@@ -109,11 +134,12 @@ export async function startField(scene, host = document.querySelector('[data-fie
     const r = host.getBoundingClientRect();
     mark.update(live() ? dt : 0, Math.min(1, Math.max(0, -r.top / r.height)));
     const field = scene.frame(ctx, env, live() ? dt * cfg.speed : 0);
+    limeStep(live() ? dt : 1);
     const ch = cfg.chroma;
     ctx.draw(comp, {
       ...env.markU(), uField: field, uText: env.textTex,
       uCell: cfg.cell / env.H, uAniso: cfg.aniso, uGap: cfg.gap / env.H, uDensity: cfg.density, uContrast: cfg.contrast,
-      uChroma: ch.intensity, uChromaR: ch.radius / env.H, uChromaNear: ch.near, uTextDensity: ch.textDensity,
+      uChroma: ch.intensity, uChromaR: ch.radius / env.H, uChromaNear: ch.near, uTextDensity: ch.textDensity, uLime: lime,
     });
     api.state.timing.push(performance.now() - t0); if (api.state.timing.length > 600) api.state.timing.shift();
     api.state.frames++; dirty = false;

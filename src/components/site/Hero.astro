@@ -2,13 +2,14 @@
 // Hero · jerarquía A (F2/F3) con el campo Fluid Halftone detrás (src/scripts/field, carga diferida).
 // El H1 es HTML y es el LCP: visible desde el primer frame, sin depender de WebGL.
 // [data-field-text] marca los textos con los que interactúa el campo (cambio cromático de las partículas).
-import { ISOTIPO } from './brand';
+// Subtítulo: dos frases reveladas en secuencia, con una capa óptica (sombra de color) que se desplaza con el cursor.
+import { ISOTIPO, BK } from './brand';
 ---
 <section class="hero" id="top" data-surface="cream" data-field aria-labelledby="h1">
   <p class="hero-meta label" data-field-text>Infraestructura Digital</p>
   <div class="hero-copy"><h1 class="h1" id="h1" data-field-text><span>Construimos sistemas.</span> <span>No sitios.</span></h1></div>
   <svg class="mark" viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} />
-  <p class="sub" data-field-text>De la primera visita al cliente que paga: sin seguimiento manual, sin leads perdidos, sin plantillas.</p>
-  <div class="ctas"><a class="btn btn-lime" href="#servicios">Ver cómo funciona</a><a class="btn btn-ghost" href="#sistemas" data-field-text>Ver sistemas</a></div>
+  <p class="sub"><span class="sub-l" data-field-text>De la primera visita al cliente que paga:</span> <span class="sub-l sub-l2" data-field-text>sin seguimiento manual, sin leads perdidos, sin plantillas.</span></p>
+  <div class="ctas"><a class="btn btn-lime" href="#servicios">Ver cómo funciona<Fragment set:html={BK} /></a><a class="btn btn-ghost" href="#sistemas" data-field-text>Ver sistemas</a></div>
   <div class="field-ctl"><button class="field-pause" type="button" aria-pressed="false">Pausar</button></div>
 </section>

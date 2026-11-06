@@ -17,8 +17,9 @@ export const EMBED = {
   'https://waterlu.com.mx/': { embeddable: false, header: 'X-Frame-Options: DENY' },
 };
 
-// Capturas de la portada pública (autorizadas el 2026-11-05; scripts/qa/capture-systems.mjs). Solo para los sitios que
-// bloquean el embebido: se muestran como imagen fechada, nunca como si fueran una vista en vivo.
+// Capturas reales de las páginas públicas (autorizadas el 2026-11-05; scripts/qa/capture-systems.mjs): primera y segunda
+// pantalla. Solo de los sitios que bloquean el embebido. Se presentan como imágenes del proyecto, nunca como vista en vivo
+// (el panel no ofrece «En vivo» para ellos: solo «Sitio», con enlace externo).
 export const CAPTURES_DATE = '2026-11-05';
 const CAPTURES = { 'SIS-03': '/systems/sis-03-site.webp', 'SIS-05': '/systems/sis-05-site.webp', 'SIS-10': '/systems/sis-10-site.webp' };
 
@@ -401,4 +402,4 @@ export const SYSTEMS = [
     }
   }
 ].map((s) => ({ ...s, stateLabel: STATES[s.state], embed: s.url ? EMBED[s.url] ?? null : null,
-  capture: CAPTURES[s.id] ? { src: CAPTURES[s.id], w: 1280, h: 800, date: CAPTURES_DATE } : null }));
+  capture: CAPTURES[s.id] ? { src: CAPTURES[s.id], src2: CAPTURES[s.id].replace('.webp', '-2.webp'), w: 1280, h: 800, date: CAPTURES_DATE } : null }));

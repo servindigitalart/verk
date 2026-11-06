@@ -1,13 +1,17 @@
 ---
-// Contacto (lime). Copy del sitio en producción (src/components/CTA.astro). Único destino de WhatsApp del sitio:
-// los CTA del header y del menú llevan aquí (#contacto); este botón abre la conversación (src/data/contact.js).
-import { ISOTIPO } from './brand';
+// Contacto · «Contact Activation». Copy del sitio en producción; destino único de WhatsApp (src/data/contact.js).
+// Secuencia ligada al scroll (src/scripts/site/contact.js escribe --cp 0→1 en la sección):
+//   1 la composición se concentra (barras a 45° convergen) · 2 el isotipo se ensambla por su eje con un asentamiento
+//   contundente · 3 el titular entra línea a línea · 4 el botón se construye · 5 estado interactivo (cursor/toque).
+// Sin JS o con reduced-motion: --cp = 1, todo en su estado final.
+import { ISOTIPO, BK } from './brand';
 import { WHATSAPP_URL as wa } from '../../data/contact.js';
 ---
 <section class="sec contact" id="contacto" data-surface="lime" data-contact aria-labelledby="t-con">
-  <p class="label">05 · Contacto</p>
-  <h2 class="h2" id="t-con">Ya viste cómo pensamos.<br> Ahora construyamos el tuyo.</h2>
-  <p class="lead">Analizamos tu presencia digital y te entregamos un plan concreto. Sin compromiso.</p>
-  <p><a class="btn btn-ink c-cta" href={wa} target="_blank" rel="noopener noreferrer">Solicitar auditoría<span class="sr-only"> por WhatsApp (abre una pestaña nueva)</span><svg viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} /></a></p>
+  <div class="c-conv" aria-hidden="true"><i></i><i></i><i></i></div>
+  <p class="label c-label">05 · Contacto</p>
+  <h2 class="h2 c-title" id="t-con"><span class="c-line"><span>Ya viste cómo pensamos.</span></span> <span class="c-line"><span>Ahora construyamos el tuyo.</span></span></h2>
+  <p class="lead c-lead">Analizamos tu presencia digital y te entregamos un plan concreto. Sin compromiso.</p>
+  <p class="c-act"><a class="btn btn-ink c-cta" href={wa} target="_blank" rel="noopener noreferrer"><span class="c-cta-l">Solicitar auditoría</span><span class="sr-only"> por WhatsApp (abre una pestaña nueva)</span><Fragment set:html={BK} /></a></p>
   <svg class="c-mark" viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} />
 </section>

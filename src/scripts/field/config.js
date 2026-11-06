@@ -11,6 +11,7 @@ export const FIELD = {
   contrast: 1,          // curva del tono: >1 vacía los medios tonos, <1 los llena
   aniso: 1.4,           // estiramiento de los puntos en la dirección del flujo (estelas)
   gap: 7,               // margen limpio alrededor del isotipo, px (el isotipo es un obstáculo sólido)
+  limeReach: 24,        // modo lima: distancia máxima del cursor a las barras del isotipo, px
 
   // Interacción cromática con la tipografía: las partículas que atraviesan las letras se «cargan» de color
   // y lo arrastran en su estela. Nunca cambia el texto: cambia el punto que pasa detrás.

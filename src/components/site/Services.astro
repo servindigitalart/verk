@@ -1,4 +1,12 @@
 ---
+// Servicios · «Cuatro disciplinas. Un sistema.»
+// Narrativa ligada al scroll (src/scripts/site/services.js escribe data-k y --p en la sección):
+//   · el título cuenta las disciplinas (cuatro unidades a 45° que se encienden) y termina subrayando «Un sistema.»
+//   · un escenario fijo con el isotipo oficial: sus tres barras cambian de composición (solo traslación por su eje)
+//     y de color con cada disciplina; al final se ensamblan en lima: las cuatro disciplinas son un sistema
+//   · cada disciplina lleva su propia firma del isotipo (la misma marca, distinta traslación de barras)
+// Sin JS / reduced-motion: estado final completo, todo legible.
+import { ISOTIPO } from './brand';
 const services = [
   ['Sitios Web', 'Tu sitio web no es una vitrina. Es el primer paso de un sistema que convierte visitas en conversaciones reales.'],
   ['Automatizaciones', 'Cada tarea que se repite puede automatizarse. Construimos los flujos que ejecutan seguimientos, confirmaciones y recordatorios sin intervención.'],
@@ -6,12 +14,26 @@ const services = [
   ['Herramientas con IA', 'Las herramientas de IA genéricas no conocen tu negocio. Construimos las tuyas: entrenadas en tu operación, útiles desde el primer día.'],
 ];
 ---
-<section class="sec" id="servicios" data-surface="violet" aria-labelledby="t-svc">
+<section class="sec svc-sec" id="servicios" data-surface="violet" data-svc data-k="4" aria-labelledby="t-svc">
   <p class="label">02 · Servicios</p>
-  <h2 class="h2" id="t-svc">Cuatro disciplinas.<br> Un sistema.</h2>
-  <div class="svc-rows">
-    {services.map(([name, body], i) => (
-      <article class="svc"><span class="label">{String(i + 1).padStart(2, '0')}</span><h3><i class="svc-bar" aria-hidden="true"></i>{name}</h3><p>{body}</p></article>
-    ))}
+  <h2 class="h2 svc-title" id="t-svc">
+    <span class="svc-t1"><span class="svc-count" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Cuatro disciplinas.</span>
+    <span class="svc-t2"><span>Un sistema.</span></span>
+  </h2>
+  <div class="svc-body">
+    <div class="svc-stage" aria-hidden="true">
+      <svg class="svc-mark" viewBox="0 0 567 739" fill="currentColor" set:html={ISOTIPO} />
+      <p class="svc-now label"><b class="svc-n">04</b><span>/ 04</span></p>
+      <span class="svc-track"><i></i></span>
+    </div>
+    <ol class="svc-rows">
+      {services.map(([name, body], i) => (
+        <li class="svc" data-i={i}>
+          <span class="svc-num label">{String(i + 1).padStart(2, '0')}</span>
+          <h3><svg class="svc-sig" viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} />{name}</h3>
+          <p>{body}</p>
+        </li>
+      ))}
+    </ol>
   </div>
 </section>

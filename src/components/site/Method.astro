@@ -1,6 +1,7 @@
 ---
 import { ICON } from '../../scripts/site/icons.js';
-// Copy de los pasos: el del sitio en producción (src/components/Method.astro). Cotas técnicas: F2/F3.
+import { ISOTIPO } from './brand';
+// Copy de los pasos: el del sitio en producción. Cotas técnicas: F2/F3. La línea es la protagonista (method-route.js).
 const steps = [
   ['01', 'alcance', 'Entendemos', 'Antes de diseñar, preguntamos. ¿Dónde se pierden los clientes? ¿Qué tarea se repite más? ¿Qué herramientas ya tienes y cuáles no están conectadas?'],
   ['02', 'prototipo', 'Diseñamos', 'Diseñamos el sistema completo antes de escribir código. El sitio, las automatizaciones, las integraciones: todo conectado desde el principio.'],
@@ -11,9 +12,12 @@ const steps = [
 <section class="sec" id="metodo" data-surface="cream-warm" aria-labelledby="t-met">
   <p class="label muted">03 · Método</p>
   <h2 class="h2" id="t-met">Cómo funciona.</h2>
+  <div class="steps-wrap">
   <ol class="steps">
     {steps.map(([n, cota, name, body]) => (
-      <li class="step"><span class="node" aria-hidden="true"></span><span class="cota">{n} <i set:html={ICON['→']} /> {cota}</span><b>{name}</b><span>{body}</span></li>
+      <li class="step"><span class="node" aria-hidden="true"></span><span class="spark" aria-hidden="true"></span><span class="cota">{n} <i set:html={ICON['→']} /> {cota}</span><b>{name}</b><span>{body}</span></li>
     ))}
   </ol>
+  <svg class="steps-end" viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} />
+  </div>
 </section>

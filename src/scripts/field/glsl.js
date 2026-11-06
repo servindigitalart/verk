@@ -68,11 +68,13 @@ float textDist(vec2 uv){ return texture(uText, uv).r; }
 // detrás de ellas, se desplazan hacia un violeta luminoso y más claro (nunca otro tono: la identidad se conserva).
 export const COMPOSITE = HEAD + PALETTE + MARK + TEXT + `
 uniform sampler2D uField; uniform float uCell, uAniso, uGap, uDensity, uContrast;
-uniform float uChroma, uChromaR, uChromaNear, uTextDensity;
+uniform float uChroma, uChromaR, uChromaNear, uTextDensity, uLime;
 out vec4 o;
 const mat2 R45 = mat2(.70710678, .70710678, -.70710678, .70710678);
 const vec3 LUMEN = vec3(146., 145., 252.)/255.;   // violeta luminoso (≈ #9291FC)
 const vec3 LILAC = vec3(190., 189., 248.)/255.;   // violeta claro (≈ #BEBDF8): contraste ≥ 9:1 con el texto ink
+const vec3 LIME = vec3(191., 234., 0.)/255.;      // modo lima (cursor sobre el isotipo)
+const vec3 LIME_LUM = vec3(214., 242., 92.)/255.;
 void main(){
   vec2 k = vec2(uAspect, 1.), p = vUv*k;
   vec2 disp = texture(uField, vUv).gb;
@@ -87,7 +89,8 @@ void main(){
   float td = textDist(cp/k);
   float near = 1. - smoothstep(0., uChromaR, td);
   float c = clamp(max(near*uChromaNear, clamp(F.a, 0., 1.)), 0., 1.)*uChroma;
-  vec3 ink = c < .5 ? mix(VIOLET, LUMEN, c*2.) : mix(LUMEN, LILAC, c*2. - 1.);
+  vec3 base = mix(VIOLET, LIME, uLime), lum = mix(LUMEN, LIME_LUM, uLime), pale = mix(LILAC, mix(LIME, CREAM, .45), uLime);
+  vec3 ink = c < .5 ? mix(base, lum, c*2.) : mix(lum, pale, c*2. - 1.);
   tone *= mix(1., uTextDensity, near);
   vec2 v = F.gb; float sp = length(v)/uCell;
   vec2 dir = sp > 1e-4 ? normalize(R45*v) : vec2(1., 0.);

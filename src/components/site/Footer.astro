@@ -1,10 +1,41 @@
 ---
+// Footer · «Residual Field»: campo generativo propio (src/scripts/site/footer-field.js, Canvas 2D, carga diferida),
+// mensaje de cierre, contacto, secciones, redes (sin enlace hasta tener perfiles reales), wordmark, año y créditos.
 import { ISOTIPO, WORDMARK } from './brand';
+import { WHATSAPP_URL, SOCIAL } from '../../data/contact.js';
 const year = new Date().getFullYear();
+const ICONS = {
+  instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg>',
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.5 9h3v11h-3zM6 3.6a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6zM10 9h2.9v1.5h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.6 2 3.6 4.6V20h-3v-5.6c0-1.34-.02-3.06-1.86-3.06-1.86 0-2.15 1.46-2.15 2.96V20H10z"/></svg>',
+};
+const NAME = { instagram: 'Instagram', linkedin: 'LinkedIn' };
 ---
-<footer class="site" data-surface="ink">
-  <p class="sig">Seguimos construyendo<svg viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} /></p>
-  <p class="label muted">Conectamos. Automatizamos. Construimos.</p>
-  <a class="wm" href="#top" aria-label="Verk — inicio"><svg viewBox="0 0 902 217" fill="currentColor" aria-hidden="true" set:html={WORDMARK} /></a>
-  <p class="label copy">&copy; {year} Verk. Hecho con intención.</p>
+<footer class="site foot" data-surface="ink" data-foot>
+  <svg class="foot-origin" viewBox="0 0 567 739" fill="currentColor" aria-hidden="true" set:html={ISOTIPO} />
+  <div class="foot-top">
+    <p class="foot-claim">Seguimos <em>construyendo.</em></p>
+  </div>
+  <div class="foot-grid">
+    <div class="foot-col">
+      <p class="label">Contacto</p>
+      <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">WhatsApp<span class="sr-only"> (abre una pestaña nueva)</span></a>
+      <a href="#contacto">Solicitar auditoría</a>
+    </div>
+    <nav class="foot-col" aria-label="Secciones (pie)">
+      <p class="label">Secciones</p>
+      <a href="#servicios">Servicios</a><a href="#metodo">Método</a><a href="#sistemas">Sistemas</a>
+    </nav>
+    <div class="foot-col">
+      <p class="label">Redes</p>
+      <div class="foot-social">
+        {Object.entries(ICONS).map(([k, svg]) => SOCIAL[k]
+          ? <a href={SOCIAL[k]} target="_blank" rel="noopener noreferrer" aria-label={NAME[k]} set:html={svg} />
+          : <span role="img" aria-label={NAME[k]} set:html={svg} />)}
+      </div>
+    </div>
+  </div>
+  <div class="foot-base">
+    <a class="foot-wm" href="#top" aria-label="Verk — inicio"><svg viewBox="0 0 902 217" fill="currentColor" aria-hidden="true" set:html={WORDMARK} /></a>
+    <p class="label foot-legal">&copy; {year} Verk · Infraestructura digital · Diseño y desarrollo: Verk</p>
+  </div>
 </footer>
