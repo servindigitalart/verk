@@ -1,9 +1,9 @@
 // VERK · header adaptativo (Morphing Navigation).
 //   geo    la superficie bajo la píldora se lee en el propio evento `scroll` (antes de pintar) → mismo frame
-//   wipe   el borde de la sección atraviesa la píldora ligado al scroll: una copia decorativa recortada por el borde
-//   morph  cada superficie tiene su geometría (.pill-bg con clip-path) y el cambio produce un gesto de profundidad
+//   shift  al cambiar de superficie, el fondo de la píldora viaja por un degradado origen → acento → destino
+//          (mismo sentido que el scroll); el texto cambia de color a mitad del barrido. Geometría constante.
+//   glow   el isotipo de progreso recibe un brillo breve de su propio color en cada cambio de sección
 //   prog   el isotipo oficial se construye con el recorrido (--fill, barrido a 45°) y avanza un paso en cada sección
-//          (variables CSS en .pill que el clon del wipe hereda: nunca se desincronizan)
 // El marcado del indicador lo emite Header.astro; aquí solo se actualiza el estado.
 const NAMES = { top: 'Inicio', servicios: 'Servicios', metodo: 'Método', sistemas: 'Sistemas', contacto: 'Contacto' };
 const ORDER = Object.keys(NAMES);
@@ -19,12 +19,8 @@ export function initHeader() {
   const on = (t, e, f, o) => { t.addEventListener(e, f, o); cleanup.push(() => t.removeEventListener(e, f, o)); };
   let menuOpen = false;
 
-  // ── clon decorativo para el wipe ──
-  const clone = pill.cloneNode(true);
-  clone.removeAttribute('data-pill'); clone.classList.add('pill-clone'); clone.setAttribute('aria-hidden', 'true'); clone.inert = true;
-  clone.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
-  pill.append(clone);
   const all = (sel) => pill.querySelectorAll(sel);
+  const markEl = pill.querySelector('.prog-mark');
   const set = (el, v) => { if (el.dataset.v !== v) el.dataset.v = v; };
 
   // ── geometría (solo al cambiar el layout) ──
@@ -40,10 +36,8 @@ export function initHeader() {
   const update = () => {
     if (!geo.length) return;
     const y = scrollY;
-    const a = at(y + pTop), b = at(y + pBot - .5);
-    if (!menuOpen && pill.dataset.v !== a.v) { set(pill, a.v); morph(); }
-    if (a.v !== b.v) { set(clone, b.v); clone.style.setProperty('--cut', `${Math.max(0, b.top - y - pTop)}px`); clone.classList.add('on'); }
-    else clone.classList.remove('on');
+    const a = at(y + (pTop + pBot) / 2);                                     // la superficie bajo la línea media de la píldora
+    if (!menuOpen && pill.dataset.v !== a.v) shift(a.v, y >= lastY ? 1 : -1);
     const mid = y + (pTop + pBot) / 2, cur = at(mid), k = secIndex(cur.id);
     const s = Math.min(1, Math.max(0, (mid - cur.top) / Math.max(1, cur.bottom - cur.top)));
     links.forEach((l, i) => { const is = i === k - 1; if (is !== (l.getAttribute('aria-current') === 'true')) is ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current'); });
@@ -60,9 +54,20 @@ export function initHeader() {
     hide(y);
   };
 
-  // profundidad al cambiar de superficie (one-shot; se reinicia si llega otro cambio)
-  let morphT = 0;
-  function morph() { if (reduced) return; pill.classList.remove('morph'); void pill.offsetWidth; pill.classList.add('morph'); clearTimeout(morphT); morphT = setTimeout(() => pill.classList.remove('morph'), 560); }
+  // transición cromática: el fondo recorre un degradado del color de origen al de destino pasando por el acento
+  // del destino; el texto y el CTA cambian a mitad del recorrido (CSS). Se reinicia limpiamente si llega otro cambio.
+  let shiftT = 0;
+  function shift(v, dir) {
+    const from = getComputedStyle(pill).getPropertyValue('--pill-bg').trim();
+    set(pill, v);
+    if (reduced || !from) return;
+    const cs = getComputedStyle(pill);
+    pill.style.setProperty('--from', from); pill.style.setProperty('--to', cs.getPropertyValue('--pill-bg').trim());
+    pill.style.setProperty('--acc', cs.getPropertyValue('--prog').trim()); pill.style.setProperty('--dir', dir);
+    pill.classList.remove('shift'); markEl?.classList.remove('glow'); void pill.offsetWidth;
+    pill.classList.add('shift'); markEl?.classList.add('glow');
+    clearTimeout(shiftT); shiftT = setTimeout(() => { pill.classList.remove('shift'); markEl?.classList.remove('glow'); }, 900);
+  }
   // ── móvil: oculta al bajar, aparece al subir (nunca durante un viaje de navegación) ──
   const mobile = matchMedia('(max-width: 767px)');
   const hide = (y) => {
@@ -87,11 +92,11 @@ export function initHeader() {
     const close = (focus = true) => { menuOpen = false; menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); toggle.textContent = 'Menú'; rest.forEach((n) => (n.inert = false)); update(); if (focus) toggle.focus(); };
     on(toggle, 'click', () => {
       if (menuOpen) return close();
-      set(pill, 'ink'); clone.classList.remove('on'); menuOpen = true; menu.hidden = false; toggle.setAttribute('aria-expanded', 'true'); toggle.textContent = 'Cerrar';
+      set(pill, 'ink'); menuOpen = true; menu.hidden = false; toggle.setAttribute('aria-expanded', 'true'); toggle.textContent = 'Cerrar';
       rest.forEach((n) => (n.inert = true)); header.classList.remove('is-hidden'); menu.querySelector('a')?.focus();
     });
     on(menu, 'click', (e) => { if (e.target.closest('a')) close(false); });
     on(document, 'keydown', (e) => { if (e.key === 'Escape' && menuOpen) close(); });
   }
-  return { pill, clone, destroy: () => cleanup.forEach((f) => f()) };
+  return { pill, destroy: () => cleanup.forEach((f) => f()) };
 }

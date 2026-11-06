@@ -1,7 +1,7 @@
 ---
-// Header flotante: píldora geo + wipe con geometría por sección (Morphing Navigation) y el isotipo oficial como
-// indicador de progreso que se construye al recorrer el sitio. Estado en src/scripts/site/header.js.
-import { ISOTIPO, WORDMARK, BK } from './brand';
+// Header flotante: píldora que lee la superficie bajo ella (transición cromática en degradado) y el isotipo oficial
+// como único isotipo del header: indicador de progreso que se construye al recorrer el sitio. Estado en src/scripts/site/header.js.
+import { ISOTIPO, WORDMARK } from './brand';
 const links = [['#servicios', 'Servicios'], ['#metodo', 'Método'], ['#sistemas', 'Sistemas'], ['#contacto', 'Contacto']];
 ---
 <header class="nav" data-nav-root>
@@ -15,11 +15,11 @@ const links = [['#servicios', 'Servicios'], ['#metodo', 'Método'], ['#sistemas'
     <nav class="nav-links" aria-label="Secciones">
       {links.map(([h, l]) => <a href={h}>{l}</a>)}
     </nav>
-    <a class="btn nav-cta" href="#contacto">Auditoría<Fragment set:html={BK} /></a>
+    <a class="btn nav-cta" href="#contacto">Auditoría</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">Menú</button>
   </div>
 </header>
 <div class="menu" id="menu" hidden>
   {links.map(([h, l]) => <a href={h}>{l}</a>)}
-  <a class="btn btn-lime" href="#contacto">Solicitar auditoría<Fragment set:html={BK} /></a>
+  <a class="btn btn-lime" href="#contacto">Solicitar auditoría</a>
 </div>

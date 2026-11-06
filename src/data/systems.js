@@ -17,11 +17,16 @@ export const EMBED = {
   'https://waterlu.com.mx/': { embeddable: false, header: 'X-Frame-Options: DENY' },
 };
 
-// Capturas reales de las páginas públicas (autorizadas el 2026-11-05; scripts/qa/capture-systems.mjs): primera y segunda
-// pantalla. Solo de los sitios que bloquean el embebido. Se presentan como imágenes del proyecto, nunca como vista en vivo
-// (el panel no ofrece «En vivo» para ellos: solo «Sitio», con enlace externo).
+// Capturas reales de las páginas públicas (scripts/qa/capture-systems.mjs; PRISMA, CleanSolarAus y WATERLÜ autorizadas el
+// 2026-11-05, Sonoro el 2026-11-06): pantallas 1, 2 y 3. El portfolio se presenta solo con capturas (sin iframes):
+// «Vista» usa la 1.ª, «Sitio» la 2.ª y la 3.ª, con enlace externo. Los Fibos: sin capturas mientras siga en revisión.
 export const CAPTURES_DATE = '2026-11-05';
-const CAPTURES = { 'SIS-03': '/systems/sis-03-site.webp', 'SIS-05': '/systems/sis-05-site.webp', 'SIS-10': '/systems/sis-10-site.webp' };
+const CAPTURES = { 'SIS-01': '/systems/sis-01-site.webp', 'SIS-03': '/systems/sis-03-site.webp', 'SIS-05': '/systems/sis-05-site.webp', 'SIS-10': '/systems/sis-10-site.webp' };
+
+// Color dominante de cada proyecto, derivado de su logo real (píxeles saturados más frecuentes, 2026-11-06). Lo usa el
+// campo procedural de Sistemas para teñir las isolíneas del proyecto activo. Sin color propio (logo monocromo o sin
+// logo): violeta de VERK.
+const ACCENT = { 'SIS-01': '#f59e0b', 'SIS-02': '#0c395a', 'SIS-05': '#1a6b3a', 'SIS-06': '#fb013b', 'SIS-07': '#f8e867', 'SIS-09': '#ff5188', 'SIS-10': '#f56a1c' };
 
 export const SYSTEMS = [
   {
@@ -402,4 +407,5 @@ export const SYSTEMS = [
     }
   }
 ].map((s) => ({ ...s, stateLabel: STATES[s.state], embed: s.url ? EMBED[s.url] ?? null : null,
-  capture: CAPTURES[s.id] ? { src: CAPTURES[s.id], src2: CAPTURES[s.id].replace('.webp', '-2.webp'), w: 1280, h: 800, date: CAPTURES_DATE } : null }));
+  accent: ACCENT[s.id] ?? '#6B6AF4',
+  capture: CAPTURES[s.id] ? { src: CAPTURES[s.id], src2: CAPTURES[s.id].replace('.webp', '-2.webp'), src3: CAPTURES[s.id].replace('.webp', '-3.webp'), w: 1280, h: 800, date: CAPTURES_DATE } : null }));

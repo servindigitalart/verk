@@ -18,6 +18,7 @@ const whenNear = (sel, load) => {
 };
 whenNear('[data-svc]', () => import('./services.js').then((m) => m.initServices()));
 whenNear('.steps', () => import('./method-route.js').then((m) => m.initMethodRoute()));
+whenNear('[data-sys]', () => import('./systems-field.js').then((m) => m.initSystemsField()));
 whenNear('[data-contact]', () => import('./contact.js').then((m) => m.initContact()));
 whenNear('[data-foot]', () => import('./footer-field.js').then((m) => m.initFooterField()));
 

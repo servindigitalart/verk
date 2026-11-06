@@ -12,12 +12,13 @@ const count = `${SYSTEMS.length} sistemas · ${c.op ?? 0} operativos · ${c.evo 
 const pub = SYSTEMS.map(({ urlNote, statePending, embed, ...s }) => ({ ...s, embed: embed ? { embeddable: !!embed.embeddable, hold: !!embed.hold } : null }));
 const data = JSON.stringify({ checked: EMBED_CHECKED, systems: pub }).replace(/</g, '\\u003c');
 ---
-<section id="sistemas" data-surface="ink" aria-labelledby="t-sys">
+<section id="sistemas" data-surface="ink" data-sys aria-labelledby="t-sys">
+  <div class="sys-field" aria-hidden="true"></div>
   <div class="pf pf-index" data-pf="index">
     <header class="pf-head"><p class="label muted">04 · Sistemas</p><h2 class="h2" id="t-sys">Sistemas.</h2><p class="pf-count label muted" set:html={t(count)} /></header>
     <ol class="ix-list">
       {SYSTEMS.map((s: any, i: number) => (
-        <li class="ix-row" data-id={s.id}><button class="ix-btn" type="button" data-open={s.id} aria-haspopup="dialog" aria-current={i === 0 ? 'true' : undefined}>
+        <li class="ix-row" data-id={s.id} data-accent={s.accent}><button class="ix-btn" type="button" data-open={s.id} aria-haspopup="dialog" aria-current={i === 0 ? 'true' : undefined}>
           <span class="ix-id label">{s.id}</span><span class="ix-name">{s.name}</span><span class="ix-cap label">{cap(s)}</span>
           <span class="st" data-state={s.state}><i aria-hidden="true"></i>{s.stateLabel}</span>
         </button></li>
