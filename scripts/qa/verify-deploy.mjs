@@ -19,12 +19,16 @@ for (const w of [1440, 390]) {
   }));
   await p.screenshot({ path: `${D}/home-${w}.png` });
   await p.evaluate(() => document.getElementById('sistemas').scrollIntoView()); await p.waitForTimeout(300);
-  await (w < 800 ? p.tap('[data-open="SIS-01"]') : p.click('[data-open="SIS-01"]')); 
-  try { await p.waitForSelector('dialog .sp-frame.is-loaded', { timeout: 20000 }); r.sonoro = 'iframe cargado'; } catch { r.sonoro = 'sin carga'; }
-  await p.screenshot({ path: `${D}/panel-sonoro-${w}.png` }); await p.keyboard.press('Escape');
-  await (w < 800 ? p.tap('[data-open="SIS-10"]') : p.click('[data-open="SIS-10"]')); await p.click('#sp-t2'); await p.waitForTimeout(800);
-  r.waterlu = await p.evaluate(() => ({ captura: document.querySelector('.pfx-site img')?.naturalWidth, enlace: document.querySelector('.pfx-copy:not([hidden]) a.btn')?.href }));
-  await p.keyboard.press('Escape');
+  // panel (sin iframes): cada pestaña de Sonoro y WATERLÜ con sus propias capturas, sin scroll interno
+  for (const id of ['SIS-01', 'SIS-10']) {
+    await p.locator(`[data-open="${id}"]`).scrollIntoViewIfNeeded();
+    await (w < 800 ? p.tap(`[data-open="${id}"]`) : p.click(`[data-open="${id}"]`)); await p.waitForTimeout(900);
+    const tabs = await p.locator('[role=tab]').count(), res = [];
+    for (let t = 0; t < tabs; t++) { await p.click(`#sp-t${t}`); await p.waitForTimeout(700);
+      res.push(await p.evaluate(() => { const d = document.querySelector('dialog'); return `${d.querySelector('.pfx').dataset.view}:${d.querySelectorAll('.pfx-shot').length}cap:${d.querySelectorAll('iframe').length}if:${d.scrollHeight - d.clientHeight}px:${[...d.querySelectorAll('.pfx-shot img')].every((i) => i.naturalWidth > 0) ? 'ok' : 'img?'}:${d.querySelector('.pfx-copy a[href^="http"]')?.href ?? '-'}`; })); }
+    await p.screenshot({ path: `${D}/panel-${id}-${w}.png` });
+    r[id] = res; await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+  }
   r.errores = bad; out[w] = r; await ctx.close();
 }
 const req = await b.newContext(); const rq = req.request;

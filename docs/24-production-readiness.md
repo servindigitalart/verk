@@ -3,6 +3,88 @@
 Fecha: 2026-11-05 · Rama: `main` · Remoto: `origin` (github.com/servindigitalart/verk) · Netlify publica `main`
 (`netlify.toml`: `npm run build` → `dist/`, Node 22.16.0).
 
+## Refinamiento (2026-11-06, tarde)
+Refinamiento sobre producción a partir de los comentarios del usuario. **Hero y Footer no se modificaron** (ni sus
+componentes, ni sus scripts, ni su CSS).
+
+### Header
+- **Un único isotipo.** El del CTA «Auditoría» se eliminó, también en el CTA del menú. Queda solo el isotipo de progreso.
+- **Defectos eliminados.**
+  - La «línea negra» sobre el isotipo era el borde de la copia del wipe que atravesaba la píldora: se retiró la copia.
+  - Las esquinas cuadradas venían de las geometrías por sección de la fase anterior: ahora la píldora es siempre redondeada.
+  - El contorno del isotipo de progreso ya no se dibuja bajo el relleno, así que no hay trazos superpuestos.
+- **Transición cromática.**
+  - Al cambiar de sección, el fondo recorre en 760 ms un degradado origen → acento del destino → destino, en el sentido del scroll.
+  - Texto y CTA cambian de color a mitad del barrido.
+  - El cambio ocurre cuando la frontera cruza la línea media de la píldora.
+- **Glow.** El isotipo recibe un brillo breve (`drop-shadow`) en su propio color.
+- **Navegación.** Interrupción, re-dirección, historial, teclado y reduced-motion se conservan.
+
+### Servicios
+- **Eliminados:** el contador de barras previo al título y los isotipos de cada disciplina.
+- **Jerarquía:** contador grande → un único isotipo protagonista (izquierda, sticky) → título y disciplinas → descripciones.
+- **Isotipo procedural.** Solo traslación por el eje de 45°. Combina:
+  - una composición que se interpola en continuo entre cuatro estados según el progreso;
+  - una deriva orgánica (senos de periodos inconmensurables) cuya energía nace del scroll y se disipa en unos 3 s (sin bucle infinito, doc 21 §5);
+  - un asentamiento en lima al integrarse las cuatro;
+  - un color estable por disciplina, con cruce breve en la frontera.
+
+### Sistemas
+**Panel de proyecto**, compacto y sin scroll interno (alto ≤ viewport).
+
+| Pestaña | Contenido |
+|---|---|
+| Vista | Identidad + captura principal (pantalla 1) + nombre, estado y descripción |
+| Arquitectura | Capas escalonadas + stack (se conserva su diseño) |
+| Sitio | Dos capturas adicionales (pantallas 2 y 3) + «Abrir sitio ↗» |
+
+- **Sin iframes.** Sonoro también se presenta con capturas reales (3 pantallas, 2026-11-06).
+- **Contaminación entre pestañas: causa y solución.** Todas las vistas vivían a la vez en el escenario como capas ocultas por CSS. Con el estado `pfx--solo` y las transiciones, la arquitectura asomaba detrás de «En vivo». Ahora el escenario se re-renderiza por completo en cada cambio de pestaña o de proyecto (`panel.js`): cada combinación solo contiene sus nodos.
+- **Pestaña «Sitio» y enlaces externos.** Solo para proyectos con URL pública aprobada y capturas: Sonoro, PRISMA, CleanSolarAus y WATERLÜ.
+- **Sin «Sitio» ni enlace:** Los Fibos (en revisión) y DocLink, UX Analyzer, Riot, Bufón y Bloom Undies (sin sitio público).
+
+**Animación procedural «Isolíneas»** (`systems-field.js`):
+- **Qué es:** un mapa topográfico de curvas de nivel (fBm) en WebGL2, dibujado en un lienzo sticky del tamaño del viewport.
+- **Scroll:** el desplazamiento hace avanzar el terreno.
+- **Proyecto activo** (la fila en el centro): levanta una cresta y tiñe las curvas con el color dominante de su logo (derivado de los logos reales; sin color propio, violeta).
+- **Coste:** líneas de 1 px y opacidad ≤ 0.52; ~30 fps; DPR ≤ 1 (0.75 en móvil); solo con la sección visible.
+- **Sin WebGL2, con reduced-motion o con Save-Data:** fondo ink.
+
+### QA (carga del equipo < 5; Chrome salvo indicación)
+**Funcional**
+
+| Prueba | Resultado |
+|---|---|
+| Panel | Los 10 proyectos en todas sus pestañas: datos propios por pestaña, 0 iframes, 0 px de scroll interno, ≤ 2 capturas, foco devuelto |
+| Header | 0 desajustes de color/sección a 1440 y 390 |
+| Interacciones (`f3-micro.mjs`) | Modo lima, viaje y re-dirección, Servicios 0 → 4, Método, Contacto, footer y reduced-motion correctos |
+
+**Accesibilidad y responsive**
+- axe WCAG 2.2 AA: 0 violaciones en `/` (1440, 1024, 768, 390) y `/bot`.
+- Scroll horizontal: 0 a 1920, 1440, 1024, 768 y 390.
+
+**Rendimiento y tests**
+
+| Prueba | Resultado |
+|---|---|
+| Lighthouse local | Móvil 100 (LCP 1.5 s, TBT 30 ms) · Escritorio 100. Accesibilidad, buenas prácticas y SEO 100 |
+| Lighthouse en producción | Móvil 100 (LCP 1.0 s, TBT 0 ms, CLS 0) · Escritorio 100 (LCP 0.3 s). Accesibilidad, buenas prácticas y SEO 100 |
+| Presupuesto (en serie) | JS 19.5 KB · tareas largas: escritorio 0 ms, tablet 0 ms, móvil ×4 144 ms ✓ |
+| INP aproximado | Escritorio 80 ms · móvil ×4 120 ms |
+| `tests/qa` | 34/35 en paralelo (falla el presupuesto móvil por contención); en serie pasa |
+
+**Navegadores**
+- **Firefox 121 y WebKit 17.4:** header, isolíneas, panel (3 pestañas, sin scroll) y Servicios correctos.
+- **Sin probar:** Safari real y dispositivos reales.
+
+**Publicación**
+- Commit `013ddc9` en `main` (`2e04e16..013ddc9`); Netlify sirvió la versión nueva a las 17:19:31 UTC.
+- Verificado en https://verk-site.netlify.app/ a 1440 y 390 (`verify-deploy.mjs` y `f3-micro.mjs`):
+  - Sonoro y WATERLÜ: Vista con 1 captura, Arquitectura con 0, Sitio con 2; 0 iframes, 0 px de scroll interno, todas las imágenes cargadas, «Abrir sitio» a su URL real.
+  - Modo lima, viaje, Servicios 0 → 4, Contacto y footer correctos.
+  - 0 errores de consola (ya no hay iframe de Sonoro).
+  - `/bot`, `robots.txt`, sitemap, imagen OG y póster responden 200; las rutas inexistentes, 404.
+
 ## Rediseño de experiencia (2026-11-06)
 
 Rediseño integral sobre el sitio real (sin laboratorios). Commit `2761d1d`, publicado en Netlify a las 06:17:22 UTC
