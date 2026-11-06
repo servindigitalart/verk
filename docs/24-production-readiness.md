@@ -3,7 +3,132 @@
 Fecha: 2026-11-05 · Rama: `main` · Remoto: `origin` (github.com/servindigitalart/verk) · Netlify publica `main`
 (`netlify.toml`: `npm run build` → `dist/`, Node 22.16.0).
 
-## A. Completado
+## Rediseño de experiencia (2026-11-06)
+
+Rediseño integral sobre el sitio real (sin laboratorios). Commit `2761d1d`, publicado en Netlify a las 06:17:22 UTC
+(29 s después del push). Identidad intacta: paleta, tipografía, isotipo (solo traslación por su eje), copy y `/bot`.
+
+### Decisiones de diseño
+| Pieza | Decisión | Por qué |
+|---|---|---|
+| Hero | Se conservan composición, Fluid Halftone y respiración. **Modo lima:** el cursor o el toque sobre el isotipo (barras + 24 px) llevan marca y partículas de violeta a lima en ~380 ms (uniform `uLime` en el composite; mismo campo, sin recrearlo). **Subtítulo:** dos niveles tipográficos (promesa / tres negaciones), revelado en secuencia y una capa óptica de color (`text-shadow`) que se desplaza con el cursor y toma el color del modo | La interacción vive dentro del sistema generativo. La profundidad no duplica texto (legible y accesible) |
+| Header | **Morphing:** cada superficie tiene su geometría (`.pill-bg` + `clip-path`: píldora, tarjeta, terminal, expandida) y un gesto de profundidad al cambiar. **Progreso:** el isotipo oficial (26 px) se construye con el recorrido mediante un barrido a 45° (contorno → relleno) y avanza un paso 1-2-3 en cada sección | La marca representa el avance («el sistema se construye») sin deformarse |
+| Navegación | **Viaje espacial** en todos los enlaces internos (header, menú, botones, footer): curva de doc 21 §13, ≤ 900 ms; tres barras a 45° con los colores del destino; etiqueta «hacia · sección»; revelado del título al llegar; foco e historial. Interrumpible y redirigible. Nativo con reduced-motion | Sensación de desplazamiento real sin romper enlaces, teclado ni historial |
+| Botones | Escala de proximidad (3 %), barrido de relleno a 45°, isotipo interno que avanza por su eje, presión anticipada (0.97) y `:active` táctil | Objetos físicos, sin rebotes exagerados |
+| Servicios | **4 → 1:** el título cuenta cuatro unidades que se encienden y acaban en lima; un isotipo fijo recompone sus barras y su color en cada disciplina y termina integrado en lima. Cada disciplina tiene su firma (la misma marca, otra traslación) | Narrativa ligada al scroll con una sola marca |
+| Método | La línea es la protagonista: trazo de 3 px, chispa lima en la cabeza, nodos con pulso violeta y núcleo lima. Al completarse, el isotipo se ensambla al final de la ruta. Mismo comportamiento en todos los navegadores | Conclusión visual del método |
+| Sistemas | **Project Frames:** escenario en capas (identidad, captura principal, captura secundaria, arquitectura en barras escalonadas, sitio) con entrada en secuencia (identidad → máscara → barrido a 45° → título); se reorganiza en cada pestaña. Pestañas: Vista · Arquitectura · En vivo (solo Sonoro) o Sitio (capturas reales + enlace). Notas internas eliminadas de la interfaz y de los datos públicos | Imágenes con protagonismo, sin simular vistas en vivo |
+| Contacto | **Contact Activation**, secuencia ligada al scroll: convergencia de barras → ensamblaje del isotipo con asentamiento de muelle → titular línea a línea → el botón se construye (clip-path + escala) → estado interactivo. CTA magnético (≤ 6 px), con escala al acercarse y transición de lanzamiento al abrir WhatsApp | El momento más satisfactorio después del hero |
+| Footer | **Residual Field** (Canvas 2D propio, no el shader del hero): residuo de partículas nacido sobre las barras del isotipo, trazos a 45° con estela, atracción con giro por el cursor y repulsión al presionar. Cierre «Seguimos construyendo.», contacto, secciones, Instagram y LinkedIn (iconos sin enlace), wordmark discreto, año y créditos | Pieza final de diseño, no administrativa |
+
+### Arquitectura y rendimiento
+- **Sin dependencias nuevas.** CSS + JS propio + WebGL ya existente. GSAP no fue necesario.
+- **Carga:**
+  - JS inicial: **4.0 KB gzip** (antes 6.7).
+  - Al acercarse cada sección se cargan Servicios, Método, Contacto y el footer.
+  - El panel se carga al primer gesto sobre el índice.
+  - El hero sigue con `requestIdleCallback`.
+- **Build:** el GLSL se compacta con un plugin de Vite en `astro.config.mjs`.
+- **WebKit:** el hero y Contacto usan plantilla de columnas propia (por un fallo de subgrid en WebKit).
+- **Sin JS:** cada sección queda en su estado final (`data-act`, `data-live`, `data-k="4"`).
+
+### Archivos
+- **Nuevos:** `src/scripts/site/{travel,services,contact,footer-field,panel}.js`, `public/systems/*-site-2.webp`, `scripts/qa/full-pages.mjs`.
+- **Modificados:**
+  - Componentes: `src/components/site/*`.
+  - Estilos y datos: `src/styles/site.css`, `src/data/{contact,systems}.js`.
+  - Hero: `src/scripts/field/{glsl,runtime,config}.js`.
+  - Sitio: `src/scripts/site/{boot,header,portfolio,method-route}.js`.
+  - Configuración: `astro.config.mjs`.
+  - QA: `scripts/qa/*`.
+- **Eliminado:** `contact-mark.js` (sustituido por `contact.js`).
+
+### QA y rendimiento (medido)
+**Entorno.** Chrome del sistema en este MacBook Pro 2015.
+- Durante parte de la sesión, Android Studio/Gradle (340–460 % de CPU), el simulador iOS y Stremio dejaron la carga en 37–56 (4 núcleos).
+- Las mediciones bajo esa carga se descartaron y se repitieron automáticamente con carga < 4.
+
+**Funcional, en local y en producción** (`scripts/qa/f3-micro.mjs`, `f3-integration.mjs`, `verify-deploy.mjs`)
+
+| Pieza | Resultado |
+|---|---|
+| Modo lima | Solo sobre el isotipo (fuera: violeta; encima: lima; al salir: violeta); en táctil, con el toque |
+| Viaje | Clic en Método y re-dirección a Contacto a mitad de viaje → llega a `#contacto`, top 0, foco en la sección, historial actualizado; menú móvil → `#sistemas` |
+| Botones | Hover: escala 1.03, barrido a 45°, color invertido; `:active` 0.97 |
+| Servicios | `data-k` 0 → 1 → 2 → 4 con el scroll |
+| Método | Ruta completa y `data-done` (isotipo ensamblado) |
+| Contacto | `--cp` 0.55 a mitad y 1 al llegar; CTA magnético (2.45 px de imán, escala 1.06) |
+| Footer | Campo residual activo; redes como iconos sin enlace |
+| Reduced motion | Servicios 4, Contacto 1, ruta 1, sin viaje |
+| Panel | 10 sistemas con sus pestañas correctas; Sonoro con iframe (0 iframes al cargar); foco devuelto al cerrar |
+| Header | 0 desajustes de color o sección a 1440 y 390 |
+| Hero | 60 FPS; 0 frames fuera de vista; recuperación de contexto 140–330 ms; póster sin WebGL; reduced-motion estático; H1 visible sin JS |
+| Isotipo | Solo traslación a 45° (verificado) |
+
+**Accesibilidad y responsive**
+- axe WCAG 2.2 AA: 0 violaciones en `/` a 1440, 1024, 768 y 390, y en `/bot`.
+- Scroll horizontal: 0 a 1920, 1440, 1024, 768 y 390.
+- Teclado: foco visible en todo el recorrido.
+
+**Rendimiento**
+
+| | Antes del rediseño | Después del rediseño |
+|---|---|---|
+| JS inicial | 6.7 KB gzip | **4.0 KB gzip** |
+| JS en la carga (test) | 19.3 KB | 18.9 KB (≤ 20) |
+| CSS | 6.3 KB | 9.5 KB (≤ 15) |
+| Tareas largas, móvil CPU ×4 (carga < 4) | 177–236 ms | **148–196 ms** ✓ |
+| Tareas largas, escritorio / tablet | — | 10–34 ms |
+| LCP (H1), local / producción | — | 160–700 ms / 0.9–1.6 s |
+| CLS | — | 0 |
+
+**Lighthouse en producción**
+
+| Ejecución | Móvil | Escritorio |
+|---|---|---|
+| Con el equipo descargado | 100 (TBT 60 ms) | 99 |
+| Bajo carga | 84–87 (TBT 400–630 ms) | 95 |
+
+Accesibilidad, buenas prácticas y SEO: 100 en todas las ejecuciones.
+
+**INP aproximado en producción:** 120 ms en escritorio; 152 ms en móvil con CPU ×4.
+
+**Suite `tests/qa`:** 33/35 en paralelo bajo carga. En serie y con carga baja, el presupuesto de rendimiento pasa en los tres perfiles.
+
+**Navegadores**
+- **Firefox 121 y WebKit 17.4** (builds de Playwright): modo lima, viaje, Servicios, Método, Contacto, footer, header y panel correctos.
+- **WebKit:** se corrigió la rejilla de Contacto, que tenía el mismo fallo de subgrid que el hero.
+- **Sin probar:** Safari real (requiere activar «Permitir automatización remota»), dispositivos reales y 1920 en Firefox/WebKit.
+- **No se pudo usar PageSpeed Insights:** su API devolvió «quota exceeded» sin clave.
+
+### Embebido: diagnóstico y acciones manuales
+Comprobado en las respuestas en vivo (2026-11-06) y en el código de cada proyecto. **No se modificó ningún proyecto.**
+
+| Proyecto | Estado | Causa | Acción para permitir el embebido en VERK |
+|---|---|---|---|
+| Sonoro | ✅ Embebible | Sin cabeceras de bloqueo | Ninguna |
+| PRISMA | ❌ | `X-Frame-Options: DENY` en `prisma-site/vercel.json` (Vercel) | Ver abajo |
+| WATERLÜ | ❌ | `X-Frame-Options = "DENY"` en `waterlu/netlify.toml` | Ver abajo |
+| CleanSolarAus | ❌ | `X-Frame-Options: SAMEORIGIN` en `clean-solar-bot/cleansolaraus/public/_headers` (Cloudflare Pages) | Ver abajo |
+| Los Fibos | ⚠️ Embebible hoy, sujeto a aprobación de contenido | El sitio publicado no envía cabeceras, pero su repo (`fibosweb/netlify.toml`) declara `X-Frame-Options = "DENY"`: el próximo deploy desde ese repo lo bloqueará | Al aprobar el contenido, aplicar el mismo cambio en `fibosweb/netlify.toml` |
+| DocLink | — | Sin URL pública estable (el preview expone un usuario) | Publicar un dominio propio; después, mismo cambio |
+
+**Acciones por proyecto:**
+- **PRISMA** (`prisma-site/vercel.json`): sustituir `{ "key": "X-Frame-Options", "value": "DENY" }` por `{ "key": "Content-Security-Policy", "value": "frame-ancestors 'self' https://verk-site.netlify.app https://verk.mx https://www.verk.mx" }`. Redeploy en Vercel.
+- **WATERLÜ** (`waterlu/netlify.toml`): sustituir la línea por `Content-Security-Policy = "frame-ancestors 'self' https://verk-site.netlify.app https://verk.mx https://www.verk.mx"`. Redeploy en Netlify.
+- **CleanSolarAus** (`clean-solar-bot/cleansolaraus/public/_headers`): sustituir la línea por `Content-Security-Policy: frame-ancestors 'self' https://verk-site.netlify.app https://verk.mx https://www.verk.mx`. Redeploy en Cloudflare Pages.
+
+Notas para aplicar los cambios:
+- **Retirar `X-Frame-Options`.** No admite listas de dominios, y `frame-ancestors` lo sustituye en navegadores modernos.
+- **Dominios autorizados.** Solo los de VERK, no `*`. Si `verk.mx` no llega a usarse, basta con `https://verk-site.netlify.app`.
+- **Después del cambio,** marcar el sitio como `embeddable: true` en `src/data/systems.js`: el panel ofrecerá «En vivo» en lugar de «Sitio».
+- **No se usan proxies** ni otras formas de evadir las políticas.
+
+### Pendiente de aprobación
+- **Los Fibos:** contenido pendiente. Sin enlace ni vista en vivo; restricción mantenida en `src/data/systems.js`.
+- **Perfiles de Instagram y LinkedIn:** completar `SOCIAL` en `src/data/contact.js`.
+
+## A. Completado (fase anterior: integración F3)
 
 ### Integración (sin rediseño)
 Hero B Fluid Halftone, isotipo vivo, Portfolio Index, header geo + wipe con ruta e isotipo, y microinteracciones: como

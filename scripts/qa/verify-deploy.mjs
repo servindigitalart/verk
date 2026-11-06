@@ -23,7 +23,7 @@ for (const w of [1440, 390]) {
   try { await p.waitForSelector('dialog .sp-frame.is-loaded', { timeout: 20000 }); r.sonoro = 'iframe cargado'; } catch { r.sonoro = 'sin carga'; }
   await p.screenshot({ path: `${D}/panel-sonoro-${w}.png` }); await p.keyboard.press('Escape');
   await (w < 800 ? p.tap('[data-open="SIS-10"]') : p.click('[data-open="SIS-10"]')); await p.click('#sp-t2'); await p.waitForTimeout(800);
-  r.waterlu = await p.evaluate(() => ({ captura: document.querySelector('#sp-p2 .sp-shot img')?.naturalWidth, enlace: document.querySelector('#sp-p2 a.btn')?.href }));
+  r.waterlu = await p.evaluate(() => ({ captura: document.querySelector('.pfx-site img')?.naturalWidth, enlace: document.querySelector('.pfx-copy:not([hidden]) a.btn')?.href }));
   await p.keyboard.press('Escape');
   r.errores = bad; out[w] = r; await ctx.close();
 }

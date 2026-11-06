@@ -1,6 +1,6 @@
 // Captura de las portadas públicas de los sistemas que bloquean el embebido (autorizado el 2026-11-05):
 // PRISMA, CleanSolarAus y WATERLÜ. Solo la página pública inicial, sin iniciar sesión ni interactuar.
-// Salida: public/systems/<id>-site.webp (1280×800, primera pantalla) + public/systems/captures.json
+// Salida: public/systems/<id>-site.webp (primera pantalla) y <id>-site-2.webp (segunda), 1280×800, + captures.json
 import { createRequire } from 'node:module'; import { writeFileSync, statSync } from 'node:fs';
 const req = createRequire(import.meta.url); const { chromium } = req('playwright'); const sharp = req('sharp');
 const SITES = { 'sis-03': 'https://prisma-site-eight.vercel.app/', 'sis-05': 'https://cleansolaraus.com/', 'sis-10': 'https://waterlu.com.mx/' };
@@ -11,7 +11,11 @@ for (const [id, url] of Object.entries(SITES)) {
   await p.waitForTimeout(2500);
   const out = `public/systems/${id}-site.webp`;
   await sharp(await p.screenshot()).resize({ width: 1280 }).webp({ quality: 74 }).toFile(out);
-  log.sitios[id] = { url, archivo: out.replace('public', ''), w: 1280, h: 800, kb: +(statSync(out).size / 1024).toFixed(1), titulo: await p.title() };
+  // segunda pantalla real del mismo sitio (scroll de una altura de viewport): imagen secundaria del marco del proyecto
+  await p.evaluate(() => scrollTo(0, innerHeight)); await p.waitForTimeout(1800);
+  const out2 = `public/systems/${id}-site-2.webp`;
+  await sharp(await p.screenshot()).resize({ width: 1280 }).webp({ quality: 74 }).toFile(out2);
+  log.sitios[id] = { url, archivo: out.replace('public', ''), archivo2: out2.replace('public', ''), w: 1280, h: 800, kb: +(statSync(out).size / 1024).toFixed(1), kb2: +(statSync(out2).size / 1024).toFixed(1), titulo: await p.title() };
   console.log(id, JSON.stringify(log.sitios[id])); await p.close();
 }
 await b.close();

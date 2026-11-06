@@ -33,7 +33,7 @@ for (const name of ['firefox', 'webkit']) {
     await p.screenshot({ path: `${D}/shots/${name}-panel-sonoro-${w}.png` });
     await p.keyboard.press('Escape'); await p.waitForTimeout(200);
     await p.click('[data-open="SIS-03"]'); await p.click('#sp-t2'); await p.waitForTimeout(600);
-    const prisma = await p.evaluate(() => ({ captura: !!document.querySelector('#sp-p2 .sp-shot img')?.complete, enlace: document.querySelector('#sp-p2 a[href^="http"]')?.href }));
+    const prisma = await p.evaluate(() => ({ captura: !!document.querySelector('.pfx-site img')?.complete, enlace: document.querySelector('.pfx-copy:not([hidden]) a[href^="http"]')?.href }));
     await p.screenshot({ path: `${D}/shots/${name}-panel-prisma-${w}.png` });
     await p.keyboard.press('Escape');
     const wa = await p.evaluate(() => document.querySelector('.c-cta').href);

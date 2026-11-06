@@ -77,7 +77,7 @@ export async function startField(scene, host = document.querySelector('[data-fie
   // ── modo lima: el cursor (o el toque) sobre el isotipo lleva marca y partículas de violeta a lima ──
   // Zona interactiva = las barras + un margen (SDF de la marca en CPU), no todo el hero. ~380 ms de transición.
   const markEl = host.querySelector('.mark'), subEl = host.querySelector('.sub');
-  let lime = 0, lastSx = '';
+  let lime = 0, lastSx = '', lastCol = '';
   const VIO = [107, 106, 244], LIM = [191, 234, 0];
   const overMark = () => {
     const p = mark.st.ptr, s = env.sdfCPU;
@@ -91,7 +91,8 @@ export async function startField(scene, host = document.querySelector('[data-fie
     lime = reduced ? target : lime + (target - lime) * (1 - Math.exp(-dt * 6.5));
     if (Math.abs(lime - target) < .002) lime = target;
     const c = VIO.map((v, i) => Math.round(v + (LIM[i] - v) * lime));
-    if (markEl) markEl.style.color = `rgb(${c})`;
+    const col = `rgb(${c})`;
+    if (markEl && col !== lastCol) { lastCol = col; markEl.style.color = col; }   // solo si cambia (evita recalcular estilos cada frame)
     // capa óptica del subtítulo: sigue al cursor (luz) y toma el color del modo
     const p = mark.st.ptr, nx = p.ton ? Math.max(-1, Math.min(1, (p.x * env.H - env.W / 2) / (env.W / 2))) : 0, ny = p.ton ? Math.max(-1, Math.min(1, ((1 - p.y) * env.H - env.H / 2) / (env.H / 2))) : 0;
     const sx = `${(1.5 - 2.2 * nx).toFixed(2)}|${(1.5 - 2.2 * ny).toFixed(2)}|${c}`;

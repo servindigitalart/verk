@@ -173,3 +173,8 @@ Los fallos de `/bot` (404 de `/fonts/NHaas*.woff2` y `<pre>` sin foco) vienen de
 
 **Limpieza**
 - Eliminados 13 componentes antiguos que la home ya no importaba.
+
+## Evolución posterior (2026-11-06)
+La experiencia se rediseñó sobre esta integración: lima en el hero, header morphing con isotipo de progreso, navegación
+espacial, sistema de botones, Servicios 4 → 1, Método, Project Frames, Contact Activation y footer Residual Field.
+Ver `docs/24-production-readiness.md` § «Rediseño de experiencia (2026-11-06)».

@@ -135,10 +135,10 @@ if (run('portfolio')) {
       await p.waitForFunction(() => document.querySelector('dialog.sys-panel')?.open); const ms = Date.now() - t0;
       let carga = null;
       if (await p.locator('dialog iframe').count()) { try { await p.waitForSelector('dialog .sp-frame.is-loaded', { timeout: 20000 }); carga = await p.evaluate(() => window.__pf.iframeLoads.at(-1)?.ms); } catch { carga = 'sin load en 20 s'; } }
-      rows[id] = await p.evaluate(() => { const d = document.querySelector('dialog'); const live = d.querySelector('#sp-p2');
-        return { pestanaInicial: d.querySelector('[aria-selected=true]').textContent.trim(), iframes: d.querySelectorAll('iframe').length, enVivo: live.textContent.trim().replace(/\s+/g, ' ').slice(0, 120), enlace: d.querySelector('a[href^="http"]')?.href ?? null, focoDentro: d.contains(document.activeElement) }; });
+      rows[id] = await p.evaluate(() => { const d = document.querySelector('dialog'); const live = d.querySelector('.pfx');
+        return { pestanaInicial: d.querySelector('[aria-selected=true]').textContent.trim(), iframes: d.querySelectorAll('iframe').length, vista: live.dataset.view, pestanas: [...d.querySelectorAll('[role=tab]')].map((t) => t.textContent.trim()).join('|'), enlace: d.querySelector('a[href^="http"]')?.href ?? null, focoDentro: d.contains(document.activeElement) }; });
       Object.assign(rows[id], { abrir_ms: ms, cargaIframe_ms: carga });
-      if (w === 1440 && ['SIS-01', 'SIS-03', 'SIS-08', 'SIS-04'].includes(id)) { if (id !== 'SIS-01') await p.click('#sp-t2'); await p.waitForTimeout(300); await p.screenshot({ path: `${OUT}/shots/panel-${id}-${w}.png` }); }
+      if (w === 1440 && ['SIS-01', 'SIS-03', 'SIS-08', 'SIS-04'].includes(id)) { if (id !== 'SIS-01' && await p.locator('#sp-t2').count()) await p.click('#sp-t2'); await p.waitForTimeout(300); await p.screenshot({ path: `${OUT}/shots/panel-${id}-${w}.png` }); }
       if (w === 390 && id === 'SIS-01') await p.screenshot({ path: `${OUT}/shots/panel-${id}-${w}.png` });
       await p.keyboard.press('Escape'); await p.waitForTimeout(120);
       rows[id].iframesTrasCerrar = await p.evaluate(() => document.querySelectorAll('iframe').length);
@@ -161,7 +161,7 @@ if (run('header')) {
         scrollTo(0, y); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         const pr = pill.getBoundingClientRect(), mid = (pr.top + pr.bottom) / 2;
         const under = document.elementsFromPoint(innerWidth - 4, mid).find((e) => e.closest('[data-surface]') && !e.closest('[data-nav-root]'))?.closest('main > [data-surface], main > section, main > footer');
-        const st = `${pill.dataset.v}|${document.querySelector('.nav-links [aria-current]')?.textContent ?? '-'}|${document.querySelector('.ind-m [data-name]')?.textContent}`;
+        const st = `${pill.dataset.v}|${document.querySelector('.nav-links [aria-current]')?.textContent ?? '-'}|${document.querySelector('.prog-k [data-name]')?.textContent}`;
         const ok = !under || under.dataset.surface === pill.dataset.v || pill.querySelector('.pill-clone.on');
         if (st !== last) { out.push({ y, st, fill: pill.style.getPropertyValue('--fill'), ok: !!ok }); last = st; }
       }
