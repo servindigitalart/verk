@@ -6,6 +6,8 @@
 //     Sitio         dos capturas adicionales (pantallas 2 y 3) + «Abrir sitio ↗» (solo con URL pública aprobada)
 //   Sin iframes. Máximo dos capturas visibles. El panel se ajusta al viewport: sin scroll interno.
 //   <dialog> nativo (foco atrapado, Escape, devolución del foco); pestañas con flechas, Inicio y Fin.
+//   Recorrido entre proyectos sin cerrar el panel: ← / → con contador (03 / 10) y, en táctil, deslizar el escenario.
+//   Al cerrar, el foco vuelve a la fila del último proyecto visto.
 import { esc, iconize } from './icons.js';
 const host = (u) => u.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
@@ -13,6 +15,7 @@ export function createPanel({ byId, metrics }) {
   const dlg = document.createElement('dialog');
   dlg.className = 'sys-panel'; dlg.setAttribute('aria-labelledby', 'sp-title');
   document.body.append(dlg);
+  const ids = Object.keys(byId);
   let current = null, lastTrigger = null, view = 'vista';
   const linkable = (s) => !!(s.url && !s.pending && !s.embed?.hold);
   const views = (s) => [['vista', 'Vista'], ['arq', 'Arquitectura'], ...(linkable(s) && s.capture ? [['site', 'Sitio']] : [])];
@@ -49,7 +52,12 @@ export function createPanel({ byId, metrics }) {
     <div class="pfx" data-view="vista">
       <div class="pfx-top">
         <p class="label"><span>${s.id}</span> · <span>${esc(s.cap.join(' · '))}</span> · <span class="st" data-state="${s.state}"><i aria-hidden="true"></i>${esc(s.stateLabel)}</span></p>
-        <button class="sp-close label" type="button">Cerrar</button>
+        <div class="sp-ctl">
+          <button class="sp-step" type="button" data-step="-1" aria-label="Sistema anterior">←</button>
+          <span class="sp-count label" aria-live="polite"><span class="sr-only">Sistema </span>${String(ids.indexOf(s.id) + 1).padStart(2, '0')} / ${String(ids.length).padStart(2, '0')}<span class="sr-only">: ${esc(s.name)}</span></span>
+          <button class="sp-step" type="button" data-step="1" aria-label="Sistema siguiente">→</button>
+          <button class="sp-close label" type="button">Cerrar</button>
+        </div>
       </div>
       <div class="pfx-stage"></div>
       <div class="pfx-foot">
@@ -73,14 +81,31 @@ export function createPanel({ byId, metrics }) {
     current = byId[id]; lastTrigger = trigger;
     dlg.innerHTML = iconize(shell(current));
     show(0);
-    dlg.showModal();
+    if (!dlg.open) dlg.showModal();
     requestAnimationFrame(() => metrics.opened.push({ id, ms: +(performance.now() - t0).toFixed(1) }));
   };
+  // recorrido: re-render del mismo panel (sin cerrar ni reabrir) y el foco se queda en el mismo control
+  const step = (d) => {
+    const id = ids[(ids.indexOf(current.id) + d + ids.length) % ids.length];
+    open(id, document.querySelector(`[data-open="${id}"]`) ?? lastTrigger);
+    dlg.querySelector('.pfx').dataset.dir = d > 0 ? 'next' : 'prev';
+    dlg.querySelector(`.sp-step[data-step="${d}"]`)?.focus();
+  };
+  // deslizar en táctil sobre el escenario (gesto horizontal claro: ≥ 56 px y dominante sobre el vertical)
+  let sx = 0, sy = 0, sid = -1;
+  dlg.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && e.target.closest('.pfx-stage')) { sx = e.clientX; sy = e.clientY; sid = e.pointerId; } });
+  dlg.addEventListener('pointerup', (e) => {
+    if (e.pointerId !== sid) return; sid = -1;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) >= 56 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+  });
+  dlg.addEventListener('pointercancel', () => (sid = -1));
   const close = () => dlg.close();
   dlg.addEventListener('close', () => { dlg.innerHTML = ''; current = null; lastTrigger?.focus(); });
   dlg.addEventListener('click', (e) => {
     if (e.target === dlg) return close();                            // clic en el fondo
     if (e.target.closest('.sp-close')) return close();
+    const st = e.target.closest('.sp-step'); if (st) return step(+st.dataset.step);
     const tab = e.target.closest('[role=tab]');
     if (tab) show([...dlg.querySelectorAll('[role=tab]')].indexOf(tab));
   });

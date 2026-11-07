@@ -20,6 +20,8 @@ const links = [['#servicios', 'Servicios'], ['#metodo', 'Método'], ['#sistemas'
   </div>
 </header>
 <div class="menu" id="menu" hidden>
-  {links.map(([h, l]) => <a href={h}>{l}</a>)}
-  <a class="btn btn-lime" href="#contacto">Solicitar auditoría</a>
+  <ol class="menu-list">
+    {links.map(([h, l], i) => <li style={`--i:${i}`}><a href={h}><span class="menu-n label" aria-hidden="true">{String(i + 3).padStart(2, '0')}</span><span class="menu-l">{l}</span></a></li>)}
+  </ol>
+  <a class="btn btn-lime" href="#contacto" style="--i:4">Solicitar auditoría</a>
 </div>

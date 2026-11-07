@@ -14,7 +14,7 @@ export function initHeader() {
   if (!header) return null;
   const pill = header.querySelector('[data-pill]');
   const linksBox = pill.querySelector('.nav-links');
-  const links = [...linksBox.querySelectorAll('a[href^="#"]')];
+  const links = [...linksBox.querySelectorAll('a[href^="#"]'), ...document.querySelectorAll('#menu .menu-list a')];   // nav + índice del menú móvil
   const sections = [...document.querySelectorAll('[data-surface]')].filter((s) => !s.parentElement.closest('[data-surface]'));
   const cleanup = [], reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const on = (t, e, f, o) => { t.addEventListener(e, f, o); cleanup.push(() => t.removeEventListener(e, f, o)); };

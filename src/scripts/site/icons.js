@@ -5,10 +5,11 @@ const svg = (d, label) => `<svg class="gl" viewBox="0 0 16 16" fill="none" strok
 export const ICON = {
   '⏳': svg('M4 1.5h8M4 14.5h8M5 1.5c0 4 6 3.5 6 6.5s-6 2.5-6 6.5M11 1.5c0 4-6 3.5-6 6.5s6 2.5 6 6.5', 'pendiente'),
   '→': svg('M2 8h11M9 4l4 4-4 4'),
+  '←': svg('M14 8H3M7 4 3 8l4 4'),
   '↗': svg('M4 12 12 4M6 4h6v6'),
 };
 export const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 // Sustituye los glifos en HTML ya escapado
-export const iconize = (html) => html.replace(/⏳|→|↗/g, (g) => ICON[g]);
+export const iconize = (html) => html.replace(/⏳|←|→|↗/g, (g) => ICON[g]);
 // Texto plano → HTML seguro con iconos
 export const t = (s) => iconize(esc(s));

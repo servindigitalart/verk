@@ -642,3 +642,101 @@ footer.foot { position: relative; overflow: hidden; isolation: isolate; min-heig
 .sys-field { grid-column: full; position: sticky; top: 0; z-index: 0; height: 100svh; margin-bottom: -100svh; pointer-events: none; overflow: hidden; }
 .sys-field canvas { display: block; width: 100%; height: 100%; }
 [data-sys] > :not(.sys-field) { position: relative; z-index: 1; }
+
+/* ═══════════ Capa mobile-first (rediseño móvil, 2026-11-06) ═══════════
+   Composiciones propias de pantallas estrechas, bajas y táctiles. Diseñadas para 360–430 px y extendidas hacia
+   arriba; ninguna regla cambia el escritorio ≥ 1024 px salvo la navegación entre proyectos del panel de Sistemas. */
+
+/* Táctil: el resaltado gris del sistema se sustituye por los estados :active propios de cada control */
+.btn, .nav-toggle, .ix-btn, .sp-tabs [role=tab], .sp-close, .sp-step, .menu a, .foot-col a, .field-ctl button { -webkit-tap-highlight-color: transparent; }
+
+/* Hero · teléfonos compactos: los dos CTA en una fila (≤ 389 px) y un isotipo menor en pantallas bajas, para que CTA y
+   Pausar queden en la primera pantalla en 360×800 y 375×812 (390×844 y mayores no cambian) */
+@media (max-width: 389px) { .ctas .btn { padding-inline: 16px; } }
+@media (max-width: 767px) and (max-height: 830px) { .mark { height: min(22svh, 260px); } }
+/* Hero · teléfono en horizontal: el isotipo baja junto al subtítulo y deja de pisar el titular */
+@media (orientation: landscape) and (max-height: 520px) and (min-width: 768px) and (max-width: 1023px) {
+  .hero { padding-top: 88px; row-gap: 14px; }
+  .mark { grid-column: 7 / content-end; grid-row: 3 / 5; height: min(36svh, 160px); align-self: end; }
+}
+
+/* Header · menú móvil: índice numerado (03–06, el mismo número del indicador), anclado abajo, en la zona del pulgar.
+   Entra por la diagonal de 45° de la marca, fila a fila; el apartado actual se marca en lima. */
+.menu { align-content: end; gap: 0; padding: max(96px, calc(env(safe-area-inset-top) + 84px)) 24px max(32px, calc(env(safe-area-inset-bottom) + 24px)); }
+.menu-list { display: grid; border-top: 1px solid rgb(240 238 233 / .16); }
+.menu-list a { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; padding-block: 10px; border-bottom: 1px solid rgb(240 238 233 / .16); }
+.menu-n { color: var(--fg-2-dark); }
+.menu-list a[aria-current="true"] .menu-n { color: var(--lime); }
+.menu-list a:active .menu-l { opacity: .6; }
+.menu .btn { margin-top: 28px; }
+@media (prefers-reduced-motion: no-preference) {
+  .menu:not([hidden]) :is(li, .btn) { animation: menu-in 460ms cubic-bezier(.16, 1, .3, 1) calc(var(--i) * 45ms) both; }
+}
+@keyframes menu-in { from { opacity: 0; transform: translate(-28px, 28px); } }
+
+/* Servicios · el escenario fijo sigue al header: cuando este se oculta al bajar, sube y no deja contenido asomando encima */
+@media (max-width: 767px) {
+  .svc-stage { transition: transform 200ms var(--ease-ui); }
+  :root:has(.nav.is-hidden) .svc-stage { transform: translateY(-64px); }
+}
+
+/* Método · en columna la ruta es vertical: una sola línea que baja por los cuatro pasos y termina en el isotipo */
+@media (max-width: 1023px) {
+  .steps { gap: 0; }
+  .step { padding: 0 0 clamp(32px, 6vw, 44px) 40px; }
+  .step::before { left: 7px; right: auto; top: 8px; bottom: 0; width: 2px; height: auto; }
+  .step::after { left: 6.5px; right: auto; top: 8px; bottom: 0; width: 3px; height: auto; transform-origin: 50% 0; transform: scaleY(var(--route)); }
+  .step .spark { left: 5px; top: calc(8px + var(--route) * (100% - 8px)); width: 6px; height: 26px; margin: -26px 0 0; }
+  .steps-end { margin: 0 0 0 -13px; }
+  .step > span:last-child { max-width: 52ch; }   /* tablet: medida de lectura (en móvil la columna ya es más estrecha) */
+}
+
+/* Sistemas · sin visor (< 1024 px) cada fila lleva la placa de marca del proyecto: el índice se lee como portfolio */
+.ix-thumb { grid-area: thumb; display: none; }
+@media (max-width: 1023px) {
+  .ix-thumb { display: grid; width: 100%; aspect-ratio: 4 / 3; border-radius: 8px; align-self: center; opacity: .55; transition: opacity 200ms var(--ease-ui); }
+  .ix-thumb .pn-name { font-size: 12px; line-height: 1; letter-spacing: -.02em; text-align: center; padding-inline: 4px; }
+  .ix-btn[aria-current="true"] .ix-thumb, .ix-btn:active .ix-thumb, .ix-btn:active .ix-name { opacity: 1; }
+}
+@media (min-width: 768px) and (max-width: 1023px) { .ix-thumb .pn-name { font-size: 15px; } .ix-btn { grid-template-columns: 96px 8ch 1fr auto; grid-template-areas: "thumb id name st" "thumb . cap cap"; } }
+@media (max-width: 767px) { .ix-btn { grid-template-columns: 64px 1fr auto; grid-template-areas: "thumb id st" "thumb name name" "thumb cap cap"; column-gap: 14px; } }
+
+/* Sistemas · panel: recorrido entre proyectos (← 03 / 10 →) y deslizamiento horizontal en táctil sobre el escenario */
+.sp-ctl { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.sp-step { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer;
+  transition: background-color 200ms var(--ease-ui), transform 160ms ease-out; }
+.sp-step .gl { width: 18px; height: 18px; }
+.sp-step:active { transform: scale(.94); }
+@media (hover: hover) { .sp-step:hover { background: var(--violet); } }
+.sp-count { min-width: 7ch; text-align: center; font-variant-numeric: tabular-nums; }
+.sp-ctl .sp-close { margin-left: 6px; }
+.pfx-stage { touch-action: pan-y; }
+@media (prefers-reduced-motion: no-preference) { .pfx[data-dir] .pfx-stage { animation: pfx-step 420ms cubic-bezier(.16, 1, .3, 1); } }
+.pfx[data-dir="prev"] { --sd: -1; }
+@keyframes pfx-step { from { transform: translateX(calc(var(--sd, 1) * 24px)); opacity: .4; } }
+
+/* Contacto · en teléfono el CTA ocupa el ancho: un solo objetivo grande en la zona del pulgar */
+@media (max-width: 480px) {
+  .c-act { flex-direction: column; align-items: stretch; gap: 10px; }
+  .c-cta { width: 100%; }
+  .c-via { align-self: center; }
+}
+
+/* Footer · en móvil el campo residual se concentra arriba (alrededor del cierre) y baja a textura detrás de los
+   enlaces, que antes quedaban cruzados por partículas; objetivos táctiles de 44 px */
+@media (max-width: 767px) {
+  .foot-origin { top: 3%; height: min(30svh, 260px); }   /* el campo nace detrás del cierre (footer-field.js lee esta geometría) */
+  .foot-field { -webkit-mask-image: linear-gradient(to bottom, #000 0 22%, rgb(0 0 0 / .16) 34% 100%); mask-image: linear-gradient(to bottom, #000 0 22%, rgb(0 0 0 / .16) 34% 100%); }
+}
+@media (pointer: coarse) {
+  .pill .nav-cta { min-height: 44px; }   /* tablets táctiles: el CTA del header también llega a 44 px */
+  .foot-col { gap: 0; }
+  .foot-col .label { margin-bottom: 4px; }
+  .foot-col a { min-height: 44px; }
+  .foot-wm { display: flex; align-items: center; min-height: 44px; }
+}
+
+/* Sistemas · placas: filete interior de 1 px para que las placas oscuras (Sonoro #111110, PRISMA, Riot) se recorten sobre
+   ink y el panel; sobre placas claras es casi invisible. La placa sin logo deja de verse «vacía»: fondo sólido y nombre. */
+.plate { box-shadow: inset 0 0 0 1px rgb(240 238 233 / .14); }
+.plate-none { border: 0; }

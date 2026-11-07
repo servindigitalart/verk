@@ -19,6 +19,7 @@ const data = JSON.stringify({ checked: EMBED_CHECKED, systems: pub }).replace(/<
     <ol class="ix-list">
       {SYSTEMS.map((s: any, i: number) => (
         <li class="ix-row" data-id={s.id} data-accent={s.accent}><button class="ix-btn" type="button" data-open={s.id} aria-haspopup="dialog" aria-current={i === 0 ? 'true' : undefined}>
+          <span class={`ix-thumb plate ${s.logo ? `plate-${s.logo.kind}` : 'plate-none'}`} style={s.logo ? `--plate:${s.logo.plate}` : undefined} aria-hidden="true">{s.logo ? <img src={s.logo.src} width={s.logo.w} height={s.logo.h} alt="" loading="lazy" decoding="async" /> : <span class="pn-name">{s.name}</span>}</span>
           <span class="ix-id label">{s.id}</span><span class="ix-name">{s.name}</span><span class="ix-cap label">{cap(s)}</span>
           <span class="st" data-state={s.state}><i aria-hidden="true"></i>{s.stateLabel}</span>
         </button></li>
