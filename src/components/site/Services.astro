@@ -5,11 +5,12 @@
 // su eje de 45°, con una composición y un color que evolucionan con el progreso por las cuatro disciplinas.
 // Sin JS / reduced-motion: estado final (cuatro disciplinas integradas), todo legible.
 import { ISOTIPO } from './brand';
+// [nombre, tramo del recorrido que cubre, descripción]
 const services = [
-  ['Sitios Web', 'Tu sitio web no es una vitrina. Es el primer paso de un sistema que convierte visitas en conversaciones reales.'],
-  ['Automatizaciones', 'Cada tarea que se repite puede automatizarse. Construimos los flujos que ejecutan seguimientos, confirmaciones y recordatorios sin intervención.'],
-  ['Integraciones CRM', 'Cuando tus herramientas no hablan entre sí, los clientes potenciales se pierden. Conectamos CRM, WhatsApp, formularios y calendario para que nada quede sin respuesta.'],
-  ['Herramientas con IA', 'Las herramientas de IA genéricas no conocen tu negocio. Construimos las tuyas: entrenadas en tu operación, útiles desde el primer día.'],
+  ['Sitios Web', 'La entrada', 'El primer punto de contacto entre tu negocio y tus clientes. Sitios diseñados para informar, generar confianza e iniciar conversaciones.'],
+  ['Automatizaciones', 'La continuidad', 'Seguimientos, confirmaciones y recordatorios que ejecutan procesos definidos sin depender de que alguien tenga que recordarlos.'],
+  ['Integraciones CRM', 'La conexión', 'Conectamos CRM, WhatsApp, formularios y calendario para organizar la información y mantener conectado el recorrido de cada cliente.'],
+  ['Herramientas con IA', 'El criterio', 'Combinamos asistentes, agentes, modelos de IA y automatizaciones para crear herramientas adaptadas al contexto y los procesos de tu negocio.'],
 ];
 ---
 <section class="sec svc-sec" id="servicios" data-surface="violet" data-svc data-k="4" aria-labelledby="t-svc">
@@ -19,13 +20,15 @@ const services = [
     <span class="svc-track"><i></i></span>
   </div>
   <div class="svc-main">
-    <p class="label">02 · Servicios</p>
+    <p class="label">03 · Lo que construimos</p>
     <h2 class="h2 svc-title" id="t-svc"><span>Cuatro disciplinas.</span> <span class="svc-t2"><span>Un sistema.</span></span></h2>
+    <p class="lead">Cada disciplina cubre una parte del recorrido de tus clientes. Las conectamos según lo que tu operación necesita.</p>
     <ol class="svc-rows">
-      {services.map(([name, body], i) => (
+      {services.map(([name, part, body], i) => (
         <li class="svc" data-i={i}>
           <span class="svc-num">{String(i + 1).padStart(2, '0')}</span>
           <h3>{name}</h3>
+          <span class="svc-part label">{part}</span>
           <p>{body}</p>
         </li>
       ))}

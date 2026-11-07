@@ -1,0 +1,25 @@
+---
+// Tensión · pausa editorial entre el Hero y Servicios (superficie ink: cream → ink → violet, sin vecinas iguales).
+// Tres preguntas como unidades propias, en escalera: cada una avanza una columna a la derecha (doc 22 §7.3).
+// Cada respuesta se lee frase por frase. El revelado es solo CSS (scroll-driven, recorte a 45°) y únicamente donde
+// el navegador lo soporta y no hay reduced-motion; en cualquier otro caso, todo aparece en su estado final.
+const questions: [string, string[]][] = [
+  ['¿Dónde se pierden tus clientes?', ['En un mensaje sin respuesta.', 'En una cotización pendiente.', 'En un formulario que nadie revisó.']],
+  ['¿Qué tarea se repite más?', ['Confirmar citas.', 'Enviar la misma información.', 'Pasar datos de WhatsApp a una hoja de cálculo.']],
+  ['¿Qué herramientas no están conectadas?', ['Tu sitio, WhatsApp, CRM y agenda.', 'Cada uno tiene una parte de la historia.']],
+];
+---
+<section class="sec tension" id="tension" data-surface="ink" aria-labelledby="t-ten">
+  <p class="label muted">02 · Antes de hablar de tecnología</p>
+  <h2 class="h2 tq-title" id="t-ten"><span>Tres preguntas.</span> <span>Casi siempre, la misma respuesta.</span></h2>
+  <ol class="tq">
+    {questions.map(([q, a], i) => (
+      <li class="tq-item" style={`--i:${i}`}>
+        <span class="tq-n label" aria-hidden="true">{String(i + 1).padStart(2, '0')} / 03</span>
+        <h3 class="tq-q">{q}</h3>
+        <p class="tq-a">{a.map((s) => <span>{s}</span>)}</p>
+      </li>
+    ))}
+  </ol>
+  <p class="tq-close"><span>El problema suele estar entre una herramienta y otra.</span> <span class="tq-close-2">Ahí empieza nuestro trabajo.</span></p>
+</section>

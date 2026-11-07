@@ -1,17 +1,18 @@
 ---
 import { ICON } from '../../scripts/site/icons.js';
 import { ISOTIPO } from './brand';
-// Copy de los pasos: el del sitio en producción. Cotas técnicas: F2/F3. La línea es la protagonista (method-route.js).
+// Copy de los pasos: aprobado el 2026-11-06 (docs/homepage-copy-proposals.md). Cotas técnicas: F2/F3. La línea es la protagonista (method-route.js).
 const steps = [
-  ['01', 'alcance', 'Entendemos', 'Antes de diseñar, preguntamos. ¿Dónde se pierden los clientes? ¿Qué tarea se repite más? ¿Qué herramientas ya tienes y cuáles no están conectadas?'],
-  ['02', 'prototipo', 'Diseñamos', 'Diseñamos el sistema completo antes de escribir código. El sitio, las automatizaciones, las integraciones: todo conectado desde el principio.'],
-  ['03', 'sistema en producción', 'Construimos', 'Construimos el sitio y todo lo que lo conecta a tu operación. No entregamos piezas sueltas, entregamos el sistema completo.'],
-  ['04', 'QA: Lighthouse · axe · Playwright', 'Verificamos', 'El sistema funciona antes de que lo llamemos terminado. Probamos cada flujo, cada integración, cada punto de contacto con el cliente.'],
+  ['01', 'alcance', 'Entendemos', 'Analizamos cómo funciona tu operación, dónde están los problemas y qué necesitas conectar.'],
+  ['02', 'prototipo', 'Diseñamos', 'Definimos el sistema y sus conexiones antes de empezar a construir.'],
+  ['03', 'sistema en producción', 'Construimos', 'Desarrollamos el sitio, las automatizaciones y las integraciones que necesita tu operación.'],
+  ['04', 'QA: Lighthouse · axe · Playwright', 'Verificamos', 'Probamos cada flujo y conexión para comprobar que funciona como fue diseñado.'],
 ];
 ---
 <section class="sec" id="metodo" data-surface="cream-warm" aria-labelledby="t-met">
-  <p class="label muted">03 · Método</p>
-  <h2 class="h2" id="t-met">Cómo funciona.</h2>
+  <p class="label muted">04 · Cómo funciona</p>
+  <h2 class="h2" id="t-met">El orden importa.</h2>
+  <p class="lead">Primero entendemos cómo funciona tu operación. Después diseñamos, construimos y verificamos el sistema.</p>
   <div class="steps-wrap">
   <ol class="steps">
     {steps.map(([n, cota, name, body]) => (

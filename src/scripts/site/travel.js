@@ -6,7 +6,7 @@
 // Interrumpible: otro clic re-dirige desde la posición actual; rueda, toque o tecla cancelan el viaje.
 // Sin JS o con reduced-motion: el enlace nativo (salto + foco del navegador). El href nunca se altera.
 const EASE = bezier(.77, 0, .175, 1);
-const NAMES = { top: 'Inicio', servicios: 'Servicios', metodo: 'Método', sistemas: 'Sistemas', contacto: 'Contacto' };
+const NAMES = { top: 'Inicio', tension: '', servicios: 'Servicios', metodo: 'Método', sistemas: 'Sistemas', contacto: 'Contacto' };   // = header.js
 
 export function initTravel() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;

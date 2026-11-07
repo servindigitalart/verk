@@ -5,7 +5,8 @@
 //   glow   el isotipo de progreso recibe un brillo breve de su propio color en cada cambio de sección
 //   prog   el isotipo oficial se construye con el recorrido (--fill, barrido a 45°) y avanza un paso en cada sección
 // El marcado del indicador lo emite Header.astro; aquí solo se actualiza el estado.
-const NAMES = { top: 'Inicio', servicios: 'Servicios', metodo: 'Método', sistemas: 'Sistemas', contacto: 'Contacto' };
+// Seis bloques de la home (01–06). Tensión no tiene enlace ni nombre en el nav: cuenta solo en el número y el progreso.
+const NAMES = { top: 'Inicio', tension: '', servicios: 'Servicios', metodo: 'Método', sistemas: 'Sistemas', contacto: 'Contacto' };
 const ORDER = Object.keys(NAMES);
 
 export function initHeader() {
@@ -31,7 +32,8 @@ export function initHeader() {
     pTop = header.offsetTop + pill.offsetTop; pBot = pTop + pill.offsetHeight;
   };
   const at = (y) => { let hit = geo[0]; for (const g of geo) { if (g.top <= y) hit = g; else break; } return hit; };
-  const secIndex = (id) => { const i = ORDER.indexOf(id); return i < 0 ? 4 : i; };    // el footer cuenta como Contacto
+  const LAST = ORDER.length - 1;
+  const secIndex = (id) => { const i = ORDER.indexOf(id); return i < 0 ? LAST : i; };    // el footer cuenta como Contacto
 
   const update = () => {
     if (!geo.length) return;
@@ -40,8 +42,8 @@ export function initHeader() {
     if (!menuOpen && pill.dataset.v !== a.v) shift(a.v, y >= lastY ? 1 : -1);
     const mid = y + (pTop + pBot) / 2, cur = at(mid), k = secIndex(cur.id);
     const s = Math.min(1, Math.max(0, (mid - cur.top) / Math.max(1, cur.bottom - cur.top)));
-    links.forEach((l, i) => { const is = i === k - 1; if (is !== (l.getAttribute('aria-current') === 'true')) is ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current'); });
-    const fill = k === 0 ? 0 : k >= 4 ? 1 : (k - 1 + s) / 3;
+    links.forEach((l) => { const is = l.hash === '#' + ORDER[k]; if (is !== (l.getAttribute('aria-current') === 'true')) is ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current'); });
+    const fill = k === 0 ? 0 : k >= LAST ? 1 : (k - 1 + s) / (LAST - 1);
     pill.style.setProperty('--fill', fill.toFixed(4));
     if (k !== active) {
       // al llegar a una sección nueva, las barras del isotipo de la ruta dan un paso por su eje (1-2-3)
