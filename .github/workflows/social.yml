@@ -1,0 +1,66 @@
+# VERK Instagram publisher (docs/26-instagram-publisher.md).
+# Manual only. The schedule stays commented until stage E6 is authorized.
+# Public repo: no pull_request triggers, read-only token, logs carry ids and states only.
+name: social
+
+on:
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: Horario local (León)
+        type: choice
+        options: ['0800', '1300', '1900']
+        required: true
+      dry_run:
+        description: Generar y guardar en Drive sin publicar (consume OpenAI)
+        type: boolean
+        default: true
+      now:
+        description: Publicar sin esperar la hora del horario
+        type: boolean
+        default: false
+  # E6 — activar solo con autorización. UTC; León = UTC−6 todo el año.
+  # schedule:
+  #   - cron: '15 13 * * *' # 07:15 → horario 0800
+  #   - cron: '15 18 * * *' # 12:15 → horario 1300
+  #   - cron: '15 0 * * *'  # 18:15 → horario 1900
+
+permissions:
+  contents: read
+
+env:
+  SLOT: ${{ inputs.slot || (github.event.schedule == '15 13 * * *' && '0800') || (github.event.schedule == '15 18 * * *' && '1300') || '1900' }}
+
+concurrency:
+  group: social-${{ inputs.slot || github.event.schedule }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --omit=dev
+      - run: node --test scripts/social/*.test.mjs
+      - name: Publicar
+        run: node scripts/social/run.mjs --slot "$SLOT" ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.now && '--now' || '' }}
+        env:
+          SOCIAL_ENABLED: ${{ vars.SOCIAL_ENABLED }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          IMAGE_MODEL: ${{ vars.IMAGE_MODEL }}
+          TEXT_MODEL: ${{ vars.TEXT_MODEL }}
+          VISION_MODEL: ${{ vars.VISION_MODEL }}
+          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+          GOOGLE_OAUTH_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH_REFRESH_TOKEN }}
+          DRIVE_ROOT_FOLDER_ID: ${{ vars.DRIVE_ROOT_FOLDER_ID }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ vars.INSTAGRAM_USER_ID }}
+          META_GRAPH_API_VERSION: ${{ vars.META_GRAPH_API_VERSION }}
