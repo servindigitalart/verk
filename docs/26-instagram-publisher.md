@@ -42,6 +42,7 @@ En cada horario (08:00 y 13:00, imagen individual; 19:00, carrusel; hora de Leó
 | `scripts/social/drive.mjs` | OAuth, carpetas, subida, manifest, permisos |
 | `scripts/social/http.mjs` | Reintentos acotados y errores sin credenciales |
 | `scripts/social/auth-google.mjs` | Uso local, una sola vez: obtiene el refresh token |
+| `scripts/social/drive-check.mjs` | Prueba de conexión con Drive (E2), sin OpenAI ni Instagram |
 | `scripts/social/social.test.mjs` | 25 pruebas con red simulada |
 | `.github/workflows/social.yml` | Solo `workflow_dispatch`; cron comentado |
 
@@ -150,8 +151,14 @@ La documentación de OpenAI no describe límites por API key ni restricción de 
 1. **Google Cloud:**
    1. Crea un proyecto y activa la Drive API.
    2. Configura la pantalla de consentimiento como «External» y pásala a **In production**. En «Testing», el token caduca a los 7 días.
-   3. Crea un cliente OAuth de tipo **Desktop app**.
-2. **Refresh token:** pon `GOOGLE_OAUTH_CLIENT_ID` y `GOOGLE_OAUTH_CLIENT_SECRET` en `.env` y ejecuta `node --env-file=.env scripts/social/auth-google.mjs`. El script guarda el token en `.env` sin imprimirlo.
+   3. Usa el cliente OAuth de tipo **Web application** del proyecto `verk-social`. En **Authorized redirect URIs** registra exactamente `http://localhost:8765/oauth2callback` (sin barra final; un cambio puede tardar unos minutos en aplicarse).
+   4. En **Data Access**, añade solo el permiso `.../auth/drive.file`.
+2. **Refresh token:**
+   1. Pon `GOOGLE_OAUTH_CLIENT_ID` y `GOOGLE_OAUTH_CLIENT_SECRET` del cliente Web en `.env`.
+   2. Ejecuta `node --env-file=.env scripts/social/auth-google.mjs`. El script abre el navegador (macOS), usa PKCE (S256) y `state`, y espera la autorización 5 minutos.
+   3. Solo si Google concede exactamente `drive.file`, guarda el token en `.env` (permisos 0600) sin imprimirlo. Si algo falla, `.env` no se modifica.
+   4. Otra URI: variable `GOOGLE_OAUTH_REDIRECT_URI` (debe ser `http://localhost` o `http://127.0.0.1` con puerto, y estar registrada en el cliente).
+   5. Comprueba la conexión con `node --env-file=.env scripts/social/drive-check.mjs`, o en GitHub con el workflow manual `social-drive-check`, que solo recibe los tres secretos de Google.
 3. **OpenAI:** crea el proyecto y la API key, y configura los límites del §7.
 4. **GitHub (Settings → Secrets and variables → Actions):**
    - **Secrets:** `OPENAI_API_KEY`, `INSTAGRAM_ACCESS_TOKEN`, `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_OAUTH_REFRESH_TOKEN`.
