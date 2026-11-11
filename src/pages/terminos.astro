@@ -1,0 +1,88 @@
+---
+/**
+ * terminos.astro — Condiciones del servicio de VERK Social (herramienta interna, scripts/social/, doc 26).
+ * Enlazada desde la configuración de Google OAuth. Sin condiciones comerciales: VERK Social no se ofrece a terceros.
+ */
+import Legal from '../layouts/Legal.astro';
+
+const toc: [string, string][] = [
+  ['que-es', 'Qué es VERK Social'],
+  ['funciones', 'Funciones'],
+  ['uso', 'Uso autorizado'],
+  ['proveedores', 'Proveedores externos'],
+  ['disponibilidad', 'Disponibilidad'],
+  ['responsabilidad', 'Limitación de responsabilidad'],
+  ['contacto', 'Cambios y contacto'],
+];
+---
+<Legal
+  title="Condiciones del servicio — Verk"
+  description="Condiciones de uso de VERK Social, la herramienta interna de Verk para preparar y publicar su contenido en Instagram."
+  heading="Condiciones del servicio."
+  lead="Condiciones de uso de VERK Social, la herramienta interna con la que Verk prepara y publica su propio contenido en Instagram."
+  updated="11 de noviembre de 2026"
+  toc={toc}
+>
+  <section id="que-es" aria-labelledby="h-que-es">
+    <h2 id="h-que-es"><span class="lg-n" aria-hidden="true">01</span>Qué es VERK Social</h2>
+    <p>
+      VERK Social es una herramienta interna de Verk, un estudio de infraestructura digital en México. No es un producto
+      ni un servicio para terceros: no tiene registro, cuentas de usuario, precios ni contratación.
+    </p>
+  </section>
+
+  <section id="funciones" aria-labelledby="h-funciones">
+    <h2 id="h-funciones"><span class="lg-n" aria-hidden="true">02</span>Funciones</h2>
+    <ul>
+      <li>Genera el texto y las imágenes de piezas de contenido de la marca Verk a partir de sus guías creativas.</li>
+      <li>Valida cada pieza: formato, tamaño, logotipo y texto. Una pieza que no pasa la validación no se publica.</li>
+      <li>Guarda las piezas y su registro en el Google Drive de Verk, con el permiso <code>drive.file</code>.</li>
+      <li>Publica las piezas en la cuenta de Instagram de Verk.</li>
+    </ul>
+  </section>
+
+  <section id="uso" aria-labelledby="h-uso">
+    <h2 id="h-uso"><span class="lg-n" aria-hidden="true">03</span>Uso autorizado</h2>
+    <p>
+      Solo Verk usa VERK Social, y únicamente con sus propias cuentas de Google, OpenAI, GitHub e Instagram. La
+      herramienta no está pensada para que otras personas conecten sus cuentas ni publiquen su contenido.
+    </p>
+  </section>
+
+  <section id="proveedores" aria-labelledby="h-proveedores">
+    <h2 id="h-proveedores"><span class="lg-n" aria-hidden="true">04</span>Proveedores externos</h2>
+    <p>VERK Social funciona sobre servicios de terceros, cada uno sujeto a sus propias condiciones y políticas:</p>
+    <ul>
+      <li><strong>Google:</strong> autorización OAuth y almacenamiento en Google Drive.</li>
+      <li><strong>OpenAI:</strong> generación de texto e imágenes y verificación del texto.</li>
+      <li><strong>Meta:</strong> publicación en Instagram mediante la API Graph de Instagram.</li>
+      <li><strong>GitHub:</strong> ejecución automatizada con GitHub Actions.</li>
+    </ul>
+    <p>El tratamiento de datos se describe en la <a href="/privacidad/">política de privacidad</a>.</p>
+  </section>
+
+  <section id="disponibilidad" aria-labelledby="h-disponibilidad">
+    <h2 id="h-disponibilidad"><span class="lg-n" aria-hidden="true">05</span>Disponibilidad</h2>
+    <p>
+      VERK Social puede modificarse, pausarse o dejar de funcionar en cualquier momento. Su funcionamiento depende de la
+      disponibilidad de los proveedores externos. Si una ejecución falla, la pieza no se publica.
+    </p>
+  </section>
+
+  <section id="responsabilidad" aria-labelledby="h-responsabilidad">
+    <h2 id="h-responsabilidad"><span class="lg-n" aria-hidden="true">06</span>Limitación de responsabilidad</h2>
+    <p>
+      VERK Social se proporciona tal cual, sin garantías de disponibilidad ni de resultados. En la medida que permita la
+      legislación aplicable, Verk no es responsable de interrupciones, errores o cambios en los servicios de terceros de
+      los que depende.
+    </p>
+  </section>
+
+  <section id="contacto" aria-labelledby="h-contacto">
+    <h2 id="h-contacto"><span class="lg-n" aria-hidden="true">07</span>Cambios y contacto</h2>
+    <p>
+      Verk puede actualizar estas condiciones; la versión vigente es la publicada en esta página, con su fecha. Para
+      cualquier pregunta, escribe a <a href="mailto:servindigitalart@gmail.com">servindigitalart@gmail.com</a>.
+    </p>
+  </section>
+</Legal>

@@ -1,0 +1,74 @@
+---
+/**
+ * Legal.astro — páginas legales (/privacidad, /terminos). Mismo patrón que 404.astro: layout Experience, sin el
+ * Header/Footer de la home (sus enlaces son anclas de la home). El contenido de cada página va en el slot, en
+ * <section id> con <h2>; el índice se genera a partir de `toc`.
+ */
+import Experience from './Experience.astro';
+import { WORDMARK } from '../components/site/brand';
+
+interface Props { title: string; description: string; heading: string; lead: string; updated: string; toc: [string, string][] }
+const { title, description, heading, lead, updated, toc } = Astro.props;
+---
+<Experience title={title} description={description}>
+  <main class="page-grid" id="main">
+    <section class="sec lg" data-surface="cream" aria-labelledby="lg-title">
+      <header class="lg-head">
+        <a class="lg-wm" href="/" aria-label="Verk — inicio"><svg viewBox="0 0 902 217" fill="currentColor" aria-hidden="true" set:html={WORDMARK} /></a>
+        <p class="label muted">Legal</p>
+        <h1 class="h2" id="lg-title">{heading}</h1>
+        <p class="lead">{lead}</p>
+        <p class="label muted">Última actualización: {updated}</p>
+      </header>
+
+      <nav class="lg-toc" aria-labelledby="lg-toc-t">
+        <p class="label" id="lg-toc-t">Contenido</p>
+        <ol>
+          {toc.map(([id, t], i) => <li><a href={`#${id}`}><span class="lg-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{t}</a></li>)}
+        </ol>
+      </nav>
+
+      <article class="lg-body"><slot /></article>
+
+      <footer class="lg-foot">
+        <a class="btn btn-ink" href="/">Volver al inicio</a>
+        <p class="label muted"><a href="/privacidad/">Privacidad</a> · <a href="/terminos/">Términos</a> · © {new Date().getFullYear()} Verk</p>
+      </footer>
+    </section>
+  </main>
+</Experience>
+
+<style is:global>
+  .lg { row-gap: clamp(40px, 5vw, 72px); }
+  .lg-head { display: grid; gap: 20px; }
+  .lg-wm { justify-self: start; display: inline-block; padding-block: 12px; }
+  .lg-wm svg { width: 96px; height: auto; }
+
+  /* Índice: arriba en móvil y tableta; columna fija a la izquierda desde 1024 px */
+  .lg-toc { border-top: 1px solid currentColor; padding-top: 16px; }
+  .lg-toc ol { display: grid; margin-top: 12px; }
+  .lg-toc a { display: flex; gap: 12px; align-items: baseline; min-height: 44px; padding-block: 10px; text-decoration: none; border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+  .lg-toc a:hover { text-decoration: underline; text-underline-offset: .2em; }
+  .lg-n { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--fg-2-light); flex: none; }
+
+  .lg-body { display: grid; gap: clamp(48px, 6vw, 80px); max-width: 68ch; }
+  .lg-body section { display: grid; gap: 16px; scroll-margin-top: 24px; }
+  .lg-body h2 { display: flex; flex-direction: column; gap: 10px; font: 700 clamp(28px, 2.4vw + 16px, 44px)/1 var(--text); letter-spacing: -.035em; text-wrap: balance; }
+  .lg-body a, .lg-foot p a { text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  .lg-body code { font-family: var(--mono); font-size: .86em; overflow-wrap: anywhere; }
+  .lg-body strong { font-weight: 700; }
+  .lg-body ul { display: grid; gap: 10px; }
+  .lg-body ul > li { position: relative; padding-left: 26px; }
+  /* viñeta: una barra corta a 45°, el gesto de la marca */
+  .lg-body ul > li::before { content: ''; position: absolute; left: 2px; top: .78em; width: 12px; height: 2px; background: currentColor; transform: rotate(-45deg); }
+
+  .lg-foot { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; border-top: 1px solid currentColor; padding-top: 24px; }
+  .lg-foot p a { display: inline-flex; align-items: center; min-height: 44px; }
+
+  @media (min-width: 1024px) {
+    .lg-head { grid-column: content-start / span 9; }
+    .lg-toc { grid-column: content-start / span 3; grid-row: 2 / span 2; align-self: start; position: sticky; top: 24px; }
+    .lg-body { grid-column: span 8 / content-end; grid-row: 2; }
+    .lg-foot { grid-column: span 8 / content-end; grid-row: 3; }
+  }
+</style>

@@ -1,0 +1,155 @@
+---
+/**
+ * privacidad.astro — Política de privacidad de Verk y de VERK Social (publicador de Instagram, scripts/social/, doc 26).
+ * Cada práctica descrita corresponde a la implementación real. Si el código cambia (permisos, almacenamiento,
+ * proveedores, retención), esta página se actualiza en el mismo cambio. Enlazada desde la configuración de Google OAuth.
+ */
+import Legal from '../layouts/Legal.astro';
+
+const toc: [string, string][] = [
+  ['responsable', 'Responsable y contacto'],
+  ['verk-social', 'Qué es VERK Social'],
+  ['google', 'Google OAuth y Google Drive'],
+  ['google-policy', 'Política de datos de usuario de Google'],
+  ['tokens', 'Tokens de acceso'],
+  ['proveedores', 'OpenAI, Instagram y GitHub'],
+  ['conservacion', 'Conservación y revocación'],
+  ['sitio', 'El sitio web'],
+  ['cambios', 'Cambios'],
+];
+---
+<Legal
+  title="Política de privacidad — Verk"
+  description="Cómo trata Verk la información en su sitio web y en VERK Social: Google OAuth, Google Drive (drive.file), OpenAI e Instagram."
+  heading="Política de privacidad."
+  lead="Cómo trata Verk la información en su sitio web y en VERK Social, la herramienta interna con la que prepara y publica su propio contenido en Instagram."
+  updated="11 de noviembre de 2026"
+  toc={toc}
+>
+  <section id="responsable" aria-labelledby="h-responsable">
+    <h2 id="h-responsable"><span class="lg-n" aria-hidden="true">01</span>Responsable y contacto</h2>
+    <p>
+      Verk es un estudio de infraestructura digital en México. Para cualquier pregunta sobre esta política o sobre el
+      tratamiento de datos, escribe a <a href="mailto:servindigitalart@gmail.com">servindigitalart@gmail.com</a>.
+    </p>
+  </section>
+
+  <section id="verk-social" aria-labelledby="h-verk-social">
+    <h2 id="h-verk-social"><span class="lg-n" aria-hidden="true">02</span>Qué es VERK Social</h2>
+    <p>
+      VERK Social es una herramienta interna de Verk. Genera piezas de contenido de la propia marca (imágenes y
+      carruseles), las guarda en el Google Drive de Verk y las publica en la cuenta de Instagram de Verk. No tiene
+      usuarios externos ni permite que otras personas conecten sus cuentas.
+    </p>
+    <p>
+      Trabaja con contenido de marca y con las credenciales de las cuentas de Verk. No trata datos de clientes ni del
+      público, y no lee mensajes, comentarios ni seguidores de Instagram.
+    </p>
+  </section>
+
+  <section id="google" aria-labelledby="h-google">
+    <h2 id="h-google"><span class="lg-n" aria-hidden="true">03</span>Google OAuth y Google Drive</h2>
+    <p>
+      VERK Social se conecta a Google Drive mediante OAuth 2.0 con la cuenta de Google de Verk. Solicita un único
+      permiso: <code>https://www.googleapis.com/auth/drive.file</code>.
+    </p>
+    <ul>
+      <li>
+        Con ese permiso, solo puede ver y modificar los archivos y carpetas que crea ella misma. No puede acceder a
+        ningún otro archivo de Drive.
+      </li>
+      <li>No solicita el nombre, el correo electrónico ni el perfil de la cuenta, ni acceso a otros servicios de Google.</li>
+      <li>
+        Crea la carpeta <code>VERK Social</code> y guarda en ella las imágenes generadas y un registro técnico de cada
+        pieza: textos, identificadores, estado, errores y consumo.
+      </li>
+      <li>
+        Para publicar, comparte temporalmente cada imagen final como «cualquier persona con el enlace», para que
+        Instagram pueda descargarla, y retira ese permiso al terminar.
+      </li>
+    </ul>
+  </section>
+
+  <section id="google-policy" aria-labelledby="h-google-policy">
+    <h2 id="h-google-policy"><span class="lg-n" aria-hidden="true">04</span>Política de datos de usuario de Google</h2>
+    <p>
+      El uso y la transferencia a cualquier otra aplicación de la información recibida de las API de Google por parte de
+      VERK Social se ajustan a la
+      <a href="https://developers.google.com/terms/api-services-user-data-policy">Política de datos de usuario de los servicios de API de Google</a>,
+      incluidos los requisitos de uso limitado (<span lang="en">Limited Use</span>).
+    </p>
+    <p>
+      La información de Google Drive se usa solo para guardar y publicar el contenido de Verk. No se vende, no se usa
+      con fines publicitarios y no se transfiere a terceros, salvo la descarga de cada imagen por parte de Instagram
+      en el momento de publicarla.
+    </p>
+  </section>
+
+  <section id="tokens" aria-labelledby="h-tokens">
+    <h2 id="h-tokens"><span class="lg-n" aria-hidden="true">05</span>Tokens de acceso</h2>
+    <ul>
+      <li>
+        El token de Google se guarda en un archivo de configuración local, excluido del control de versiones y legible
+        solo por el usuario del sistema que lo creó. Para las ejecuciones automáticas se guarda como secreto cifrado de
+        GitHub Actions. El proceso de autorización no lo muestra en pantalla ni lo escribe en registros.
+      </li>
+      <li>Los tokens viajan solo por HTTPS y nunca en direcciones URL.</li>
+      <li>Las mismas reglas se aplican a la clave de OpenAI y al token de Instagram.</li>
+    </ul>
+  </section>
+
+  <section id="proveedores" aria-labelledby="h-proveedores">
+    <h2 id="h-proveedores"><span class="lg-n" aria-hidden="true">06</span>OpenAI, Instagram y GitHub</h2>
+    <ul>
+      <li>
+        <strong>OpenAI API.</strong> Recibe las guías creativas de Verk, el tema de cada pieza, el logotipo oficial como
+        imagen de referencia y las imágenes generadas. Con ellos genera el texto y las imágenes y verifica que el texto de
+        cada imagen sea el aprobado. Su tratamiento se rige por la
+        <a href="https://openai.com/policies/privacy-policy/">política de privacidad de OpenAI</a>.
+      </li>
+      <li>
+        <strong>Instagram Graph API (Meta).</strong> Recibe el enlace temporal de cada imagen y el texto de la publicación,
+        para publicarlos en la cuenta de Instagram de Verk. Para evitar duplicados, VERK Social puede consultar las
+        publicaciones recientes de esa cuenta. Aplica la <a href="https://www.facebook.com/privacy/policy/">política de privacidad de Meta</a>.
+      </li>
+      <li>
+        <strong>GitHub Actions.</strong> Ejecuta el proceso con permiso de solo lectura sobre el repositorio. Sus registros
+        son públicos y solo contienen identificadores y estados; GitHub oculta los secretos en ellos.
+      </li>
+    </ul>
+  </section>
+
+  <section id="conservacion" aria-labelledby="h-conservacion">
+    <h2 id="h-conservacion"><span class="lg-n" aria-hidden="true">07</span>Conservación y revocación</h2>
+    <ul>
+      <li>
+        VERK Social no elimina nada automáticamente. Los archivos permanecen en el Google Drive de Verk y las
+        publicaciones en Instagram hasta que Verk los elimina.
+      </li>
+      <li>
+        El acceso a Google Drive se revoca en
+        <a href="https://myaccount.google.com/connections">la cuenta de Google → Conexiones con apps y servicios de terceros</a>.
+        Desde ese momento, VERK Social ya no puede acceder a Drive. Los archivos ya creados permanecen y pueden borrarse
+        manualmente.
+      </li>
+      <li>Los proveedores conservan los datos que reciben según sus propias políticas.</li>
+    </ul>
+  </section>
+
+  <section id="sitio" aria-labelledby="h-sitio">
+    <h2 id="h-sitio"><span class="lg-n" aria-hidden="true">08</span>El sitio web</h2>
+    <p>
+      El sitio de Verk no tiene formularios ni cuentas de usuario, y no usa cookies, analítica ni herramientas de
+      seguimiento propias. El botón «Solicitar auditoría» abre una conversación en WhatsApp. El sitio se aloja en
+      Netlify, que procesa datos técnicos de la conexión, como la dirección IP, para entregar las páginas.
+    </p>
+  </section>
+
+  <section id="cambios" aria-labelledby="h-cambios">
+    <h2 id="h-cambios"><span class="lg-n" aria-hidden="true">09</span>Cambios</h2>
+    <p>
+      Si cambia la forma en que VERK Social o el sitio tratan la información, actualizaremos esta página y su fecha.
+      Puedes escribirnos a <a href="mailto:servindigitalart@gmail.com">servindigitalart@gmail.com</a>.
+    </p>
+  </section>
+</Legal>
