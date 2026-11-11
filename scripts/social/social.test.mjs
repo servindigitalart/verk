@@ -528,3 +528,42 @@ test('publish-ready: only a «ready» piece of the given date, published now, ne
   assert.deepEqual(waits.filter((ms) => ms > 60_000), []); // no waiting for the slot
   assert.equal(drive.files.get('M').publication.permalink, 'https://www.instagram.com/p/TEST/');
 });
+
+test('scheduled path: one run generates, waits for the exact slot, publishes and verifies', async () => {
+  const copyA = lib.parseIndividual(outA).copy;
+  const order = [];
+  const ai = {
+    async respond({ step }) {
+      order.push(step);
+      if (step === 'director') return { tema: 'Mensajes sin respuesta', objetivo: 'conversión', segmento: '' };
+      if (step === '01') return outA;
+      if (step.startsWith('texto')) return { blocks: lib.expectedTexts(copyA) };
+      if (step.startsWith('identidad')) return { criterios: [{ criterio: 'ok', cumple: true, motivo: '' }] };
+      throw new Error(step);
+    },
+    async generateImage() { order.push('imagen'); return sharp({ create: { width: 1088, height: 1360, channels: 3, background: TOKENS.violet } }).jpeg().toBuffer(); },
+  };
+  const drive = fakeDrive(null);
+  const jpg = await flat(TOKENS.violet);
+  const waits = [];
+  const r = await runSlot({ slot: '0800', now: at('2026-11-12T12:35:00Z') }, { // cron 30 12 UTC, started 5 min late
+    drive, ai, models: { image: 'i', text: 't', vision: 'v' }, log: () => {}, wait: async (ms) => { order.push('espera'); waits.push(ms); },
+    fetch: mockFetch(() => new Response(jpg)),
+    ig: { publishSingle: async ({ caption }) => { order.push('publica'); assert.equal(caption, lib.captionIndividual(copyA)); return { mediaId: 'M8', containerIds: ['C1'], verification: { ok: true, permalink: 'https://www.instagram.com/p/A/' } }; } },
+  });
+  assert.deepEqual(r, { status: 'published', mediaId: 'M8', verified: true, permalink: 'https://www.instagram.com/p/A/' });
+  assert.deepEqual(order.slice(-2), ['espera', 'publica']);
+  assert.ok(order.indexOf('imagen') < order.indexOf('publica'));
+  assert.deepEqual(waits, [85 * 60 * 1000]); // 06:35 León → 08:00
+  const m = drive.files.get('M');
+  assert.equal(m.status, 'published');
+  assert.ok(m.cost && Array.isArray(m.usage));
+});
+
+test('cron (UTC) → León slot on the same local date, 90 min ahead', () => {
+  for (const [cron, slot] of [['2026-11-12T12:30:00Z', '0800'], ['2026-11-12T17:30:00Z', '1300'], ['2026-11-12T23:30:00Z', '1900']]) {
+    const date = localDate(new Date(cron));
+    assert.equal(date, '2026-11-12');
+    assert.equal(slotTime(date, slot).getTime() - Date.parse(cron), 90 * 60 * 1000);
+  }
+});

@@ -2,6 +2,7 @@
 // VERK Instagram publisher. One run = one slot of one local day (America/Mexico_City).
 //   node scripts/social/run.mjs --slot 0800|1300|1900 [--dry-run] [--now]
 //   node scripts/social/run.mjs --slot 0800|1300|1900 --publish-ready --date AAAA-MM-DD
+//   node scripts/social/run.mjs --check   (free preflights only: Instagram account, OpenAI models, Drive)
 // --dry-run: generates, validates and stores in Drive; never shares files or publishes.
 // --publish-ready: publishes a piece already «ready» in Drive, now; never generates. It is the manual,
 //   human-confirmed path (workflow social-publish-ready) and works with SOCIAL_ENABLED=false.
@@ -318,13 +319,14 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, date:
 
 // ── CLI ──────────────────────────────────────────────────────────────────
 async function main() {
-  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' } } });
+  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' }, check: { type: 'boolean' } } });
   const env = process.env;
+  const check = Boolean(values.check);
   const dryRun = Boolean(values['dry-run']);
   const publishOnly = Boolean(values['publish-ready']);
-  if (!SLOTS[values.slot]) throw new Error('uso: run.mjs --slot 0800|1300|1900 [--dry-run] [--now] | --publish-ready --date AAAA-MM-DD');
+  if (!check && !SLOTS[values.slot]) throw new Error('uso: run.mjs --slot 0800|1300|1900 [--dry-run] [--now] | --publish-ready --date AAAA-MM-DD');
   if (publishOnly && (dryRun || !values.date)) throw new Error('--publish-ready exige --date y no admite --dry-run');
-  if (!publishOnly && !dryRun && env.SOCIAL_ENABLED !== 'true') { console.log('SOCIAL_ENABLED no es «true»: no se genera ni se publica nada.'); return; }
+  if (!check && !publishOnly && !dryRun && env.SOCIAL_ENABLED !== 'true') { console.log('SOCIAL_ENABLED no es «true»: no se genera ni se publica nada.'); return; }
 
   // Free preflights first (Meta, then OpenAI models): nothing paid runs against the wrong account or a missing model.
   const ig = createInstagram({
@@ -345,6 +347,11 @@ async function main() {
     clientId: env.GOOGLE_OAUTH_CLIENT_ID, clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET,
     refreshToken: env.GOOGLE_OAUTH_REFRESH_TOKEN, rootId: env.DRIVE_ROOT_FOLDER_ID || undefined,
   });
+  if (check) {
+    await drive.ensurePath([]);
+    console.log(`openai: modelos disponibles (${[...new Set(Object.values(models))].join(', ')})\ndrive: conexión y carpeta raíz correctas\ncheck: todo correcto (SOCIAL_ENABLED=${env.SOCIAL_ENABLED === 'true' ? 'true' : 'false'})`);
+    return;
+  }
   const r = await runSlot({ slot: values.slot, dryRun, publishOnly, date: values.date, waitForSlot: !values.now }, { drive, ai, ig, models });
   if (r.status === 'published' && r.verified === false) {
     console.error('aviso: publicado, pero la verificación posterior no se superó; revisa el manifest. No se republica.');

@@ -1,6 +1,6 @@
 # 26 · Publicador de Instagram
 
-> Estado al 2026-11-11: **E0, E1 y E2 terminadas**; pipeline de carrusel completo (validación de identidad, verificación posterior, hoja de contacto y publicación manual de piezas revisadas). Todos los workflows son manuales, el cron está comentado y `SOCIAL_ENABLED=false`. La primera generación real espera los secretos `OPENAI_API_KEY` e `INSTAGRAM_ACCESS_TOKEN` en GitHub.
+> Estado al 2026-11-11: **operación automática diaria autorizada.** El cron de `social.yml` está activo y `SOCIAL_ENABLED=true` (interruptor general). Cada ejecución programada genera, valida, guarda en Drive y publica a la hora exacta, sin aprobación humana. Si una pieza no pasa la validación, no se publica: el error queda en su manifest y los demás horarios siguen. El workflow `social-publish-ready` se conserva para publicar a mano una pieza `ready`.
 
 ## 1. Qué hace
 
@@ -187,8 +187,8 @@ La documentación de OpenAI no describe límites por API key ni restricción de 
 | Etapa | Contenido |
 |---|---|
 | **E2** ✅ | Drive con tu OAuth: carpeta, subida, MIME/tamaño/MD5, descarga idéntica, acceso anónimo privado → público (JPEG real, `image/jpeg`) → retirado. Verificado en local y en GitHub Actions (2026-11-11). |
-| **E3** | Primer carrusel real: `social` con `dry_run` (una ejecución editorial, hasta 2 regeneraciones por slide) → revisión humana de las 5 imágenes, la hoja de contacto, el copy, el caption y el costo → `social-publish-ready` con confirmación. Requiere `OPENAI_API_KEY` e `INSTAGRAM_ACCESS_TOKEN` en GitHub. |
-| **E4** | Activar los horarios (cron) y `SOCIAL_ENABLED=true`. Solo con autorización expresa. |
+| **E3** (sustituida) | Primer carrusel real: `social` con `dry_run` (una ejecución editorial, hasta 2 regeneraciones por slide) → revisión humana de las 5 imágenes, la hoja de contacto, el copy, el caption y el costo → `social-publish-ready` con confirmación. Requiere `OPENAI_API_KEY` e `INSTAGRAM_ACCESS_TOKEN` en GitHub. |
+| **E4** ✅ | Operación automática: cron activo y `SOCIAL_ENABLED=true`, sin revisión humana (autorizado el 2026-11-11). La primera pieza es el carrusel de las 19:00 del 2026-11-11. |
 
 ## 11. Operación
 
@@ -201,7 +201,12 @@ El cron, todavía comentado, arranca 90 min antes (12:30, 17:30 y 23:30 UTC), y 
 3. Actions → `social-publish-ready` → la misma fecha y horario, y en `confirm`: `PUBLICAR 2026-11-12 1900`.
 4. El manifest queda `published`, con `mediaId`, `containerIds`, `permalink` y `verification`.
 
-**Activar la operación diaria** (solo con autorización expresa): descomentar `schedule` en `social.yml` y poner la variable `SOCIAL_ENABLED=true`.
+**Operación diaria (activa desde 2026-11-11):** cron en `social.yml` (`30 12`, `30 17` y `30 23` UTC) y variable `SOCIAL_ENABLED=true`.
+- **Apagar todo al instante:** `gh variable set SOCIAL_ENABLED --body false`. Las ejecuciones programadas terminan sin hacer nada.
+- **Comprobar credenciales gratis:** Actions → `social` → `check_only`. Valida la cuenta @verk.digital, los modelos de OpenAI y Drive; no genera ni publica.
+- **Sin retroactivos:** GitHub no ejecuta horarios que ya pasaron. Un horario ya `published` nunca se repite.
+- **Retrasos:** si GitHub arranca tarde y la hora ya pasó, se publica en cuanto la pieza está validada.
+- **Riesgo:** GitHub desactiva los cron de repositorios públicos tras 60 días sin actividad en el repositorio (avisa por correo). Un commit o reactivarlo en Actions los restablece.
 
 ## 12. Recuperación de errores
 
