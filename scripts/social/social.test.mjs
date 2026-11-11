@@ -29,7 +29,7 @@ function mockFetch(handler) {
 const params = (c) => Object.fromEntries(new URLSearchParams(c.body));
 
 // Simulated Graph API. statuses: container id → list of status_code answers.
-function graph({ statuses = {}, publish = () => json(200, { id: 'MEDIA1' }), media = [] } = {}) {
+function graph({ statuses = {}, publish = () => json(200, { id: 'MEDIA1' }), media = [], info } = {}) {
   let n = 0;
   return mockFetch((c) => {
     if (c.method === 'POST' && c.url.endsWith('/media')) return json(200, { id: `C${++n}` });
@@ -37,6 +37,12 @@ function graph({ statuses = {}, publish = () => json(200, { id: 'MEDIA1' }), med
     const st = c.url.match(/\/(C\d+)\?fields=status_code/);
     if (st) return json(200, { status_code: (statuses[st[1]] ?? ['FINISHED']).shift() ?? 'FINISHED' });
     if (c.url.includes('/IGU/media?fields=')) return json(200, { data: media });
+    if (c.url.includes('?fields=id,media_type')) {
+      if (info instanceof Response) return info;
+      const kids = n > 1 ? n - 1 : 0;
+      return json(200, info ?? { id: 'MEDIA1', media_type: kids ? 'CAROUSEL_ALBUM' : 'IMAGE', permalink: 'https://www.instagram.com/p/TEST/', timestamp: '2026-11-12T01:00:00+0000', ...(kids && { children: { data: Array.from({ length: kids }, (_, i) => ({ id: `K${i}` })) } }) });
+    }
+    if (c.url.includes('/IGU?fields=id,username')) return json(200, { id: 'IGU', username: 'verk.digital' });
   });
 }
 const ig = (fetch, extra) => createInstagram({ token: 'SECRET', userId: 'IGU', fetch, wait: noWait, ...extra });
@@ -45,10 +51,13 @@ const ig = (fetch, extra) => createInstagram({ token: 'SECRET', userId: 'IGU', f
 test('single: container → polling until FINISHED → media_publish; token only in headers', async () => {
   const f = graph({ statuses: { C1: ['IN_PROGRESS', 'IN_PROGRESS', 'FINISHED'] } });
   const r = await ig(f).publishSingle({ imageUrl: 'https://x/a.jpg', caption: 'Hola.' });
-  assert.deepEqual(r, { mediaId: 'MEDIA1', containerIds: ['C1'] });
+  assert.equal(r.mediaId, 'MEDIA1');
+  assert.deepEqual(r.containerIds, ['C1']);
+  assert.equal(r.verification.ok, true);
+  assert.equal(r.verification.mediaType, 'IMAGE');
   assert.deepEqual(params(f.calls[0]), { image_url: 'https://x/a.jpg', caption: 'Hola.' });
   assert.equal(f.calls.filter((c) => c.url.includes('status_code')).length, 3);
-  assert.equal(params(f.calls.at(-1)).creation_id, 'C1');
+  assert.equal(params(f.calls.find((c) => c.url.endsWith('/media_publish'))).creation_id, 'C1');
   for (const c of f.calls) {
     assert.ok(!c.url.includes('SECRET') && !c.body.includes('SECRET'));
     assert.equal(c.headers.Authorization, 'Bearer SECRET');
@@ -65,7 +74,8 @@ test('carousel: children first, parent only after every child is FINISHED, then 
   assert.deepEqual(params(creates[5]), { media_type: 'CAROUSEL', children: 'C1,C2,C3,C4,C5', caption: 'Hook.' });
   const parentAt = f.calls.indexOf(creates[5]);
   assert.ok(f.calls.slice(0, parentAt).filter((c) => c.url.includes('status_code')).length >= 5);
-  assert.equal(params(f.calls.at(-1)).creation_id, 'C6');
+  assert.equal(params(f.calls.find((c) => c.url.endsWith('/media_publish'))).creation_id, 'C6');
+  assert.deepEqual([r.verification.ok, r.verification.mediaType, r.verification.children, r.verification.permalink], [true, 'CAROUSEL_ALBUM', 5, 'https://www.instagram.com/p/TEST/']);
 });
 
 test('partial publish protection: a child in ERROR → no parent, no media_publish', async () => {
@@ -379,6 +389,7 @@ test('generation (dry run): library literal → image → official logo → text
       if (step === 'director') return { tema: 'Mensajes sin respuesta', objetivo: 'conversión', segmento: '' };
       if (step === '01') return outA;
       if (step.startsWith('texto')) return { blocks: [...lib.expectedTexts(copyA), 'verk'] };
+      if (step.startsWith('identidad')) { assert.match(text, /## 8\. Control de calidad/); return { criterios: [{ criterio: 'Solo colores de la paleta', cumple: true, motivo: '' }] }; }
       throw new Error(step);
     },
     async generateImage({ prompt, references }) {
@@ -398,4 +409,122 @@ test('generation (dry run): library literal → image → official logo → text
   assert.equal(m.caption, lib.captionIndividual(copyA));
   assert.equal(m.files.final.length, 1);
   assert.ok(prompts.find(([s]) => s === '01')[1].includes('TEMA: Mensajes sin respuesta\n'));
+});
+
+// ── E3+: identity validation, verification, publish-ready, contact sheet ──
+import { checkSurface, declaredSurface, dominantSurface } from './validate.mjs';
+import { contactSheet } from './run.mjs';
+
+test('instagram: account preflight; a failed post-publish verification never throws (no re-publish)', async () => {
+  assert.deepEqual(await ig(graph()).account(), { id: 'IGU', username: 'verk.digital' });
+  const wrongType = graph({ info: { id: 'MEDIA1', media_type: 'CAROUSEL_ALBUM', children: { data: [{ id: 'a' }, { id: 'b' }] } } });
+  const r = await ig(wrongType).publishCarousel({ imageUrls: ['a', 'b', 'c'], caption: 'x' });
+  assert.equal(r.mediaId, 'MEDIA1');
+  assert.equal(r.verification.ok, false); // 2 children instead of 3
+  const down = graph({ info: json(500, { error: { message: 'down' } }) });
+  const r2 = await ig(down).publishSingle({ imageUrl: 'a', caption: 'x' });
+  assert.equal(r2.mediaId, 'MEDIA1');
+  assert.equal(r2.verification.ok, false);
+  assert.equal(down.calls.filter((c) => c.url.endsWith('/media_publish')).length, 1);
+});
+
+test('02: contiguous slides with the same surface are rejected before any image is paid for', () => {
+  const same = outMaster.replace('- SUPERFICIE: Ink #0F0F0F', '- SUPERFICIE: Cream #F0EEE9');
+  assert.throws(() => lib.parseMaster(same), /slides 1 y 2 comparten superficie #F0EEE9/);
+});
+
+test('surface check: declared vs dominant token (cream ≠ cream-warm; near-blacks are one family; T8 skipped)', async () => {
+  assert.equal(declaredSurface('violeta `#6B6AF4`.'), 'violet');
+  assert.equal(declaredSurface('Cream-warm #E6E1D5'), 'cream-warm');
+  assert.equal(declaredSurface('sin color'), null);
+  const warm = await flat(TOKENS['cream-warm']);
+  assert.equal((await dominantSurface(warm)).token, 'cream-warm');
+  assert.deepEqual(await checkSurface(warm, { superficie: 'Cream-warm #E6E1D5' }), []);
+  assert.match((await checkSurface(warm, { superficie: 'Cream #F0EEE9' }))[0], /cream-warm .* en vez de cream/);
+  assert.deepEqual(await checkSurface(await flat('#0B0B0B'), { superficie: '#0B0B0B campo residual' }), []);
+  assert.deepEqual(await checkSurface(await flat(TOKENS.ink), { superficie: 'Lime #BFEA00', territorio: 'T8 Antes intervenido' }), []);
+});
+
+test('contact sheet (04 §5): five slides in a row, unmodified order', async () => {
+  const colors = ['cream', 'ink', 'violet', 'cream-warm', 'lime'].map((t) => TOKENS[t]);
+  const sheet = await contactSheet(await Promise.all(colors.map((c) => flat(c))));
+  const m = await sharp(sheet).metadata();
+  assert.deepEqual([m.format, m.width, m.height], ['jpeg', 48 * 2 + 5 * 432 + 4 * 24, 540 + 96]);
+  const { data } = await sharp(sheet).raw().toBuffer({ resolveWithObject: true });
+  const mid = (i) => { const x = 48 + i * 456 + 216, y = 318, k = (y * m.width + x) * 3; return [data[k], data[k + 1], data[k + 2]]; };
+  assert.ok(mid(1).every((v) => v < 40) && mid(4)[1] > 200 && mid(4)[2] < 60); // slide 2 ink, slide 5 lime
+});
+
+test('carousel generation: 02 → 03 literal, 5 slides with official logos, identity regeneration, contact sheet', async () => {
+  const master = lib.parseMaster(outMaster);
+  const surf = master.slides.map((s) => declaredSurface(s.superficie));
+  let images = 0, identityCalls = 0;
+  const steps = [];
+  const ai = {
+    async respond({ step, text }) {
+      steps.push(step);
+      if (step === 'director') return { tema: 'Herramientas desconectadas', objetivo: 'conversión', segmento: '' };
+      if (step === '02') { assert.ok(text.includes('TEMA: Herramientas desconectadas\n') && text.includes('máximo 8): 5\n')); return outMaster; }
+      if (step === '03') { assert.ok(text.includes('## A · ESTRATEGIA') && text.includes('REGLAS INVIOLABLES')); return outSeg; }
+      const n = Number(step.split(' ')[1]);
+      if (step.startsWith('texto')) return { blocks: lib.expectedTexts(master.slides[n - 1].copy) };
+      if (step.startsWith('identidad')) {
+        assert.match(text, /## 3\. Revisión de cada slide/);
+        assert.ok(text.includes(`LOGO · USO: ${master.slides[n - 1].logoUse}`));
+        const fail = n === 3 && identityCalls++ === 0; // slide 3 fails once → regenerated
+        return { criterios: [{ criterio: 'Sin elementos prohibidos', cumple: !fail, motivo: fail ? 'aparece una persona' : '' }] };
+      }
+      throw new Error(step);
+    },
+    async generateImage({ prompt, references }) {
+      images++;
+      const n = Number(prompt.match(/· SLIDE (\d) \/ 5/)[1]);
+      assert.equal(references.length, n === 5 ? 2 : 1); // slide 5 attaches wordmark + isotipo
+      return sharp({ create: { width: 1088, height: 1360, channels: 3, background: TOKENS[surf[n - 1]] } }).jpeg().toBuffer();
+    },
+  };
+  const drive = fakeDrive(null);
+  const uploads = [];
+  const up = drive.upload;
+  drive.upload = async (name, p, buf, mime) => { uploads.push(name); return up(name, p, buf, mime); };
+  const r = await runSlot({ slot: '1900', dryRun: true, now: at('2026-11-12T00:10:00Z') }, { drive, ai, ig: boom, models: { image: 'i', text: 't', vision: 'v' }, log: () => {} });
+  assert.deepEqual(r, { status: 'ready' });
+  assert.equal(images, 6);
+  assert.deepEqual(steps.filter((s) => ['02', '03'].includes(s)), ['02', '03']); // one editorial execution
+  const m = drive.files.get('M');
+  assert.equal(m.files.final.length, 5);
+  assert.ok(uploads.includes('hoja-de-contacto.jpg') && m.files.contactSheet);
+  assert.equal(m.caption, 'Tienes las herramientas. No se hablan.\n\nSolicitar auditoría · POR WHATSAPP');
+  assert.deepEqual(m.validation.rejections.map((x) => [x.image, x.attempt]), [[3, 1]]);
+  assert.match(m.validation.rejections[0].reason, /identidad visual: Sin elementos prohibidos: aparece una persona/);
+});
+
+test('a malformed 02 answer stops the run: no retry, no images (one editorial execution)', async () => {
+  let calls = 0;
+  const ai = { async respond({ step }) { calls++; return step === 'director' ? { tema: 'x', objetivo: 'conversión', segmento: '' } : 'sin formato'; }, generateImage: () => { throw new Error('no'); } };
+  const drive = fakeDrive(null);
+  await assert.rejects(runSlot({ slot: '1900', dryRun: true, now: at('2026-11-12T00:10:00Z') }, { drive, ai, ig: boom, models: {}, log: () => {} }), /02: salida fuera de formato/);
+  assert.equal(calls, 2);
+  assert.equal(drive.files.get('M').status, 'failed');
+});
+
+test('publish-ready: only a «ready» piece of the given date, published now, never generated', async () => {
+  for (const pre of [null, { status: 'generating', errors: [] }, { status: 'failed', errors: [] }]) {
+    await assert.rejects(runSlot({ slot: '1900', publishOnly: true, date: '2026-11-11', now: at('2026-11-12T15:00:00Z') }, { drive: fakeDrive(pre), ai: boom, ig: boom, models: {}, log: () => {} }), /no hay una pieza «ready»/);
+  }
+  await assert.rejects(runSlot({ slot: '1900', publishOnly: true, date: '11/11/2026' }, { drive: fakeDrive(null), ai: boom, ig: boom, models: {}, log: () => {} }), /fecha inválida/);
+
+  const jpg = await flat(TOKENS.cream);
+  const drive = fakeDrive({ status: 'ready', type: 'carrusel', caption: 'C', errors: [], files: { final: ['F1', 'F2', 'F3', 'F4', 'F5'] } });
+  const paths = [];
+  const ens = drive.ensurePath; drive.ensurePath = async (p) => { paths.push(p); return ens(p); };
+  const waits = [];
+  const r = await runSlot({ slot: '1900', publishOnly: true, date: '2026-11-11', now: at('2026-11-12T15:00:00Z') }, {
+    drive, ai: boom, models: {}, log: () => {}, wait: async (ms) => waits.push(ms), fetch: mockFetch(() => new Response(jpg)),
+    ig: { publishCarousel: async ({ imageUrls }) => ({ mediaId: 'M5', containerIds: imageUrls.map((_, i) => `C${i}`), verification: { ok: true, permalink: 'https://www.instagram.com/p/TEST/' } }) },
+  });
+  assert.deepEqual(r, { status: 'published', mediaId: 'M5', verified: true, permalink: 'https://www.instagram.com/p/TEST/' });
+  assert.deepEqual(paths[0], ['2026', '11', '2026-11-11', '1900-carrusel']);
+  assert.deepEqual(waits.filter((ms) => ms > 60_000), []); // no waiting for the slot
+  assert.equal(drive.files.get('M').publication.permalink, 'https://www.instagram.com/p/TEST/');
 });

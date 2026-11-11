@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 // VERK Instagram publisher. One run = one slot of one local day (America/Mexico_City).
 //   node scripts/social/run.mjs --slot 0800|1300|1900 [--dry-run] [--now]
-// --dry-run: generates, validates and stores in Drive; never shares files or touches Instagram.
-// Without --dry-run, nothing at all happens unless SOCIAL_ENABLED=true.
+//   node scripts/social/run.mjs --slot 0800|1300|1900 --publish-ready --date AAAA-MM-DD
+// --dry-run: generates, validates and stores in Drive; never shares files or publishes.
+// --publish-ready: publishes a piece already «ready» in Drive, now; never generates. It is the manual,
+//   human-confirmed path (workflow social-publish-ready) and works with SOCIAL_ENABLED=false.
+// Otherwise (scheduled path), nothing at all happens unless SOCIAL_ENABLED=true.
 // Logs are public (public repo): only ids, states and counts. Details go to the Drive manifest.
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
@@ -13,13 +16,13 @@ import { createDrive, publicUrl } from './drive.mjs';
 import { createOpenAI, PRICES_DATE } from './openai.mjs';
 import * as lib from './library.mjs';
 import { parseLogoUse, referencePngs, applyLogo, attachedKinds } from './logo.mjs';
-import { checkCopy, checkCaption, checkImage, compareText, verifyPublicUrl } from './validate.mjs';
+import { checkCopy, checkCaption, checkImage, checkSurface, compareText, verifyPublicUrl } from './validate.mjs';
 
 export const SLOTS = { '0800': 'individual', '1300': 'individual', '1900': 'carrusel' };
 const TZ = 'America/Mexico_City';
 const OFFSET = '-06:00'; // ponytail: Mexico has no DST since 2022; derive from tzdata if that changes.
 const IMAGE_ATTEMPTS = 3; // 1 generation + 2 regenerations
-const TEXT_ATTEMPTS = 2;
+const TEXT_ATTEMPTS = 1; // one editorial execution per piece: a malformed 01/02/03 answer stops the run
 
 export const localDate = (now) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
 export const slotTime = (date, slot) => new Date(`${date}T${slot.slice(0, 2)}:${slot.slice(2)}:00${OFFSET}`);
@@ -74,6 +77,42 @@ function copyGate(copies, caption) {
   if (problems.length) throw new PieceError('copy o caption no válidos', problems);
 }
 
+/**
+ * Visual identity review (vision model) with the library's own checklists, verbatim: 06 §8 for every image and
+ * 04 §3 for carousel slides. Copy and logo shape are verified elsewhere. Returns the failed criteria.
+ */
+async function reviewIdentity({ ai, models, image, piece, carousel, step }) {
+  const lists = [await lib.docSection('06-VISUAL-IDENTITY-GUIDELINES.md', '8. Control de calidad')];
+  if (carousel) lists.push(await lib.docSection('04-CAROUSEL-ASSEMBLY-INSTRUCTIONS.md', '3. Revisión de cada slide'));
+  const r = await ai.respond({
+    step, model: models.vision, image,
+    schema: {
+      type: 'object', additionalProperties: false, required: ['criterios'],
+      properties: { criterios: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['criterio', 'cumple', 'motivo'], properties: { criterio: { type: 'string' }, cumple: { type: 'boolean' }, motivo: { type: 'string' } } } } },
+    },
+    text: `Eres el control de calidad visual de VERK. Evalúa esta imagen con las listas de abajo, copiadas de la biblioteca de VERK, frente a lo declarado para esta pieza. Devuelve un criterio por cada punto de las listas.
+No evalúes el copy ni la ortografía: se verifican aparte. El logotipo ya es el vector oficial colocado en código: evalúa solo que su color contraste con la superficie y que no aparezca ningún otro logo, monograma o símbolo inventado.
+Marca un criterio como no cumplido solo si la infracción es clara y visible; ante la duda, márcalo como cumplido y explica la duda en el motivo.
+
+DECLARADO PARA ESTA PIEZA
+Superficie: ${piece.superficie ?? 'no especificada'}
+Territorio: ${piece.territorio ?? 'no especificado'}
+LOGO · USO: ${piece.logoUse}
+
+${lists.join('\n\n')}`,
+  });
+  return r.criterios.filter((c) => !c.cumple).map((c) => `${c.criterio}: ${c.motivo}`);
+}
+
+/** 04 §5 «Hoja de contacto»: the slides in a row, unmodified, for the final review. */
+export async function contactSheet(finals) {
+  const w = 432, h = 540, gap = 24, pad = 48;
+  const tiles = await Promise.all(finals.map((f) => sharp(f).resize(w, h).toBuffer()));
+  return sharp({ create: { width: pad * 2 + tiles.length * w + (tiles.length - 1) * gap, height: pad * 2 + h, channels: 3, background: '#E6E1D5' } })
+    .composite(tiles.map((input, i) => ({ input, left: pad + i * (w + gap), top: pad })))
+    .jpeg({ quality: 90 }).toBuffer();
+}
+
 export async function generate({ ai, models, type, history, log }) {
   const dir = await direct({ ai, models, type, history });
   log(`director: objetivo=${dir.objetivo}`);
@@ -88,7 +127,7 @@ export async function generate({ ai, models, type, history, log }) {
       return p;
     });
     const p = r.parsed;
-    pieces = [{ prompt: p.prompt, attach: p.attach, logoUse: p.logoUse, copy: p.copy }];
+    pieces = [{ prompt: p.prompt, attach: p.attach, logoUse: p.logoUse, copy: p.copy, territorio: p.territorio, superficie: p.superficie }];
     caption = lib.captionIndividual(p.copy);
     raw = { '01': r.raw };
     visual = [`${p.territorio ?? '?'} ${p.superficie ?? '?'}`];
@@ -101,7 +140,7 @@ export async function generate({ ai, models, type, history, log }) {
     });
     const prompt03 = lib.fillMaster(await lib.loadPrompt('03-CAROUSEL-PROMPT-SEGMENTER.md'), m.raw);
     const s = await textStep(ai, models.text, '03', prompt03, (t) => lib.parseSegmented(t, m.parsed));
-    pieces = m.parsed.slides.map((sl, i) => ({ prompt: s.parsed[i], attach: sl.attach, logoUse: sl.logoUse, copy: sl.copy }));
+    pieces = m.parsed.slides.map((sl, i) => ({ prompt: s.parsed[i], attach: sl.attach, logoUse: sl.logoUse, copy: sl.copy, territorio: sl.territorio, superficie: sl.superficie }));
     caption = lib.captionCarousel(m.parsed);
     raw = { '02': m.raw, '03': s.raw };
     visual = m.parsed.slides.map((sl) => `${sl.territorio ?? '?'} ${sl.superficie ?? '?'}`);
@@ -116,7 +155,7 @@ export async function generate({ ai, models, type, history, log }) {
     } catch (e) { throw new PieceError('LOGO · USO no válido', e.message); }
   }
 
-  const images = [];
+  const images = [], rejections = [];
   for (const [i, pc] of pieces.entries()) {
     const refs = (await referencePngs(pc.attach)).map((r) => r.png);
     let last;
@@ -126,7 +165,7 @@ export async function generate({ ai, models, type, history, log }) {
       try {
         const resized = await sharp(original).resize(1080, 1350, { fit: 'fill' }).jpeg({ quality: 95 }).toBuffer();
         const { buffer } = await applyLogo(resized, pc.placements);
-        const tech = await checkImage(buffer);
+        const tech = [...await checkImage(buffer), ...await checkSurface(buffer, pc)];
         if (tech.length) throw new Error(tech.join('; '));
         const { blocks } = await ai.respond({
           step: `texto ${i + 1}`, model: models.vision, image: buffer,
@@ -135,13 +174,19 @@ export async function generate({ ai, models, type, history, log }) {
         });
         const { missing, extra } = compareText(lib.expectedTexts(pc.copy), blocks);
         if (missing.length) throw new Error(`texto distinto del copy: ${missing.join(' | ')}`);
+        const identity = await reviewIdentity({ ai, models, image: buffer, piece: pc, carousel: type === 'carrusel', step: `identidad ${i + 1}` });
+        if (identity.length) throw new Error(`identidad visual: ${identity.join(' | ')}`);
         images.push({ original, final: buffer, extraWords: extra });
         log(`imagen ${i + 1}/${pieces.length} válida (intento ${a + 1})`);
         last = null;
         break;
-      } catch (e) { last = e; log(`imagen ${i + 1}/${pieces.length} inválida (intento ${a + 1})`); }
+      } catch (e) {
+        last = e;
+        rejections.push({ image: i + 1, attempt: a + 1, reason: e.message });
+        log(`imagen ${i + 1}/${pieces.length} inválida (intento ${a + 1})`);
+      }
     }
-    if (last) throw new PieceError(`imagen ${i + 1} sin versión válida tras ${IMAGE_ATTEMPTS} intentos`, last.message);
+    if (last) throw new PieceError(`imagen ${i + 1} sin versión válida tras ${IMAGE_ATTEMPTS} intentos`, rejections);
   }
 
   return {
@@ -150,14 +195,16 @@ export async function generate({ ai, models, type, history, log }) {
     copy: pieces.map((p) => p.copy),
     caption,
     images,
+    rejections,
   };
 }
 
 // ── Slot run ─────────────────────────────────────────────────────────────
-export async function runSlot({ slot, dryRun = false, now = () => new Date(), waitForSlot = true }, { drive, ai, ig, models, log = console.log, wait = sleep, fetch = globalThis.fetch }) {
+export async function runSlot({ slot, dryRun = false, publishOnly = false, date: forcedDate, now = () => new Date(), waitForSlot = true }, { drive, ai, ig, models, log = console.log, wait = sleep, fetch = globalThis.fetch }) {
   const type = SLOTS[slot];
   if (!type) throw new Error(`slot inválido: ${slot}`);
-  const date = localDate(now());
+  if (forcedDate && !/^\d{4}-\d{2}-\d{2}$/.test(forcedDate)) throw new Error(`fecha inválida: ${forcedDate}`);
+  const date = forcedDate ?? localDate(now());
   const [y, mo] = date.split('-');
   const folderId = await drive.ensurePath([y, mo, date, `${slot}-${type}`]);
   let manifestId = await drive.findFile('manifest.json', folderId);
@@ -187,6 +234,10 @@ export async function runSlot({ slot, dryRun = false, now = () => new Date(), wa
     throw new Error('publicación previa interrumpida y sin confirmar');
   }
 
+  if (publishOnly && manifest?.status !== 'ready') {
+    throw new Error(`no hay una pieza «ready» para ${date} ${slot} (estado: ${manifest?.status ?? 'ninguno'}); publish-ready nunca genera`);
+  }
+
   if (manifest?.status !== 'ready') {
     manifest = {
       version: 1, key: `${date}-${slot}`, date, slot, type, status: 'generating', dryRun,
@@ -206,9 +257,10 @@ export async function runSlot({ slot, dryRun = false, now = () => new Date(), wa
         files.original.push(await drive.upload(`${n}-original.jpg`, origDir, im.original, 'image/jpeg'));
         files.final.push(await drive.upload(`${n}.jpg`, finalDir, im.final, 'image/jpeg'));
       }
+      if (type === 'carrusel') files.contactSheet = await drive.upload('hoja-de-contacto.jpg', folderId, await contactSheet(g.images.map((im) => im.final)), 'image/jpeg');
       Object.assign(manifest, {
         status: 'ready', director: g.director, library: g.library, copy: g.copy, caption: g.caption, files,
-        validation: { extraWords: g.images.map((im) => im.extraWords) },
+        validation: { extraWords: g.images.map((im) => im.extraWords), rejections: g.rejections },
       });
     } catch (e) {
       manifest.status = 'failed';
@@ -225,7 +277,7 @@ export async function runSlot({ slot, dryRun = false, now = () => new Date(), wa
   if (dryRun) { log('dry-run: pieza lista en Drive, no se publica'); return { status: 'ready' }; }
 
   const target = slotTime(date, slot).getTime();
-  if (waitForSlot && now().getTime() < target) {
+  if (waitForSlot && !publishOnly && now().getTime() < target) {
     log(`esperando a las ${slot.slice(0, 2)}:${slot.slice(2)} locales`);
     await wait(target - now().getTime());
   }
@@ -245,10 +297,13 @@ export async function runSlot({ slot, dryRun = false, now = () => new Date(), wa
     const r = manifest.type === 'carrusel'
       ? await ig.publishCarousel({ imageUrls: urls, caption: manifest.caption, startedAt })
       : await ig.publishSingle({ imageUrl: urls[0], caption: manifest.caption, startedAt });
-    Object.assign(manifest.publication, { mediaId: r.mediaId, containerIds: r.containerIds, publishedAt: now().toISOString() });
+    Object.assign(manifest.publication, {
+      mediaId: r.mediaId, containerIds: r.containerIds, publishedAt: now().toISOString(),
+      permalink: r.verification?.permalink ?? null, verification: r.verification ?? null,
+    });
     manifest.status = 'published';
-    log(`publicado: media ${r.mediaId}`);
-    return { status: 'published', mediaId: r.mediaId };
+    log(`publicado: media ${r.mediaId} · verificación ${r.verification?.ok ? 'ok' : 'NO superada'}`);
+    return { status: 'published', mediaId: r.mediaId, verified: Boolean(r.verification?.ok), permalink: r.verification?.permalink ?? null };
   } catch (e) {
     // Not published. Unconfirmed → next run reconciles; otherwise files stay and a manual
     // re-run retries only the publication (no new generation cost).
@@ -263,24 +318,38 @@ export async function runSlot({ slot, dryRun = false, now = () => new Date(), wa
 
 // ── CLI ──────────────────────────────────────────────────────────────────
 async function main() {
-  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' } } });
+  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' } } });
   const env = process.env;
   const dryRun = Boolean(values['dry-run']);
-  if (!SLOTS[values.slot]) throw new Error('uso: run.mjs --slot 0800|1300|1900 [--dry-run] [--now]');
-  if (!dryRun && env.SOCIAL_ENABLED !== 'true') { console.log('SOCIAL_ENABLED no es «true»: no se genera ni se publica nada.'); return; }
+  const publishOnly = Boolean(values['publish-ready']);
+  if (!SLOTS[values.slot]) throw new Error('uso: run.mjs --slot 0800|1300|1900 [--dry-run] [--now] | --publish-ready --date AAAA-MM-DD');
+  if (publishOnly && (dryRun || !values.date)) throw new Error('--publish-ready exige --date y no admite --dry-run');
+  if (!publishOnly && !dryRun && env.SOCIAL_ENABLED !== 'true') { console.log('SOCIAL_ENABLED no es «true»: no se genera ni se publica nada.'); return; }
+
+  // Free preflights first (Meta, then OpenAI models): nothing paid runs against the wrong account or a missing model.
+  const ig = createInstagram({
+    token: env.INSTAGRAM_ACCESS_TOKEN, userId: env.INSTAGRAM_USER_ID, version: env.META_GRAPH_API_VERSION || 'v26.0', log: console.log,
+  });
+  const account = await ig.account();
+  if (env.INSTAGRAM_USERNAME && account.username !== env.INSTAGRAM_USERNAME) throw new Error(`la cuenta de Instagram es @${account.username}, no @${env.INSTAGRAM_USERNAME}`);
+  console.log(`instagram: @${account.username}`);
 
   const models = { image: env.IMAGE_MODEL, text: env.TEXT_MODEL, vision: env.VISION_MODEL };
-  if (!models.image || !models.text || !models.vision) throw new Error('faltan IMAGE_MODEL, TEXT_MODEL o VISION_MODEL');
-  const ai = createOpenAI({ apiKey: env.OPENAI_API_KEY, onUsage: (u) => ai.onUsage?.(u) });
-  await ai.preflight([...new Set(Object.values(models))]);
+  let ai = null;
+  if (!publishOnly) {
+    if (!models.image || !models.text || !models.vision) throw new Error('faltan IMAGE_MODEL, TEXT_MODEL o VISION_MODEL');
+    ai = createOpenAI({ apiKey: env.OPENAI_API_KEY, onUsage: (u) => ai.onUsage?.(u) });
+    await ai.preflight([...new Set(Object.values(models))]);
+  }
   const drive = createDrive({
     clientId: env.GOOGLE_OAUTH_CLIENT_ID, clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET,
     refreshToken: env.GOOGLE_OAUTH_REFRESH_TOKEN, rootId: env.DRIVE_ROOT_FOLDER_ID || undefined,
   });
-  const ig = dryRun ? null : createInstagram({
-    token: env.INSTAGRAM_ACCESS_TOKEN, userId: env.INSTAGRAM_USER_ID, version: env.META_GRAPH_API_VERSION || 'v26.0', log: console.log,
-  });
-  await runSlot({ slot: values.slot, dryRun, waitForSlot: !values.now }, { drive, ai, ig, models });
+  const r = await runSlot({ slot: values.slot, dryRun, publishOnly, date: values.date, waitForSlot: !values.now }, { drive, ai, ig, models });
+  if (r.status === 'published' && r.verified === false) {
+    console.error('aviso: publicado, pero la verificación posterior no se superó; revisa el manifest. No se republica.');
+    process.exitCode = 1;
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

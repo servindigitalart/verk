@@ -1,5 +1,7 @@
-# VERK Instagram publisher (docs/26-instagram-publisher.md).
-# Manual only. The schedule stays commented until stage E6 is authorized.
+# VERK Instagram publisher (docs/26-instagram-publisher.md): generate → validate → Drive → (publish).
+# Manual only. The schedule stays commented until it is expressly authorized.
+# Scheduled/manual runs without dry_run publish only when the variable SOCIAL_ENABLED is "true".
+# Human-confirmed publication of a reviewed piece: workflow social-publish-ready.
 # Public repo: no pull_request triggers, read-only token, logs carry ids and states only.
 name: social
 
@@ -7,38 +9,39 @@ on:
   workflow_dispatch:
     inputs:
       slot:
-        description: Horario local (León)
+        description: Horario local (León) · 0800 y 1300 imagen individual · 1900 carrusel
         type: choice
         options: ['0800', '1300', '1900']
         required: true
       dry_run:
-        description: Generar y guardar en Drive sin publicar (consume OpenAI)
+        description: Generar, validar y guardar en Drive sin publicar (consume OpenAI)
         type: boolean
         default: true
       now:
-        description: Publicar sin esperar la hora del horario
+        description: No esperar a la hora del horario
         type: boolean
         default: false
-  # E6 — activar solo con autorización. UTC; León = UTC−6 todo el año.
+  # Activar solo con autorización. UTC; León = UTC−6 todo el año. Arranca 90 min antes del horario
+  # (un carrusel con regeneraciones puede tardar más de 45 min); la publicación espera a la hora exacta.
   # schedule:
-  #   - cron: '15 13 * * *' # 07:15 → horario 0800
-  #   - cron: '15 18 * * *' # 12:15 → horario 1300
-  #   - cron: '15 0 * * *'  # 18:15 → horario 1900
+  #   - cron: '30 12 * * *' # 06:30 → horario 0800
+  #   - cron: '30 17 * * *' # 11:30 → horario 1300
+  #   - cron: '30 23 * * *' # 17:30 → horario 1900
 
 permissions:
   contents: read
 
 env:
-  SLOT: ${{ inputs.slot || (github.event.schedule == '15 13 * * *' && '0800') || (github.event.schedule == '15 18 * * *' && '1300') || '1900' }}
+  SLOT: ${{ inputs.slot || (github.event.schedule == '30 12 * * *' && '0800') || (github.event.schedule == '30 17 * * *' && '1300') || '1900' }}
 
 concurrency:
-  group: social-${{ inputs.slot || github.event.schedule }}
+  group: social-${{ inputs.slot || (github.event.schedule == '30 12 * * *' && '0800') || (github.event.schedule == '30 17 * * *' && '1300') || '1900' }}
   cancel-in-progress: false
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
         with:
@@ -49,7 +52,7 @@ jobs:
           cache: npm
       - run: npm ci --omit=dev
       - run: node --test scripts/social/*.test.mjs
-      - name: Publicar
+      - name: Generar y publicar
         run: node scripts/social/run.mjs --slot "$SLOT" ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.now && '--now' || '' }}
         env:
           SOCIAL_ENABLED: ${{ vars.SOCIAL_ENABLED }}
@@ -63,4 +66,5 @@ jobs:
           DRIVE_ROOT_FOLDER_ID: ${{ vars.DRIVE_ROOT_FOLDER_ID }}
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ vars.INSTAGRAM_USER_ID }}
+          INSTAGRAM_USERNAME: ${{ vars.INSTAGRAM_USERNAME }}
           META_GRAPH_API_VERSION: ${{ vars.META_GRAPH_API_VERSION }}

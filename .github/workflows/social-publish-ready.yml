@@ -1,0 +1,64 @@
+# VERK · human-confirmed publication of a piece already «ready» in Drive (docs/26-instagram-publisher.md §11).
+# Never generates and never uses OpenAI. Works with SOCIAL_ENABLED=false because it is a manual, explicit
+# decision: the run stops unless «confirm» is exactly «PUBLICAR <date> <slot>». Schedules cannot trigger it.
+name: social-publish-ready
+
+on:
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: Horario de la pieza revisada
+        type: choice
+        options: ['0800', '1300', '1900']
+        required: true
+      date:
+        description: Fecha local de la pieza (AAAA-MM-DD)
+        type: string
+        required: true
+      confirm:
+        description: Escribe exactamente «PUBLICAR AAAA-MM-DD HHMM» (misma fecha y horario)
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: social-${{ inputs.slot }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Confirmación
+        env:
+          SLOT: ${{ inputs.slot }}
+          DATE: ${{ inputs.date }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "fecha inválida"; exit 1; }
+          [ "$CONFIRM" = "PUBLICAR $DATE $SLOT" ] || { echo "confirmación incorrecta: no se publica"; exit 1; }
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --omit=dev
+      - run: node --test scripts/social/*.test.mjs
+      - name: Publicar pieza revisada
+        run: node scripts/social/run.mjs --publish-ready --slot "$SLOT" --date "$DATE"
+        env:
+          SLOT: ${{ inputs.slot }}
+          DATE: ${{ inputs.date }}
+          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+          GOOGLE_OAUTH_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH_REFRESH_TOKEN }}
+          DRIVE_ROOT_FOLDER_ID: ${{ vars.DRIVE_ROOT_FOLDER_ID }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ vars.INSTAGRAM_USER_ID }}
+          INSTAGRAM_USERNAME: ${{ vars.INSTAGRAM_USERNAME }}
+          META_GRAPH_API_VERSION: ${{ vars.META_GRAPH_API_VERSION }}

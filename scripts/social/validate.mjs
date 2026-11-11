@@ -1,6 +1,7 @@
 // Technical and editorial checks. Every check returns a list of problems (empty = valid).
 import sharp from 'sharp';
 import { request, sleep } from './http.mjs';
+import { TOKENS, surfaceToken } from './logo.mjs';
 
 export const MAX_BYTES = 8 * 1024 * 1024;
 
@@ -71,4 +72,32 @@ export async function verifyPublicUrl(url, { fetch = globalThis.fetch, wait = sl
     return checkImage(buf);
   }
   return last;
+}
+
+/** Palette token named by a SUPERFICIE field («Violet #6B6AF4», «violeta `#6B6AF4`»), or null. */
+export function declaredSurface(text = '') {
+  const hex = text.match(/#[0-9a-f]{6}\b/i)?.[0].toUpperCase();
+  return Object.keys(TOKENS).find((k) => TOKENS[k] === hex) ?? null;
+}
+
+/** Most frequent palette token in the image (sampled), with its share of all sampled pixels. */
+export async function dominantSurface(jpeg) {
+  const { data, info } = await sharp(jpeg).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const counts = {}; let n = 0;
+  for (let i = 0; i < info.width * info.height; i += 7) {
+    n++;
+    const t = surfaceToken([data[i * 3], data[i * 3 + 1], data[i * 3 + 2]]);
+    if (t) counts[t] = (counts[t] ?? 0) + 1;
+  }
+  const [token, c = 0] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0] ?? [null];
+  return { token, share: c / n };
+}
+
+/** 04 §3 / 06 §8 «Superficie: es la indicada». Skipped (null) when nothing is declared or for T8 photography. */
+export async function checkSurface(jpeg, { superficie, territorio } = {}) {
+  const want = declaredSurface(superficie ?? '');
+  if (!want || /\bT8\b/.test(territorio ?? '')) return [];
+  const { token, share } = await dominantSurface(jpeg);
+  const family = (t) => (t === 'dark' || t === 'footer-black' ? 'ink' : t); // three near-blacks, indistinguishable after JPEG
+  return family(token) === family(want) ? [] : [`superficie ${token ?? 'fuera de paleta'} (${Math.round(share * 100)} %) en vez de ${want}`];
 }

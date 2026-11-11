@@ -8,6 +8,15 @@ export async function readDoc(file) {
   return readFile(new URL(file, DIR), 'utf8');
 }
 
+/** A «## <heading>» section of a library document, verbatim (up to the next ## heading). */
+export async function docSection(file, heading) {
+  const md = await readDoc(file);
+  const i = md.indexOf(`## ${heading}`);
+  if (i < 0) throw new Error(`library: ${file} no tiene la sección «${heading}»`);
+  const end = md.indexOf('\n## ', i + 3);
+  return md.slice(i, end < 0 ? md.length : end).trim();
+}
+
 export async function loadPrompt(file) {
   const m = (await readDoc(file)).match(/## PROMPT[^\n]*\n+```text\n([\s\S]*?)\n```/);
   if (!m) throw new Error(`library: ${file} no tiene bloque PROMPT`);
@@ -121,6 +130,12 @@ export function parseMaster(raw) {
   if (slides.length !== total || slides.some((s, i) => s.n !== i + 1)) throw new Error(`02: se esperaban los slides 1…${total} en orden`);
   if (slides.slice(0, -1).some((s) => s.copy.cta)) throw new Error('02: CTA fuera del último slide');
   if (cta && slides.at(-1).copy.cta !== cta) throw new Error('02: el CTA del último slide no coincide con B · CTA');
+  // 06 §1 regla 1 / 04 §4: dos slides contiguos nunca comparten superficie.
+  const hexOf = (t) => t?.match(/#[0-9a-f]{6}\b/i)?.[0].toUpperCase();
+  for (let i = 1; i < slides.length; i++) {
+    const [a, b] = [hexOf(slides[i - 1].superficie), hexOf(slides[i].superficie)];
+    if (a && a === b) throw new Error(`02: los slides ${i} y ${i + 1} comparten superficie ${a}`);
+  }
   return { tema: line(top, 'TEMA') ?? null, hook, cta, total, slides };
 }
 

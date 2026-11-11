@@ -57,14 +57,35 @@ export function createInstagram({
     }
   }
 
+  /** After media_publish: the post must exist with the expected type and children. Never throws (the post is
+   *  already live; a throw here could lead a caller to publish again). */
+  async function verify(mediaId, expectChildren) {
+    try {
+      const m = await call(`/${mediaId}?fields=id,media_type,permalink,timestamp,children{id}`);
+      const children = m.children?.data?.length ?? 0;
+      const ok = expectChildren ? m.media_type === 'CAROUSEL_ALBUM' && children === expectChildren : m.media_type === 'IMAGE';
+      return { ok, mediaType: m.media_type, children, permalink: m.permalink ?? null, timestamp: m.timestamp ?? null };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
   return {
     findPublished,
+    verify,
+
+    /** Free preflight: the token works and points at the expected account. */
+    async account() {
+      const { id, username } = await call(`/${userId}?fields=id,username`);
+      return { id, username };
+    },
 
     async publishSingle({ imageUrl, caption, dryRun = false, startedAt = Date.now() }) {
       const id = await createContainer({ image_url: imageUrl, caption });
       await waitFinished(id);
       if (dryRun) return { dryRun: true, containerIds: [id] };
-      return { mediaId: await publish(id, caption, startedAt), containerIds: [id] };
+      const mediaId = await publish(id, caption, startedAt);
+      return { mediaId, containerIds: [id], verification: await verify(mediaId, 0) };
     },
 
     async publishCarousel({ imageUrls, caption, dryRun = false, startedAt = Date.now() }) {
@@ -78,7 +99,8 @@ export function createInstagram({
       await waitFinished(parent);
       const containerIds = [...children, parent];
       if (dryRun) return { dryRun: true, containerIds };
-      return { mediaId: await publish(parent, caption, startedAt), containerIds };
+      const mediaId = await publish(parent, caption, startedAt);
+      return { mediaId, containerIds, verification: await verify(mediaId, children.length) };
     },
   };
 }

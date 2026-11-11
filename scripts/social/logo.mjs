@@ -93,10 +93,15 @@ export async function parseLogoUse(text) {
 
 const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
 
-/** Surface token whose color is within ±20 per channel of rgb, or null. */
-function surfaceToken(rgb) {
-  for (const [name, c] of Object.entries(TOKENS)) if (hex(c).every((v, i) => Math.abs(v - rgb[i]) <= 20)) return name;
-  return null;
+const TOKEN_RGB = Object.entries(TOKENS).map(([name, c]) => [name, hex(c)]);
+/** Nearest palette token within ±20 per channel of rgb, or null (cream vs cream-warm are only ~20 apart). */
+export function surfaceToken(rgb) {
+  let best = null, bestD = 21;
+  for (const [name, c] of TOKEN_RGB) {
+    const d = Math.max(Math.abs(c[0] - rgb[0]), Math.abs(c[1] - rgb[1]), Math.abs(c[2] - rgb[2]));
+    if (d < bestD) { best = name; bestD = d; }
+  }
+  return best;
 }
 
 /**
