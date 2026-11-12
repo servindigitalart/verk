@@ -20,6 +20,7 @@ import * as lib from './library.mjs';
 import { parseLogoUse, referencePngs, applyLogo, attachedKinds } from './logo.mjs';
 import { checkCopy, checkCaption, checkImage, checkSurface, compareText, verifyPublicUrl } from './validate.mjs';
 
+export const OBJETIVOS = ['conversión', 'reconocimiento del problema', 'posicionamiento', 'educativa'];
 export const SLOTS = { '0800': 'individual', '1300': 'individual', '1900': 'carrusel' };
 const TZ = 'America/Mexico_City';
 const OFFSET = '-06:00'; // ponytail: Mexico has no DST since 2022; derive from tzdata if that changes.
@@ -34,7 +35,7 @@ class PieceError extends Error {
 }
 
 // ── Generation ────────────────────────────────────────────────────────────
-async function direct({ ai, models, type, history }) {
+async function direct({ ai, models, type, history, objetivo }) {
   const [ctx, copyRules] = await Promise.all([lib.readDoc('00-VERK-MASTER-CONTEXT.md'), lib.readDoc('05-ADVERTISING-COPY-GUIDELINES.md')]);
   const recent = history.map((h) => h.director?.tema).filter(Boolean).slice(0, 12);
   return ai.respond({
@@ -43,12 +44,12 @@ async function direct({ ai, models, type, history }) {
       type: 'object', additionalProperties: false, required: ['tema', 'objetivo', 'segmento'],
       properties: {
         tema: { type: 'string' },
-        objetivo: { type: 'string', enum: ['conversión', 'reconocimiento del problema', 'posicionamiento', 'educativa'] },
+        objetivo: { type: 'string', enum: objetivo ? [objetivo] : OBJETIVOS },
         segmento: { type: 'string' },
       },
     },
     text: `Eres el director de contenido de VERK. Elige el TEMA de la próxima pieza (${type === 'carrusel' ? 'carrusel' : 'imagen individual'}) para Instagram.
-Reglas: un tema concreto tomado de los problemas reales y del banco de situaciones de las guías; distinto de los temas recientes; sin cifras, clientes ni resultados inventados. OBJETIVO: uno de los cuatro. SEGMENTO: vacío salvo que el tema pida un sector concreto.
+Reglas: un tema concreto tomado de los problemas reales y del banco de situaciones de las guías; distinto de los temas recientes; sin cifras, clientes ni resultados inventados. OBJETIVO: ${objetivo ? `«${objetivo}» (fijado)` : 'uno de los cuatro'}. SEGMENTO: vacío salvo que el tema pida un sector concreto.
 Temas recientes (no repetir): ${recent.length ? recent.join(' | ') : 'ninguno'}
 
 === CONTEXTO (00) ===
@@ -69,9 +70,10 @@ async function textStep(ai, model, step, prompt, parse) {
   let last;
   for (let i = 0; i < TEXT_ATTEMPTS; i++) {
     const raw = await ai.respond({ step, model, text: prompt });
-    try { return { raw, parsed: parse(raw) }; } catch (e) { last = e; }
+    try { return { raw, parsed: parse(raw) }; } catch (e) { last = { message: e.message, raw }; }
   }
-  throw new PieceError(`${step}: salida fuera de formato`, last.message);
+  // The model's original answer goes to the manifest (Drive), never to the public log.
+  throw new PieceError(`${step}: salida fuera de formato`, last);
 }
 
 function copyGate(copies, caption) {
@@ -115,8 +117,8 @@ export async function contactSheet(finals) {
     .jpeg({ quality: 90 }).toBuffer();
 }
 
-export async function generate({ ai, models, type, history, log }) {
-  const dir = await direct({ ai, models, type, history });
+export async function generate({ ai, models, type, history, log, objetivo }) {
+  const dir = await direct({ ai, models, type, history, objetivo });
   log(`director: objetivo=${dir.objetivo}`);
   const vars = { TEMA: dir.tema, OBJETIVO: dir.objetivo, SEGMENTO: dir.segmento };
   let pieces, caption, raw, visual;
@@ -202,7 +204,7 @@ export async function generate({ ai, models, type, history, log }) {
 }
 
 // ── Slot run ─────────────────────────────────────────────────────────────
-export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyIfMissing = false, date: forcedDate, now = () => new Date(), waitForSlot = true }, { drive, ai, ig, models, log = console.log, wait = sleep, fetch = globalThis.fetch }) {
+export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyIfMissing = false, objetivo, date: forcedDate, now = () => new Date(), waitForSlot = true }, { drive, ai, ig, models, log = console.log, wait = sleep, fetch = globalThis.fetch }) {
   const type = SLOTS[slot];
   if (!type) throw new Error(`slot inválido: ${slot}`);
   if (forcedDate && !/^\d{4}-\d{2}-\d{2}$/.test(forcedDate)) throw new Error(`fecha inválida: ${forcedDate}`);
@@ -245,16 +247,21 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
   }
 
   if (manifest?.status !== 'ready') {
+    // A new attempt on the same slot (e.g. after a failed one) keeps the history of the previous attempts.
+    const attempts = manifest ? [...(manifest.attempts ?? []), {
+      createdAt: manifest.createdAt ?? null, status: manifest.status ?? null, director: manifest.director ?? null,
+      usage: manifest.usage ?? [], cost: manifest.cost ?? null,
+    }] : [];
     manifest = {
       version: 1, key: `${date}-${slot}`, date, slot, type, status: 'generating', dryRun,
-      createdAt: now().toISOString(), models, errors: manifest?.errors ?? [], usage: [],
+      createdAt: now().toISOString(), models, errors: manifest?.errors ?? [], usage: [], attempts,
     };
     await save();
     const usage = manifest.usage;
     ai.onUsage = (u) => usage.push(u);
     try {
       const history = (await drive.recentManifests(12)).filter((m) => m.key !== manifest.key);
-      const g = await generate({ ai, models, type, history, log });
+      const g = await generate({ ai, models, type, history, log, objetivo });
       const sub = async (name) => drive.folder(name, folderId);
       const [origDir, finalDir] = [await sub('original'), await sub('final')];
       const files = { original: [], final: [] };
@@ -274,9 +281,12 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
       throw e;
     } finally {
       const costs = manifest.usage.map((u) => u.costUsd);
-      manifest.cost = { usd: costs.every((c) => c != null) ? Number(costs.reduce((a, b) => a + b, 0).toFixed(4)) : null, prices: PRICES_DATE };
+      const usd = costs.every((c) => c != null) ? Number(costs.reduce((a, b) => a + b, 0).toFixed(4)) : null;
+      const prev = manifest.attempts.map((a) => a.cost?.usd);
+      const slotUsd = usd != null && prev.every((c) => c != null) ? Number((usd + prev.reduce((a, b) => a + b, 0)).toFixed(4)) : null;
+      manifest.cost = { usd, slotUsd, prices: PRICES_DATE };
       await save();
-      log(`consumo: ${manifest.usage.length} llamadas, ${manifest.cost.usd ?? 'n/d'} USD`);
+      log(`consumo: ${manifest.usage.length} llamadas, ${manifest.cost.usd ?? 'n/d'} USD (horario, todos los intentos: ${manifest.cost.slotUsd ?? 'n/d'} USD)`);
     }
   }
 
@@ -324,12 +334,13 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
 
 // ── CLI ──────────────────────────────────────────────────────────────────
 async function main() {
-  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' }, check: { type: 'boolean' }, 'only-if-missing': { type: 'boolean' } } });
+  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' }, check: { type: 'boolean' }, 'only-if-missing': { type: 'boolean' }, objetivo: { type: 'string' } } });
   const env = process.env;
   const check = Boolean(values.check);
   const dryRun = Boolean(values['dry-run']);
   const publishOnly = Boolean(values['publish-ready']);
   if (!check && !SLOTS[values.slot]) throw new Error('uso: run.mjs --slot 0800|1300|1900 [--dry-run] [--now] | --publish-ready --date AAAA-MM-DD');
+  if (values.objetivo && !OBJETIVOS.includes(values.objetivo)) throw new Error(`objetivo inválido: ${values.objetivo}`);
   if (publishOnly && (dryRun || !values.date)) throw new Error('--publish-ready exige --date y no admite --dry-run');
   if (!check && !publishOnly && !dryRun && env.SOCIAL_ENABLED !== 'true') { console.log('SOCIAL_ENABLED no es «true»: no se genera ni se publica nada.'); return; }
 
@@ -357,7 +368,7 @@ async function main() {
     console.log(`openai: modelos disponibles (${[...new Set(Object.values(models))].join(', ')})\ndrive: conexión y carpeta raíz correctas\ncheck: todo correcto (SOCIAL_ENABLED=${env.SOCIAL_ENABLED === 'true' ? 'true' : 'false'})`);
     return;
   }
-  const r = await runSlot({ slot: values.slot, dryRun, publishOnly, onlyIfMissing: Boolean(values['only-if-missing']), date: values.date, waitForSlot: !values.now }, { drive, ai, ig, models });
+  const r = await runSlot({ slot: values.slot, dryRun, publishOnly, onlyIfMissing: Boolean(values['only-if-missing']), objetivo: values.objetivo || undefined, date: values.date || undefined, waitForSlot: !values.now }, { drive, ai, ig, models });
   if (r.status === 'published' && r.verified === false) {
     console.error('aviso: publicado, pero la verificación posterior no se superó; revisa el manifest. No se republica.');
     process.exitCode = 1;

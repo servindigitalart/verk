@@ -76,6 +76,16 @@ Sin dependencias nuevas ni cambios en `package.json`. `sharp` llega como depende
 - **Antes de pintar:** el anillo alrededor de la zona (16 px de margen y 10 px de banda) tiene que ser una superficie plana de la paleta, con como máximo 1 % de píxeles distintos. Así se permite una línea de 1 px que llegue al logo.
 - Si la zona está ocupada, la imagen se regenera. Si es plana, se repinta con ese color y se coloca el vector encima. El logo que dibujó el generador nunca llega a publicarse.
 
+**Tolerancia de formato** (sin relajar el contenido): el lector de `01`/`02`/`03` acepta
+- comillas «», “” o "";
+- negritas, `__` y código en línea alrededor de las etiquetas;
+- `·`, `-`, `—` o `:` en etiquetas compuestas (`COPY · TITULAR`);
+- viñetas `-`, `*` o `•`;
+- encabezados `## SLIDE 1/5`;
+- un titular entre comillas que continúa en la línea siguiente.
+
+El copy sigue siendo obligatorio y siempre entre comillas.
+
 ## 4. Texto y caption
 
 - **Texto de la imagen:**
@@ -221,7 +231,7 @@ El cron, todavía comentado, arranca 90 min antes (12:30, 17:30 y 23:30 UTC), y 
 
 | Estado del manifest / síntoma | Qué pasó | Qué hacer |
 |---|---|---|
-| `failed`, `step: generate` | Una respuesta de la biblioteca fuera de formato, un `LOGO · USO` no interpretable, un slide sin versión válida tras 3 intentos, o un error de OpenAI | Revisa `errors[]` y `validation.rejections` en el manifest. Una nueva ejecución del mismo horario genera desde cero (nuevo costo) |
+| `failed`, `step: generate` | Una respuesta de la biblioteca fuera de formato, un `LOGO · USO` no interpretable, un slide sin versión válida tras 3 intentos, o un error de OpenAI | Revisa `errors[]` (si falló `01`/`02`/`03`, `detail.raw` guarda la respuesta original del modelo) y `validation.rejections`. Para recuperar el horario: Actions → `social` con `date` y `slot` del horario, `dry_run` desactivado, `now` activado y, si quieres conservarlo, `objetivo`. Genera desde cero en el mismo manifest; los intentos anteriores y su costo quedan en `attempts[]`, y el total del horario en `cost.slotUsd` |
 | `ready` con un error en `errors[]` (`step: publish`) | Meta rechazó la URL o un contenedor quedó en `ERROR`/`EXPIRED`; no se publicó nada; los permisos se retiraron | Corrige la causa y lanza `social-publish-ready`: solo publica, sin regenerar |
 | `publishing` | La respuesta de `media_publish` fue incierta y la conciliación no encontró la publicación | No reintentes a mano. La siguiente ejecución del horario (o `social-publish-ready`) vuelve a conciliar. Si la encuentra, queda `published`; si no, `failed`, sin publicar de nuevo. Comprueba el perfil antes de volver a generar |
 | `published`, `verification.ok = false` | Publicado, pero la consulta posterior no coincidió (tipo o número de hijos) o falló | Revisa el permalink en el perfil. Nunca se republica automáticamente |

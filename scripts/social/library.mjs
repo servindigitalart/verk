@@ -44,14 +44,39 @@ export function fillMaster(segmenter, masterText) {
   return segmenter.replace('{{DOCUMENTO_MAESTRO}}', () => masterText);
 }
 
-const clean = (t) => t.replace(/\r/g, '').replace(/\*\*/g, '');
+// Markdown the model may add around the fixed labels: bold (**, __) and inline code (`x`, never ``` fences).
+const clean = (t) => t.replace(/\r/g, '').replace(/\*\*|__/g, '').replace(/(?<!`)`(?!`)/g, '');
+const flat = (t) => t.replace(/\s+/g, ' ').trim();
 
-/** «…» → text, «—» or — → null, absent/unquoted → undefined (invalid). */
+// Quote styles accepted around approved copy. The content requirements do not change: the text must be quoted.
+const QUOTES = [/«([^»]*)»/, /“([^”]*)”/, /"([^"]*)"/];
+
+/** «…» / “…” / "…" → text (whitespace collapsed), «—» or — → null, absent/unquoted → undefined (invalid). */
 export function quoted(v) {
   if (v == null) return undefined;
-  const m = v.match(/«([^»]*)»/);
-  if (m) return m[1].trim() === '—' ? null : m[1].trim();
+  for (const q of QUOTES) {
+    const m = v.match(q);
+    if (m) return flat(m[1]) === '—' ? null : flat(m[1]);
+  }
   return v.trim().startsWith('—') ? null : undefined;
+}
+
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const SEP = '[ \\t]*[·•\\-–—|:][ \\t]*'; // «COPY · TITULAR», «COPY - TITULAR», «COPY — TITULAR», «COPY: TITULAR»…
+const opens = (v) => (v.match(/[«“]/g) ?? []).length - (v.match(/[»”]/g) ?? []).length;
+
+/**
+ * Value of a «- LABEL: value» line of the fixed formats (02). Tolerates bullets (-, *, •), separator variants in
+ * compound labels and a quoted value that continues on the next lines (a two-line headline).
+ */
+export function field(src, label) {
+  const re = new RegExp(`^[ \\t]*[-*•]?[ \\t]*${label.split(' · ').map(esc).join(SEP)}[ \\t]*:?[ \\t]*(.*)$`, 'mi');
+  const m = re.exec(src);
+  if (!m) return undefined;
+  let v = m[1];
+  const next = src.slice(m.index + m[0].length).split('\n').slice(1, 4);
+  for (const l of next) { if (opens(v) <= 0) break; v += ` ${l.trim()}`; }
+  return v.trim();
 }
 
 const attachLine = (prompt) => prompt.match(/^▶ ADJUNTAR AL GENERADOR:\s*(.*)$/m)?.[1].trim();
@@ -66,13 +91,17 @@ export function parseIndividual(raw) {
     return t.slice(heads[i].index, heads[i + 1]?.index ?? t.length);
   };
   const c = sec(3);
-  const get = (re) => c.match(re)?.[1].trim() ?? null;
+  // «Label: «…»» with «», “” or "" quotes; the quoted text may span lines (whitespace is collapsed).
+  const get = (label, flags = 'i') => {
+    const m = c.match(new RegExp(`${label}:?\\s*(?:«([^»]+)»|“([^”]+)”|"([^"]+)")`, flags));
+    return m ? flat(m[1] ?? m[2] ?? m[3]) : null;
+  };
   const copy = {
-    etiqueta: get(/Etiqueta:\s*«([^»]+)»/i),
-    titular: get(/Titular:\s*«([^»]+)»/i),
-    secundario: get(/Texto secundario:\s*«([^»]+)»/i),
-    cta: get(/CTA:\s*«([^»]+)»/),
-    microcopy: get(/microcopy:?\s*«([^»]+)»/i),
+    etiqueta: get('Etiqueta'),
+    titular: get('Titular'),
+    secundario: get('Texto secundario'),
+    cta: get('CTA', ''),
+    microcopy: get('microcopy'),
   };
   for (const k of ['etiqueta', 'titular', 'secundario']) if (!copy[k]) throw new Error(`01: falta el copy «${k}»`);
   if (copy.microcopy && !copy.cta) throw new Error('01: microcopy sin CTA');
@@ -100,8 +129,8 @@ export function parseIndividual(raw) {
 // ── 02 · carousel master ───────────────────────────────────────────────────
 export function parseMaster(raw) {
   const t = clean(raw);
-  const top = t.split(/^##\s*SLIDES\s*$/m)[0];
-  const line = (src, label) => src.match(new RegExp(`^-\\s*${label}:[ \\t]*(.*)$`, 'm'))?.[1].trim();
+  const top = t.split(/^#{1,4}\s*SLIDES\s*$/m)[0];
+  const line = field;
   const total = Number(line(top, 'NÚMERO DE SLIDES')?.match(/\d+/)?.[0]);
   const hook = quoted(line(top, 'HOOK'));
   const cta = quoted(line(top, 'CTA'));
@@ -109,7 +138,7 @@ export function parseMaster(raw) {
   if (!hook) throw new Error('02: HOOK sin «…»');
   if (cta === undefined) throw new Error('02: CTA sin «…» ni «—»');
 
-  const parts = t.split(/^###\s*SLIDE\s+(\d+)\s*\/\s*(\d+)\s*$/m);
+  const parts = t.split(/^#{0,4}\s*SLIDE\s+(\d+)\s*\/\s*(\d+)\s*$/m);
   const slides = [];
   for (let i = 1; i < parts.length; i += 3) {
     const n = Number(parts[i]); const body = parts[i + 2].split(/^##\s/m)[0];
@@ -145,7 +174,7 @@ export function parseSegmented(raw, master) {
     .filter((b) => b.startsWith('▶ ADJUNTAR AL GENERADOR:'));
   const byN = new Map();
   for (const b of blocks) {
-    const m = b.match(/· SLIDE (\d+) \/ (\d+)/);
+    const m = b.match(/·\s*SLIDE\s*(\d+)\s*\/\s*(\d+)/);
     if (!m || Number(m[2]) !== master.total || byN.has(Number(m[1]))) throw new Error('03: bloque sin numeración válida o duplicado');
     byN.set(Number(m[1]), b);
   }
@@ -157,7 +186,7 @@ export function parseSegmented(raw, master) {
     if (attachLine(p) !== s.attach) problems.push('▶ ADJUNTAR no es literal');
     if (!p.includes(`ATTACHED FOR THIS IMAGE: ${none ? 'none — do not draw any logo in this image' : s.attach}`)) problems.push('ATTACHED no es literal');
     if (!p.includes(`USE IN THIS IMAGE: ${s.logoUse}`)) problems.push('USE IN THIS IMAGE no es literal');
-    for (const [k, v] of Object.entries(s.copy)) if (v && !p.includes(v)) problems.push(`copy «${k}» no es literal`);
+    for (const [k, v] of Object.entries(s.copy)) if (v && !flat(p).includes(v)) problems.push(`copy «${k}» no es literal`);
     if (p.includes('NO ESPECIFICADO EN EL MAESTRO')) problems.push('campos NO ESPECIFICADO');
     if (problems.length) throw new Error(`03: slide ${s.n}: ${problems.join('; ')}`);
     return p;

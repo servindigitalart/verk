@@ -25,6 +25,15 @@ on:
         description: Solo comprobaciones gratuitas (cuenta de Instagram, modelos de OpenAI, Drive); no genera ni publica
         type: boolean
         default: false
+      date:
+        description: Recuperación · fecha local del horario (AAAA-MM-DD); vacío = hoy en León
+        type: string
+        default: ''
+      objetivo:
+        description: Recuperación · objetivo editorial fijo; vacío = lo elige el director
+        type: choice
+        options: ['', 'conversión', 'reconocimiento del problema', 'posicionamiento', 'educativa']
+        default: ''
   # UTC; León = UTC−6 todo el año. Arranca 90 min antes del horario (un carrusel con regeneraciones puede tardar
   # más de 45 min); la publicación espera a la hora exacta. GitHub no ejecuta horarios pasados (sin retroactivos).
   schedule:
@@ -62,8 +71,10 @@ jobs:
       - run: npm ci --omit=dev
       - run: node --test scripts/social/*.test.mjs
       - name: Generar y publicar
-        run: node scripts/social/run.mjs --slot "$SLOT" ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.now && '--now' || '' }} ${{ inputs.check_only && '--check' || '' }} ${{ contains(fromJSON('["0 13 * * *","0 18 * * *","0 0 * * *"]'), github.event.schedule) && '--only-if-missing' || '' }}
+        run: node scripts/social/run.mjs --slot "$SLOT" ${DATE:+--date "$DATE"} ${OBJETIVO:+--objetivo "$OBJETIVO"} ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.now && '--now' || '' }} ${{ inputs.check_only && '--check' || '' }} ${{ contains(fromJSON('["0 13 * * *","0 18 * * *","0 0 * * *"]'), github.event.schedule) && '--only-if-missing' || '' }}
         env:
+          DATE: ${{ inputs.date }}
+          OBJETIVO: ${{ inputs.objetivo }}
           SOCIAL_ENABLED: ${{ vars.SOCIAL_ENABLED }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           IMAGE_MODEL: ${{ vars.IMAGE_MODEL }}

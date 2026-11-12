@@ -587,3 +587,51 @@ test('backup crons map to the same León date and slot, before the publication t
     assert.equal(slotTime(date, slot).getTime() - Date.parse(cron), 60 * 60 * 1000);
   }
 });
+
+test('01 parser tolerates quote styles, Markdown and a two-line headline; content still required', () => {
+  const canon = lib.parseIndividual(outA);
+  const variant = outA
+    .replace('- Titular: «Te escribieron. Nadie contestó.»', '- **Titular:** “Te escribieron.\nNadie contestó.”')
+    .replace('- Etiqueta: «23:14 · MENSAJE SIN RESPUESTA»', '- `Etiqueta`: "23:14 · MENSAJE SIN RESPUESTA"');
+  assert.notEqual(variant, outA);
+  assert.deepEqual(lib.parseIndividual(variant).copy, canon.copy);
+  assert.equal(lib.parseIndividual(variant).prompt, canon.prompt);
+  assert.throws(() => lib.parseIndividual(outA.replace('- Titular: «Te escribieron. Nadie contestó.»', '- Titular: Te escribieron. Nadie contestó.')), /titular/);
+});
+
+test('02 parser tolerates separators, quotes, bullets, headings and a two-line headline; content still required', () => {
+  const canon = lib.parseMaster(outMaster);
+  const variant = outMaster
+    .replace('### SLIDE 1 / 5', '## SLIDE 1/5')
+    .replace('- COPY · TITULAR: «Tienes las herramientas. No se hablan.»', '* **COPY — TITULAR:** «Tienes las herramientas.\nNo se hablan.»')
+    .replace('- COPY · ETIQUETA: «02 / 05 · LO QUE SE PIERDE»', '- COPY - ETIQUETA: “02 / 05 · LO QUE SE PIERDE”')
+    .replace('- COPY · CTA: «Solicitar auditoría»', '- `COPY: CTA`: "Solicitar auditoría"');
+  assert.notEqual(variant, outMaster);
+  const v = lib.parseMaster(variant);
+  assert.deepEqual(v.slides.map((s) => s.copy), canon.slides.map((s) => s.copy));
+  assert.deepEqual([v.hook, v.cta, v.total], [canon.hook, canon.cta, canon.total]);
+  assert.equal(lib.parseSegmented(outSeg, v).length, 5); // 03 literal check still passes (whitespace-insensitive)
+  assert.throws(() => lib.parseMaster(outMaster.replace('- COPY · TITULAR: «Tienes las herramientas. No se hablan.»', '- COPY · TITULAR: Tienes las herramientas. No se hablan.')), /SLIDE 1 sin COPY · titular válido/);
+  assert.throws(() => lib.parseMaster(outMaster.replace('- COPY · TITULAR: «Tienes las herramientas. No se hablan.»', '')), /SLIDE 1/);
+});
+
+test('a failed editorial step keeps the model answer in the manifest; a fixed objective constrains the director', async () => {
+  const schemas = [];
+  const ai = {
+    async respond({ step, schema }) {
+      if (step === 'director') { schemas.push(schema); this.onUsage({ step, costUsd: 0.01 }); return { tema: 'x', objetivo: 'reconocimiento del problema', segmento: '' }; }
+      this.onUsage({ step, costUsd: 0.07 });
+      return '# CARRUSEL VERK — x\n(respuesta incompleta)';
+    },
+  };
+  const drive = fakeDrive({ status: 'failed', key: '2026-11-11-1900', createdAt: '2026-11-12T01:42:30Z', errors: [{ step: 'generate', message: '02: salida fuera de formato' }], usage: [{ costUsd: 0.0828 }], cost: { usd: 0.0828 } });
+  await assert.rejects(runSlot({ slot: '1900', date: '2026-11-11', objetivo: 'reconocimiento del problema', now: at('2026-11-12T02:30:00Z'), waitForSlot: false }, { drive, ai, ig: boom, models: { image: 'i', text: 't', vision: 'v' }, log: () => {} }), /02: salida fuera de formato/);
+  assert.deepEqual(schemas[0].properties.objetivo.enum, ['reconocimiento del problema']);
+  const m = drive.files.get('M');
+  assert.equal(m.key, '2026-11-11-1900');
+  assert.equal(m.errors.at(-1).detail.raw, '# CARRUSEL VERK — x\n(respuesta incompleta)');
+  assert.match(m.errors.at(-1).detail.message, /^02:/);
+  assert.equal(m.attempts.length, 1);
+  assert.equal(m.attempts[0].cost.usd, 0.0828);
+  assert.deepEqual([m.cost.usd, m.cost.slotUsd], [0.08, 0.1628]);
+});
