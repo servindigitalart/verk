@@ -27,7 +27,7 @@ export function costUsd(model, u = {}) {
 }
 
 // A spend-limit / quota 429 will not clear by retrying.
-const FATAL = new Set(['organization_spend_limit_exceeded', 'project_spend_limit_exceeded', 'insufficient_quota', 'billing_hard_limit_reached']);
+const FATAL = new Set(['organization_spend_limit_exceeded', 'project_spend_limit_exceeded', 'insufficient_quota', 'billing_hard_limit_reached', 'credit_balance_exhausted']);
 
 export function createOpenAI({ apiKey, fetch = globalThis.fetch, wait = sleep, onUsage = () => {} }) {
   if (!apiKey) throw new Error('openai: falta OPENAI_API_KEY');

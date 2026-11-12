@@ -29,6 +29,10 @@ on:
         description: Recuperación · fecha local del horario (AAAA-MM-DD); vacío = hoy en León
         type: string
         default: ''
+      reuse_library:
+        description: Recuperación · reutilizar la pieza editorial guardada del horario (no llama a 00/02/03)
+        type: boolean
+        default: false
       objetivo:
         description: Recuperación · objetivo editorial fijo; vacío = lo elige el director
         type: choice
@@ -71,7 +75,7 @@ jobs:
       - run: npm ci --omit=dev
       - run: node --test scripts/social/*.test.mjs
       - name: Generar y publicar
-        run: node scripts/social/run.mjs --slot "$SLOT" ${DATE:+--date "$DATE"} ${OBJETIVO:+--objetivo "$OBJETIVO"} ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.now && '--now' || '' }} ${{ inputs.check_only && '--check' || '' }} ${{ contains(fromJSON('["0 13 * * *","0 18 * * *","0 0 * * *"]'), github.event.schedule) && '--only-if-missing' || '' }}
+        run: node scripts/social/run.mjs --slot "$SLOT" ${DATE:+--date "$DATE"} ${OBJETIVO:+--objetivo "$OBJETIVO"} ${{ inputs.reuse_library && '--reuse-library' || '' }} ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.now && '--now' || '' }} ${{ inputs.check_only && '--check' || '' }} ${{ contains(fromJSON('["0 13 * * *","0 18 * * *","0 0 * * *"]'), github.event.schedule) && '--only-if-missing' || '' }}
         env:
           DATE: ${{ inputs.date }}
           OBJETIVO: ${{ inputs.objetivo }}

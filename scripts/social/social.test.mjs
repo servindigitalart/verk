@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import { createInstagram } from './instagram.mjs';
 import { createOpenAI, costUsd } from './openai.mjs';
+import { HttpError } from './http.mjs';
 import * as lib from './library.mjs';
 import { parseLogoUse, checkLogo, markImage, referencePngs, REFERENCE_FILES, LOGO_CHECK, TOKENS } from './logo.mjs';
 import { readFile } from 'node:fs/promises';
@@ -768,4 +769,65 @@ test('sequence integrity: a carousel missing an image is never shared or publish
   const drive = fakeDrive({ status: 'ready', type: 'carrusel', caption: 'C', errors: [], copy: [{}, {}, {}, {}, {}], files: { final: ['F1', 'F2', 'F3', 'F4'] } });
   drive.share = () => { throw new Error('must not share'); };
   await assert.rejects(runSlot({ slot: '1900', publishOnly: true, date: '2026-11-11', now: at('2026-11-12T03:00:00Z') }, { drive, ai: boom, ig: boom, models: {}, log: () => {} }), /secuencia incompleta: 4 imágenes para 5 esperadas/);
+});
+
+// ── Infrastructure errors stop the run; reuse of the stored editorial piece ──
+test('429 credit_balance_exhausted during the copy check stops the run at once: no regeneration, not a rejection', async () => {
+  const img = (await generated(TOKENS.violet, lib.parseIndividual(outA).logoUse)).toString('base64');
+  const f = mockFetch((c) => {
+    if (c.url.endsWith('/images/edits')) return json(200, { data: [{ b64_json: img }], usage: { input_tokens: 10, output_tokens: 10 } });
+    if (c.url.endsWith('/responses')) return json(429, { error: { message: 'You have no credits remaining.', code: 'credit_balance_exhausted' } });
+  });
+  const ai = createOpenAI({ apiKey: 'K', fetch: f, wait: noWait, onUsage: (u) => ai.onUsage?.(u) });
+  const drive = fakeDrive({ status: 'failed', key: '2026-11-12-0800', createdAt: '2026-11-12T12:31:00Z', errors: [], library: { raw: { '01': outA } } });
+  await assert.rejects(runSlot({ slot: '0800', dryRun: true, reuseLibrary: true, now: at('2026-11-12T12:35:00Z') }, { drive, ai, ig: boom, models: { image: 'gpt-image-2.6-sunburst', text: 't', vision: 'gpt-6.1-terra' }, log: () => {} }), /HTTP 429 credit_balance_exhausted/);
+  assert.equal(f.calls.filter((c) => c.url.endsWith('/images/edits')).length, 1); // never regenerated
+  assert.equal(f.calls.filter((c) => c.url.endsWith('/responses')).length, 1); // and not retried
+  const m = drive.files.get('M');
+  assert.equal(m.status, 'failed');
+  assert.equal(m.validation, undefined);
+  assert.match(m.errors.at(-1).message, /credit_balance_exhausted/);
+});
+
+test('an API error in the vision diagnostic also stops the run (diagnostics swallow only local errors)', async () => {
+  const copyA = lib.parseIndividual(outA).copy;
+  let images = 0;
+  const ai = {
+    async respond({ step }) {
+      if (step.startsWith('texto')) return { blocks: lib.expectedTexts(copyA) };
+      throw new HttpError('openai /responses: HTTP 503', { status: 503 });
+    },
+    async generateImage() { images++; return generated(TOKENS.violet, lib.parseIndividual(outA).logoUse); },
+  };
+  const drive = fakeDrive({ status: 'failed', errors: [], library: { raw: { '01': outA } } });
+  await assert.rejects(runSlot({ slot: '0800', dryRun: true, reuseLibrary: true, now: at('2026-11-12T12:35:00Z') }, { drive, ai, ig: boom, models: {}, log: () => {} }), /HTTP 503/);
+  assert.equal(images, 1);
+});
+
+test('--reuse-library: same carousel from the stored 02/03 outputs, no director/02/03 call, no new piece', async () => {
+  const master = lib.parseMaster(outMaster);
+  const surf = master.slides.map((s) => declaredSurface(s.superficie));
+  const steps = [];
+  const ai = {
+    async respond({ step }) {
+      steps.push(step);
+      const n = Number(step.split(' ')[1]);
+      if (step.startsWith('texto')) return { blocks: lib.expectedTexts(master.slides[n - 1].copy) };
+      if (step.startsWith('identidad')) return { criterios: [] };
+      throw new Error(`unexpected ${step}`);
+    },
+    async generateImage({ prompt }) { const n = Number(prompt.match(/· SLIDE (\d) \/ 5/)[1]); return generated(TOKENS[surf[n - 1]], master.slides[n - 1].logoUse); },
+  };
+  const prev = { status: 'failed', key: '2026-11-11-1900', createdAt: '2026-11-12T16:43:50Z', errors: [{ message: 'credit' }], usage: [], cost: { usd: 0.34 }, library: { raw: { '02': outMaster, '03': outSeg } } };
+  const drive = fakeDrive(prev);
+  const r = await runSlot({ slot: '1900', date: '2026-11-11', dryRun: true, reuseLibrary: true, now: at('2026-11-12T17:00:00Z') }, { drive, ai, ig: boom, models: { image: 'i', text: 't', vision: 'v' }, log: () => {} });
+  assert.deepEqual(r, { status: 'ready' });
+  assert.ok(!steps.some((s) => ['director', '01', '02', '03'].includes(s)));
+  const m = drive.files.get('M');
+  assert.deepEqual(m.director, { reused: true, from: '2026-11-12T16:43:50Z' });
+  assert.equal(m.caption, lib.captionCarousel(master));
+  assert.equal(m.files.final.length, 5);
+  assert.equal(m.attempts.length, 1);
+
+  await assert.rejects(runSlot({ slot: '1900', date: '2026-11-11', dryRun: true, reuseLibrary: true }, { drive: fakeDrive({ status: 'failed', errors: [] }), ai: boom, ig: boom, models: {}, log: () => {} }), /no hay una pieza editorial guardada/);
 });

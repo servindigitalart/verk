@@ -12,7 +12,7 @@
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
-import { sleep } from './http.mjs';
+import { sleep, HttpError } from './http.mjs';
 import { createInstagram } from './instagram.mjs';
 import { createDrive, publicUrl } from './drive.mjs';
 import { createOpenAI, PRICES_DATE } from './openai.mjs';
@@ -122,7 +122,7 @@ export async function contactSheet(finals) {
 
 /** Non-blocking observations stored in the manifest: logo measurement, surface, vision notes. Never rejects. */
 async function diagnose({ ai, models, buffer, refs, pc, carousel, i }) {
-  const soft = (e) => { if (e instanceof PieceError) throw e; return { error: e.message }; };
+  const soft = (e) => { if (e instanceof PieceError || e instanceof HttpError) throw e; return { error: e.message }; }; // API errors stop the run
   const logo = pc.placements ? await checkLogo(buffer, pc.placements).catch(soft) : { note: pc.logoUseNote };
   const surface = await checkSurface(buffer, pc).catch(soft);
   const m = logo.found?.map((f) => `${f.kind}: coincidencia ${f.iou}${f.x != null ? `, caja x ${f.x} y ${f.y} ${f.w}×${f.h}` : ''}`).join('; ');
@@ -130,11 +130,33 @@ async function diagnose({ ai, models, buffer, refs, pc, carousel, i }) {
   return { logo, logoUseNote: pc.logoUseNote ?? null, surface, vision };
 }
 
-export async function generate({ ai, models, type, history, log, objetivo, onLibrary = async () => {}, onReject = async () => {} }) {
-  const dir = await direct({ ai, models, type, history, objetivo });
+export async function generate({ ai, models, type, history, log, objetivo, reuse, onLibrary = async () => {}, onReject = async () => {} }) {
+  let pieces, caption, raw, visual, dir;
+
+  if (reuse) {
+    // Same editorial piece as a previous attempt of this slot: its stored 01 / 02+03 outputs are re-parsed with the
+    // same checks, without calling the director or the library again (no new piece, no editorial cost).
+    raw = reuse.raw;
+    dir = { reused: true, from: reuse.createdAt ?? null };
+    if (type === 'individual') {
+      const p = lib.parseIndividual(raw['01']);
+      copyGate([p.copy], lib.captionIndividual(p.copy));
+      pieces = [{ prompt: p.prompt, attach: p.attach, logoUse: p.logoUse, copy: p.copy, territorio: p.territorio, superficie: p.superficie }];
+      caption = lib.captionIndividual(p.copy);
+      visual = [`${p.territorio ?? '?'} ${p.superficie ?? '?'}`];
+    } else {
+      const master = lib.parseMaster(raw['02']);
+      copyGate(master.slides.map((s) => s.copy), lib.captionCarousel(master));
+      const prompts = lib.parseSegmented(raw['03'], master);
+      pieces = master.slides.map((sl, i) => ({ prompt: prompts[i], attach: sl.attach, logoUse: sl.logoUse, copy: sl.copy, territorio: sl.territorio, superficie: sl.superficie }));
+      caption = lib.captionCarousel(master);
+      visual = master.slides.map((sl) => `${sl.territorio ?? '?'} ${sl.superficie ?? '?'}`);
+    }
+    log('biblioteca: se reutiliza la pieza editorial guardada del horario');
+  } else {
+  dir = await direct({ ai, models, type, history, objetivo });
   log(`director: objetivo=${dir.objetivo}`);
   const vars = { TEMA: dir.tema, OBJETIVO: dir.objetivo, SEGMENTO: dir.segmento };
-  let pieces, caption, raw, visual;
 
   if (type === 'individual') {
     const prompt = lib.fill(await lib.loadPrompt('01-INDIVIDUAL-IMAGE-MASTER-PROMPT.md'), { ...vars, HISTORIAL: historial(history) });
@@ -162,6 +184,7 @@ export async function generate({ ai, models, type, history, log, objetivo, onLib
     raw = { '02': m.raw, '03': s.raw };
     visual = m.parsed.slides.map((sl) => `${sl.territorio ?? '?'} ${sl.superficie ?? '?'}`);
   }
+  }
 
   // Diagnostics: the library outputs and the final prompts are stored before any image is paid for.
   await onLibrary({ raw, visual, prompts: pieces.map((p) => p.prompt), logoUse: pieces.map((p) => p.logoUse), attach: pieces.map((p) => p.attach) });
@@ -183,31 +206,36 @@ export async function generate({ ai, models, type, history, log, objetivo, onLib
     let last;
     for (let a = 0; a < IMAGE_ATTEMPTS; a++) {
       const step = `imagen ${i + 1}/${pieces.length} intento ${a + 1}`;
+      // Any API/infrastructure error (HTTP, 429 credit_balance_exhausted…) propagates and stops the run at once:
+      // only the objective validations below count as rejections and lead to a regeneration.
       const original = await ai.generateImage({ step, model: models.image, prompt: pc.prompt, references: refs });
-      let buffer;
+      let buffer, problem = null, extra = [];
       try {
-        // Blocking, objective checks only: readable 4:5 file → 1080×1350 JPEG ≤ 8 MB, and the approved copy in the image.
         ({ buffer } = await prepareForInstagram(original)); // the generator's design, unaltered (no crop, no composite)
         const tech = await checkImage(buffer);
-        if (tech.length) throw new Error(tech.join('; '));
+        if (tech.length) problem = tech.join('; ');
+      } catch (e) { problem = e.message; } // local, deterministic: unreadable file or non-4:5 proportion
+      if (!problem) {
         const { blocks } = await ai.respond({
           step: `texto ${i + 1}`, model: models.vision, image: buffer,
           schema: { type: 'object', additionalProperties: false, required: ['blocks'], properties: { blocks: { type: 'array', items: { type: 'string' } } } },
           text: 'Transcribe exactly every text visible in this image, one entry per text block (headline, paragraph, label, button), in reading order. Keep accents, capitalization and punctuation exactly as rendered; do not correct anything. Do not transcribe logos or the brand wordmark.',
         });
-        const { missing, extra } = compareText(lib.expectedTexts(pc.copy), blocks);
-        if (missing.length) throw new Error(`texto distinto del copy: ${missing.join(' | ')}`);
-        images.push({ original, final: buffer, extraWords: extra, diagnostics: await diagnose({ ai, models, buffer, refs, pc, carousel: type === 'carrusel', i }) });
-        log(`imagen ${i + 1}/${pieces.length} válida (intento ${a + 1})`);
-        last = null;
-        break;
-      } catch (e) {
-        if (e instanceof PieceError) throw e; // spending limit: stop the run, it is not a rejection
-        last = e;
-        rejections.push({ image: i + 1, attempt: a + 1, reason: e.message });
+        const cmp = compareText(lib.expectedTexts(pc.copy), blocks);
+        extra = cmp.extra;
+        if (cmp.missing.length) problem = `texto distinto del copy: ${cmp.missing.join(' | ')}`;
+      }
+      if (problem) {
+        last = new Error(problem);
+        rejections.push({ image: i + 1, attempt: a + 1, reason: problem });
         await onReject(`${String(i + 1).padStart(2, '0')}-intento-${a + 1}`, original, buffer);
         log(`imagen ${i + 1}/${pieces.length} inválida (intento ${a + 1})`);
+        continue;
       }
+      images.push({ original, final: buffer, extraWords: extra, diagnostics: await diagnose({ ai, models, buffer, refs, pc, carousel: type === 'carrusel', i }) });
+      log(`imagen ${i + 1}/${pieces.length} válida (intento ${a + 1})`);
+      last = null;
+      break;
     }
     if (last) throw new PieceError(`imagen ${i + 1} sin versión válida tras ${IMAGE_ATTEMPTS} intentos`, rejections);
   }
@@ -223,7 +251,7 @@ export async function generate({ ai, models, type, history, log, objetivo, onLib
 }
 
 // ── Slot run ─────────────────────────────────────────────────────────────
-export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyIfMissing = false, objetivo, date: forcedDate, now = () => new Date(), waitForSlot = true }, { drive, ai, ig, models, log = console.log, wait = sleep, fetch = globalThis.fetch }) {
+export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyIfMissing = false, reuseLibrary = false, objetivo, date: forcedDate, now = () => new Date(), waitForSlot = true }, { drive, ai, ig, models, log = console.log, wait = sleep, fetch = globalThis.fetch }) {
   const type = SLOTS[slot];
   if (!type) throw new Error(`slot inválido: ${slot}`);
   if (forcedDate && !/^\d{4}-\d{2}-\d{2}$/.test(forcedDate)) throw new Error(`fecha inválida: ${forcedDate}`);
@@ -265,6 +293,12 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
     throw new Error(`no hay una pieza «ready» para ${date} ${slot} (estado: ${manifest?.status ?? 'ninguno'}); publish-ready nunca genera`);
   }
 
+  const reuse = reuseLibrary ? manifest?.library : null;
+  if (reuseLibrary && !(reuse?.raw?.['01'] || (reuse?.raw?.['02'] && reuse?.raw?.['03']))) {
+    throw new Error(`no hay una pieza editorial guardada para ${date} ${slot}; --reuse-library no genera una nueva`);
+  }
+  if (reuse) reuse.createdAt = manifest.createdAt;
+
   if (manifest?.status !== 'ready') {
     // A new attempt on the same slot (e.g. after a failed one) keeps the history of the previous attempts.
     const attempts = manifest ? [...(manifest.attempts ?? []), {
@@ -291,7 +325,7 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
     const onLibrary = async (library) => { manifest.library = library; await save(); };
     try {
       const history = (await drive.recentManifests(12)).filter((m) => m.key !== manifest.key);
-      const g = await generate({ ai, models, type, history, log, objetivo, onLibrary, onReject });
+      const g = await generate({ ai, models, type, history, log, objetivo, reuse, onLibrary, onReject });
       const sub = async (name) => drive.folder(name, folderId);
       const [origDir, finalDir] = [await sub('original'), await sub('final')];
       const files = { original: [], final: [] };
@@ -371,7 +405,7 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
 
 // ── CLI ──────────────────────────────────────────────────────────────────
 async function main() {
-  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' }, check: { type: 'boolean' }, 'only-if-missing': { type: 'boolean' }, objetivo: { type: 'string' } } });
+  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' }, check: { type: 'boolean' }, 'only-if-missing': { type: 'boolean' }, 'reuse-library': { type: 'boolean' }, objetivo: { type: 'string' } } });
   const env = process.env;
   const check = Boolean(values.check);
   const dryRun = Boolean(values['dry-run']);
@@ -405,7 +439,7 @@ async function main() {
     console.log(`openai: modelos disponibles (${[...new Set(Object.values(models))].join(', ')})\ndrive: conexión y carpeta raíz correctas\ncheck: todo correcto (SOCIAL_ENABLED=${env.SOCIAL_ENABLED === 'true' ? 'true' : 'false'})`);
     return;
   }
-  const r = await runSlot({ slot: values.slot, dryRun, publishOnly, onlyIfMissing: Boolean(values['only-if-missing']), objetivo: values.objetivo || undefined, date: values.date || undefined, waitForSlot: !values.now }, { drive, ai, ig, models });
+  const r = await runSlot({ slot: values.slot, dryRun, publishOnly, onlyIfMissing: Boolean(values['only-if-missing']), reuseLibrary: Boolean(values['reuse-library']), objetivo: values.objetivo || undefined, date: values.date || undefined, waitForSlot: !values.now }, { drive, ai, ig, models });
   if (r.status === 'published' && r.verified === false) {
     console.error('aviso: publicado, pero la verificación posterior no se superó; revisa el manifest. No se republica.');
     process.exitCode = 1;

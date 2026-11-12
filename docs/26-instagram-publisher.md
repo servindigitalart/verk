@@ -268,7 +268,8 @@ El cron, todavía comentado, arranca 90 min antes (12:30, 17:30 y 23:30 UTC), y 
 | `publishing` | La respuesta de `media_publish` fue incierta y la conciliación no encontró la publicación | No reintentes a mano. La siguiente ejecución del horario (o `social-publish-ready`) vuelve a conciliar. Si la encuentra, queda `published`; si no, `failed`, sin publicar de nuevo. Comprueba el perfil antes de volver a generar |
 | `published`, `verification.ok = false` | Publicado, pero la consulta posterior no coincidió (tipo o número de hijos) o falló | Revisa el permalink en el perfil. Nunca se republica automáticamente |
 | Workflow en rojo con «la cuenta de Instagram es @…» | El token apunta a otra cuenta | Corrige `INSTAGRAM_ACCESS_TOKEN` o `INSTAGRAM_USERNAME` |
-| `organization_spend_limit_exceeded` / `project_spend_limit_exceeded` | Límite de gasto alcanzado (§7) | Sube el límite o espera al mes siguiente; no se reintenta |
+| `organization_spend_limit_exceeded` / `project_spend_limit_exceeded` / `credit_balance_exhausted` | Límite de gasto alcanzado o créditos agotados (§7) | Sube el límite o añade créditos. Ningún error de API o infraestructura cuenta como rechazo ni provoca regeneraciones: la ejecución se detiene al instante |
+| Falló después de `03` (sin pieza publicada) | Las salidas de la biblioteca ya están en `manifest.library` | Actions → `social` con `date`, `slot` y **`reuse_library`**: rehace las imágenes con la misma pieza editorial, sin llamar a `00`/`02`/`03` ni crear una nueva |
 | «no se pudo retirar el permiso público» en el log | Falló la retirada del enlace público | Retíralo a mano en Drive (Compartir → Restringido) |
 
 ## 13. Costo por pieza (estimación previa a la medición real)
