@@ -31,6 +31,27 @@ export function checkCaption(caption) {
   return problems;
 }
 
+export const IG_SIZE = { width: 1080, height: 1350 }; // 4:5 portrait, Instagram feed/carousel
+
+/**
+ * Deterministic technical processing of a generated image. Keeps the generator's design exactly: only a uniform
+ * resize to 1080×1350 when the size differs (aspect ratio must already be 4:5 — never cropped, padded, stretched
+ * or recomposed) and a high-quality JPEG encode. An image that already complies is returned byte for byte.
+ */
+export async function prepareForInstagram(buf) {
+  let m;
+  try { m = await sharp(buf).metadata(); } catch { throw new Error('imagen ilegible'); }
+  if (!m.width || !m.height) throw new Error('imagen ilegible');
+  const want = IG_SIZE.width / IG_SIZE.height;
+  if (Math.abs(m.width / m.height - want) / want > 0.002) throw new Error(`proporción ${m.width}×${m.height} distinta de 4:5: no se recorta ni se deforma`);
+  if (m.format === 'jpeg' && m.width === IG_SIZE.width && m.height === IG_SIZE.height && (m.pages ?? 1) === 1 && buf.length <= MAX_BYTES) {
+    return { buffer: buf, changed: false };
+  }
+  const buffer = await sharp(buf).resize(IG_SIZE.width, IG_SIZE.height, { kernel: 'lanczos3' })
+    .jpeg({ quality: 95, chromaSubsampling: '4:4:4', mozjpeg: true }).toBuffer();
+  return { buffer, changed: true };
+}
+
 export async function checkImage(buf) {
   const problems = [];
   const m = await sharp(buf).metadata();

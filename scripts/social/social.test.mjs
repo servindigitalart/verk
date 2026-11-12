@@ -407,25 +407,24 @@ test('local date and slot time use León time (UTC−6)', () => {
   assert.equal(slotTime('2026-07-01', '0800').toISOString(), '2026-07-01T14:00:00.000Z');
 });
 
-test('generation (dry run): library literal → image → official logo → text check, with one regeneration', async () => {
+test('generation (dry run): library literal → image → copy check; an objective copy error regenerates once', async () => {
   const copyA = lib.parseIndividual(outA).copy;
   const prompts = [];
-  let images = 0;
+  let images = 0, textCalls = 0;
   const ai = {
     async respond({ step, text }) {
       prompts.push([step, text]);
       if (step === 'director') return { tema: 'Mensajes sin respuesta', objetivo: 'conversión', segmento: '' };
       if (step === '01') return outA;
-      if (step.startsWith('texto')) return { blocks: [...lib.expectedTexts(copyA), 'verk'] };
+      if (step.startsWith('texto')) return { blocks: textCalls++ === 0 ? ['Te escribieron. Nadie contesto.'] : [...lib.expectedTexts(copyA), 'verk'] }; // 1st: missing accent
       if (step.startsWith('identidad')) { assert.match(text, /## 8\. Control de calidad/); return { criterios: [{ criterio: 'Solo colores de la paleta', cumple: true, motivo: '' }] }; }
       throw new Error(step);
     },
     async generateImage({ prompt, references }) {
       assert.ok(prompt.startsWith('▶ ADJUNTAR AL GENERADOR: lab/brand/wordmark-ink.png'));
       assert.equal(references.length, 1);
-      // 1st attempt: a bar runs through the generated wordmark → checkLogo rejects; 2nd: logo integrated as declared
-      const extra = images++ === 0 ? [rect(0, 1245, 1080, 24, '#0F0F0F')] : [];
-      return generated(TOKENS.violet, lib.parseIndividual(outA).logoUse, extra);
+      images++;
+      return generated(TOKENS.violet, lib.parseIndividual(outA).logoUse);
     },
   };
   const drive = fakeDrive(null);
@@ -436,6 +435,7 @@ test('generation (dry run): library literal → image → official logo → text
   assert.equal(m.status, 'ready');
   assert.equal(m.caption, lib.captionIndividual(copyA));
   assert.equal(m.files.final.length, 1);
+  assert.match(m.validation.rejections[0].reason, /texto distinto del copy: .*Te escribieron\. Nadie contestó\./);
   assert.ok(prompts.find(([s]) => s === '01')[1].includes('TEMA: Mensajes sin respuesta\n'));
 });
 
@@ -483,7 +483,7 @@ test('contact sheet (04 §5): five slides in a row, unmodified order', async () 
   assert.ok(mid(1).every((v) => v < 40) && mid(4)[1] > 200 && mid(4)[2] < 60); // slide 2 ink, slide 5 lime
 });
 
-test('carousel generation: 02 → 03 literal, 5 slides with official logos, identity regeneration, contact sheet', async () => {
+test('carousel generation: 02 → 03 literal, 5 slides, a negative vision review does not regenerate, contact sheet', async () => {
   const master = lib.parseMaster(outMaster);
   const surf = master.slides.map((s) => declaredSurface(s.superficie));
   let images = 0, identityCalls = 0;
@@ -499,7 +499,7 @@ test('carousel generation: 02 → 03 literal, 5 slides with official logos, iden
       if (step.startsWith('identidad')) {
         assert.match(text, /## 3\. Revisión de cada slide/);
         assert.ok(text.includes(`LOGO · USO: ${master.slides[n - 1].logoUse}`));
-        const fail = n === 3 && identityCalls++ === 0; // slide 3 fails once → regenerated
+        const fail = n === 3 && identityCalls++ === 0; // slide 3: negative review → stored, never blocks
         return { criterios: [{ criterio: 'Sin elementos prohibidos', cumple: !fail, motivo: fail ? 'aparece una persona' : '' }] };
       }
       throw new Error(step);
@@ -517,14 +517,15 @@ test('carousel generation: 02 → 03 literal, 5 slides with official logos, iden
   drive.upload = async (name, p, buf, mime) => { uploads.push(name); return up(name, p, buf, mime); };
   const r = await runSlot({ slot: '1900', dryRun: true, now: at('2026-11-12T00:10:00Z') }, { drive, ai, ig: boom, models: { image: 'i', text: 't', vision: 'v' }, log: () => {} });
   assert.deepEqual(r, { status: 'ready' });
-  assert.equal(images, 6);
+  assert.equal(images, 5);
   assert.deepEqual(steps.filter((s) => ['02', '03'].includes(s)), ['02', '03']); // one editorial execution
   const m = drive.files.get('M');
   assert.equal(m.files.final.length, 5);
   assert.ok(uploads.includes('hoja-de-contacto.jpg') && m.files.contactSheet);
   assert.equal(m.caption, 'Tienes las herramientas. No se hablan.\n\nSolicitar auditoría · POR WHATSAPP');
-  assert.deepEqual(m.validation.rejections.map((x) => [x.image, x.attempt]), [[3, 1]]);
-  assert.match(m.validation.rejections[0].reason, /identidad visual: Sin elementos prohibidos: aparece una persona/);
+  assert.deepEqual(m.validation.rejections, []);
+  assert.deepEqual(m.validation.diagnostics[2].vision, ['Sin elementos prohibidos: aparece una persona']);
+  assert.ok(m.validation.diagnostics.every((d) => d.logo.problems.length === 0)); // official marks found where declared
 });
 
 test('a malformed 02 answer stops the run: no retry, no images (one editorial execution)', async () => {
@@ -543,7 +544,7 @@ test('publish-ready: only a «ready» piece of the given date, published now, ne
   await assert.rejects(runSlot({ slot: '1900', publishOnly: true, date: '11/11/2026' }, { drive: fakeDrive(null), ai: boom, ig: boom, models: {}, log: () => {} }), /fecha inválida/);
 
   const jpg = await flat(TOKENS.cream);
-  const drive = fakeDrive({ status: 'ready', type: 'carrusel', caption: 'C', errors: [], files: { final: ['F1', 'F2', 'F3', 'F4', 'F5'] } });
+  const drive = fakeDrive({ status: 'ready', type: 'carrusel', caption: 'C', errors: [], copy: [{}, {}, {}, {}, {}], files: { final: ['F1', 'F2', 'F3', 'F4', 'F5'] } });
   const paths = [];
   const ens = drive.ensurePath; drive.ensurePath = async (p) => { paths.push(p); return ens(p); };
   const waits = [];
@@ -684,16 +685,17 @@ test('diagnostics: library saved before images, rejected attempts uploaded, revi
     async generateImage({ references }) {
       events.push('imagen');
       assert.ok(references[0].equals(officialWordmark)); // the generator gets the original file's bytes
-      return generated(TOKENS.violet, lib.parseIndividual(outA).logoUse, n++ === 0 ? [rect(0, 1245, 1080, 24, '#0F0F0F')] : []);
+      if (n++ === 0) return sharp({ create: { width: 1024, height: 1536, channels: 3, background: TOKENS.violet } }).png().toBuffer(); // 2:3: objective failure
+      return generated(TOKENS.violet, lib.parseIndividual(outA).logoUse);
     },
   };
   await runSlot({ slot: '0800', dryRun: true, now: at('2026-11-12T12:35:00Z') }, { drive, ai, ig: boom, models: { image: 'i', text: 't', vision: 'v' }, log: () => {} });
   assert.ok(events.indexOf('manifest library=true status=generating') < events.indexOf('imagen'));
-  assert.ok(events.includes('upload F/rechazos/01-intento-1-original.jpg') && events.includes('upload F/rechazos/01-intento-1.jpg'));
+  assert.ok(events.includes('upload F/rechazos/01-intento-1-original.jpg'));
   assert.ok(reviewRefs.length === 1 && reviewRefs[0].equals(officialWordmark));
   const m = drive.files.get('M');
-  assert.match(m.validation.rejections[0].reason, /no se encontró el wordmark oficial/);
-  assert.ok(m.validation.logo[0][0].iou >= LOGO_CHECK.minIoU);
+  assert.match(m.validation.rejections[0].reason, /proporción 1024×1536 distinta de 4:5/);
+  assert.ok(m.validation.diagnostics[0].logo.found[0].iou >= LOGO_CHECK.minIoU);
   assert.equal(m.library.attach[0], 'lab/brand/wordmark-ink.png');
 });
 
@@ -710,4 +712,60 @@ test('spending limit per run stops generation (not counted as a rejection)', asy
   const m = drive.files.get('M');
   assert.equal(m.status, 'failed');
   assert.equal(m.validation, undefined);
+});
+
+// ── Prompts as creative authority: deterministic processing, diagnostics never veto ──
+import { prepareForInstagram, IG_SIZE } from './validate.mjs';
+
+test('prepareForInstagram: uniform resize keeping 4:5, no crop or deformation; a compliant image is left untouched', async () => {
+  const src = await generated(TOKENS.cream, WM_USE); // 1088×1360 from the generator
+  const { buffer, changed } = await prepareForInstagram(src);
+  const m = await sharp(buffer).metadata();
+  assert.deepEqual([m.format, m.width, m.height, changed], ['jpeg', 1080, 1350, true]);
+  const big = await sharp({ create: { width: 2160, height: 2700, channels: 3, background: TOKENS.ink } }).png().toBuffer();
+  assert.deepEqual(await sharp((await prepareForInstagram(big)).buffer).metadata().then((x) => [x.width, x.height]), [IG_SIZE.width, IG_SIZE.height]);
+  const again = await prepareForInstagram(buffer);
+  assert.ok(again.changed === false && again.buffer === buffer); // byte for byte
+  await assert.rejects(prepareForInstagram(await sharp({ create: { width: 1024, height: 1536, channels: 3, background: '#000' } }).png().toBuffer()), /no se recorta ni se deforma/);
+  await assert.rejects(prepareForInstagram(Buffer.from('<!doctype html>')), /ilegible/);
+  // content preserved: the mark found in the source is found at the same (scaled) place in the output
+  const before = await checkLogo(await sharp(src).resize(1080, 1350).jpeg().toBuffer(), await parseLogoUse(WM_USE));
+  const after = await checkLogo(buffer, await parseLogoUse(WM_USE));
+  assert.deepEqual([after.found[0].x, after.found[0].y, after.found[0].w], [before.found[0].x, before.found[0].y, before.found[0].w]);
+});
+
+test('logo is never altered or replaced, and negative diagnostics (no logo, vision veto) do not block publishing', async () => {
+  const copyA = lib.parseIndividual(outA).copy;
+  // the generator returns a slide WITHOUT any logo: published as generated, the gap is only recorded
+  const original = await sharp({ create: { width: 1088, height: 1360, channels: 3, background: TOKENS.violet } }).jpeg({ quality: 95 }).toBuffer();
+  const ai = {
+    async respond({ step }) {
+      if (step === 'director') return { tema: 'x', objetivo: 'conversión', segmento: '' };
+      if (step === '01') return outA;
+      if (step.startsWith('texto')) return { blocks: lib.expectedTexts(copyA) };
+      if (step.startsWith('identidad')) return { criterios: [{ criterio: 'Logo integrado desde la referencia adjunta', cumple: false, motivo: 'no hay logo' }, { criterio: 'Una superficie protagonista', cumple: false, motivo: 'opinión' }] };
+      throw new Error(step);
+    },
+    async generateImage() { return original; },
+  };
+  const drive = fakeDrive(null);
+  const stored = {};
+  const up = drive.upload; drive.upload = async (name, p, buf, mime) => { stored[`${p}/${name}`] = buf; return up(name, p, buf, mime); };
+  const jpg = await flat(TOKENS.violet);
+  const r = await runSlot({ slot: '0800', now: at('2026-11-12T14:05:00Z') }, {
+    drive, ai, models: { image: 'i', text: 't', vision: 'v' }, log: () => {}, wait: noWait, fetch: mockFetch(() => new Response(jpg)),
+    ig: { publishSingle: async () => ({ mediaId: 'M9', containerIds: ['C'], verification: { ok: true, permalink: 'https://www.instagram.com/p/Z/' } }) },
+  });
+  assert.equal(r.status, 'published');
+  assert.ok(stored['F/final/01.jpg'].equals((await prepareForInstagram(original)).buffer)); // exactly the generator's image
+  const d = drive.files.get('M').validation.diagnostics[0];
+  assert.match(d.logo.problems[0], /no se encontró el wordmark oficial/);
+  assert.equal(d.vision.length, 2);
+  assert.deepEqual(drive.files.get('M').validation.rejections, []);
+});
+
+test('sequence integrity: a carousel missing an image is never shared or published', async () => {
+  const drive = fakeDrive({ status: 'ready', type: 'carrusel', caption: 'C', errors: [], copy: [{}, {}, {}, {}, {}], files: { final: ['F1', 'F2', 'F3', 'F4'] } });
+  drive.share = () => { throw new Error('must not share'); };
+  await assert.rejects(runSlot({ slot: '1900', publishOnly: true, date: '2026-11-11', now: at('2026-11-12T03:00:00Z') }, { drive, ai: boom, ig: boom, models: {}, log: () => {} }), /secuencia incompleta: 4 imágenes para 5 esperadas/);
 });

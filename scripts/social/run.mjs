@@ -18,7 +18,7 @@ import { createDrive, publicUrl } from './drive.mjs';
 import { createOpenAI, PRICES_DATE } from './openai.mjs';
 import * as lib from './library.mjs';
 import { parseLogoUse, referencePngs, checkLogo, attachedKinds } from './logo.mjs';
-import { checkCopy, checkCaption, checkImage, checkSurface, compareText, verifyPublicUrl } from './validate.mjs';
+import { checkCopy, checkCaption, checkImage, checkSurface, compareText, prepareForInstagram, verifyPublicUrl } from './validate.mjs';
 
 export const OBJETIVOS = ['conversión', 'reconocimiento del problema', 'posicionamiento', 'educativa'];
 export const SLOTS = { '0800': 'individual', '1300': 'individual', '1900': 'carrusel' };
@@ -83,10 +83,11 @@ function copyGate(copies, caption) {
 }
 
 /**
- * Visual identity review (vision model) with the library's own checklists, verbatim: 06 §8 for every image and
- * 04 §3 for carousel slides. Copy and logo shape are verified elsewhere. Returns the failed criteria.
+ * DIAGNOSTIC ONLY (never blocks, never triggers a regeneration): a vision model notes, with the library's own
+ * checklists verbatim (06 §8; 04 §3 for carousel slides), what it observes. The prompts are the creative authority;
+ * these notes are stored in the manifest for analysis. Returns the criteria it marked as not met.
  */
-async function reviewIdentity({ ai, models, image, references, piece, carousel, step }) {
+async function reviewIdentity({ ai, models, image, references, piece, carousel, step, logoMeasure }) {
   const lists = [await lib.docSection('06-VISUAL-IDENTITY-GUIDELINES.md', '8. Control de calidad')];
   if (carousel) lists.push(await lib.docSection('04-CAROUSEL-ASSEMBLY-INSTRUCTIONS.md', '3. Revisión de cada slide'));
   const r = await ai.respond({
@@ -97,7 +98,7 @@ async function reviewIdentity({ ai, models, image, references, piece, carousel, 
     },
     text: `Eres el control de calidad visual de VERK. Evalúa esta imagen con las listas de abajo, copiadas de la biblioteca de VERK, frente a lo declarado para esta pieza. Devuelve un criterio por cada punto de las listas.
 La primera imagen es la pieza. ${references.length ? `Las ${references.length === 1 ? 'siguiente es la referencia oficial' : `${references.length} siguientes son las referencias oficiales`} del logo que recibió el generador (su fondo no forma parte del logo; el color puede cambiar al token indicado en LOGO · USO).` : 'Esta pieza no lleva logo: no debe aparecer ningún logo ni símbolo inventado.'}
-No evalúes el copy ni la ortografía: se verifican aparte.
+No evalúes el copy ni la ortografía: se verifican aparte. No exijas precisión de píxeles: la posición y la escala del logo se midieron en código${logoMeasure ? ` (${logoMeasure})` : ''} y pequeñas diferencias respecto de las coordenadas declaradas son normales. Las «3 barras a 45°» describen solo el isotipo: no las busques en el wordmark.
 Marca un criterio como no cumplido solo si la infracción es clara y visible; ante la duda, márcalo como cumplido y explica la duda en el motivo.
 
 DECLARADO PARA ESTA PIEZA
@@ -117,6 +118,16 @@ export async function contactSheet(finals) {
   return sharp({ create: { width: pad * 2 + tiles.length * w + (tiles.length - 1) * gap, height: pad * 2 + h, channels: 3, background: '#E6E1D5' } })
     .composite(tiles.map((input, i) => ({ input, left: pad + i * (w + gap), top: pad })))
     .jpeg({ quality: 90 }).toBuffer();
+}
+
+/** Non-blocking observations stored in the manifest: logo measurement, surface, vision notes. Never rejects. */
+async function diagnose({ ai, models, buffer, refs, pc, carousel, i }) {
+  const soft = (e) => { if (e instanceof PieceError) throw e; return { error: e.message }; };
+  const logo = pc.placements ? await checkLogo(buffer, pc.placements).catch(soft) : { note: pc.logoUseNote };
+  const surface = await checkSurface(buffer, pc).catch(soft);
+  const m = logo.found?.map((f) => `${f.kind}: coincidencia ${f.iou}${f.x != null ? `, caja x ${f.x} y ${f.y} ${f.w}×${f.h}` : ''}`).join('; ');
+  const vision = await reviewIdentity({ ai, models, image: buffer, references: refs, piece: pc, carousel, step: `identidad ${i + 1}`, logoMeasure: m }).catch(soft);
+  return { logo, logoUseNote: pc.logoUseNote ?? null, surface, vision };
 }
 
 export async function generate({ ai, models, type, history, log, objetivo, onLibrary = async () => {}, onReject = async () => {} }) {
@@ -155,14 +166,15 @@ export async function generate({ ai, models, type, history, log, objetivo, onLib
   // Diagnostics: the library outputs and the final prompts are stored before any image is paid for.
   await onLibrary({ raw, visual, prompts: pieces.map((p) => p.prompt), logoUse: pieces.map((p) => p.logoUse), attach: pieces.map((p) => p.attach) });
 
-  // LOGO · USO and its references must resolve before any image is paid for.
+  // The official files named by ▶ ADJUNTAR must exist (objective: the generator cannot get a missing reference).
+  // LOGO · USO is only measured afterwards, for diagnostics.
   for (const pc of pieces) {
+    try { pc.references = await referencePngs(pc.attach); } catch (e) { throw new PieceError('referencias de logo no válidas', e.message); }
     try {
       pc.placements = await parseLogoUse(pc.logoUse);
       const kinds = attachedKinds(pc.attach);
-      if (pc.placements.some((pl) => !kinds.has(pl.kind))) throw new Error('LOGO · USO usa un logo que no se adjunta');
-      pc.references = await referencePngs(pc.attach); // the official public/ files named by ▶ ADJUNTAR
-    } catch (e) { throw new PieceError('LOGO · USO no válido', e.message); }
+      pc.logoUseNote = pc.placements.some((pl) => !kinds.has(pl.kind)) ? 'LOGO · USO nombra un logo que no se adjunta' : null;
+    } catch (e) { pc.placements = null; pc.logoUseNote = e.message; }
   }
 
   const images = [], rejections = [];
@@ -172,30 +184,28 @@ export async function generate({ ai, models, type, history, log, objetivo, onLib
     for (let a = 0; a < IMAGE_ATTEMPTS; a++) {
       const step = `imagen ${i + 1}/${pieces.length} intento ${a + 1}`;
       const original = await ai.generateImage({ step, model: models.image, prompt: pc.prompt, references: refs });
+      let buffer;
       try {
-        // The published image is the generator's own (1088×1360 → 1080×1350, same 4:5); nothing is composited.
-        const buffer = await sharp(original).resize(1080, 1350, { fit: 'fill' }).jpeg({ quality: 92, chromaSubsampling: '4:4:4' }).toBuffer();
-        const logo = await checkLogo(buffer, pc.placements);
-        const tech = [...await checkImage(buffer), ...await checkSurface(buffer, pc), ...logo.problems];
-        if (tech.length) throw Object.assign(new Error(tech.join('; ')), { buffer, logo: logo.found });
+        // Blocking, objective checks only: readable 4:5 file → 1080×1350 JPEG ≤ 8 MB, and the approved copy in the image.
+        ({ buffer } = await prepareForInstagram(original)); // the generator's design, unaltered (no crop, no composite)
+        const tech = await checkImage(buffer);
+        if (tech.length) throw new Error(tech.join('; '));
         const { blocks } = await ai.respond({
           step: `texto ${i + 1}`, model: models.vision, image: buffer,
           schema: { type: 'object', additionalProperties: false, required: ['blocks'], properties: { blocks: { type: 'array', items: { type: 'string' } } } },
           text: 'Transcribe exactly every text visible in this image, one entry per text block (headline, paragraph, label, button), in reading order. Keep accents, capitalization and punctuation exactly as rendered; do not correct anything. Do not transcribe logos or the brand wordmark.',
         });
         const { missing, extra } = compareText(lib.expectedTexts(pc.copy), blocks);
-        if (missing.length) throw Object.assign(new Error(`texto distinto del copy: ${missing.join(' | ')}`), { buffer });
-        const identity = await reviewIdentity({ ai, models, image: buffer, references: refs, piece: pc, carousel: type === 'carrusel', step: `identidad ${i + 1}` });
-        if (identity.length) throw new Error(`identidad visual: ${identity.join(' | ')}`);
-        images.push({ original, final: buffer, extraWords: extra, logo: logo.found });
+        if (missing.length) throw new Error(`texto distinto del copy: ${missing.join(' | ')}`);
+        images.push({ original, final: buffer, extraWords: extra, diagnostics: await diagnose({ ai, models, buffer, refs, pc, carousel: type === 'carrusel', i }) });
         log(`imagen ${i + 1}/${pieces.length} válida (intento ${a + 1})`);
         last = null;
         break;
       } catch (e) {
         if (e instanceof PieceError) throw e; // spending limit: stop the run, it is not a rejection
         last = e;
-        rejections.push({ image: i + 1, attempt: a + 1, reason: e.message, ...(e.logo && { logo: e.logo }) });
-        await onReject(`${String(i + 1).padStart(2, '0')}-intento-${a + 1}`, original, e.buffer);
+        rejections.push({ image: i + 1, attempt: a + 1, reason: e.message });
+        await onReject(`${String(i + 1).padStart(2, '0')}-intento-${a + 1}`, original, buffer);
         log(`imagen ${i + 1}/${pieces.length} inválida (intento ${a + 1})`);
       }
     }
@@ -293,7 +303,7 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
       if (type === 'carrusel') files.contactSheet = await drive.upload('hoja-de-contacto.jpg', folderId, await contactSheet(g.images.map((im) => im.final)), 'image/jpeg');
       Object.assign(manifest, {
         status: 'ready', director: g.director, library: g.library, copy: g.copy, caption: g.caption, files,
-        validation: { extraWords: g.images.map((im) => im.extraWords), logo: g.images.map((im) => im.logo), rejections: g.rejections },
+        validation: { extraWords: g.images.map((im) => im.extraWords), diagnostics: g.images.map((im) => im.diagnostics), rejections: g.rejections },
       });
     } catch (e) {
       manifest.status = 'failed';
@@ -316,6 +326,13 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
   if (waitForSlot && !publishOnly && now().getTime() < target) {
     log(`esperando a las ${slot.slice(0, 2)}:${slot.slice(2)} locales`);
     await wait(target - now().getTime());
+  }
+
+  // Sequence integrity (objective): every image of the piece exists, in order, before anything is shared.
+  const expected = manifest.type === 'carrusel' ? (manifest.copy?.length ?? 0) : 1;
+  const finals = manifest.files?.final ?? [];
+  if (!finals.length || finals.length !== expected || finals.some((id) => !id) || (manifest.type === 'carrusel' && (expected < 2 || expected > 10))) {
+    throw new Error(`secuencia incompleta: ${finals.length} imágenes para ${expected} esperadas; no se publica`);
   }
 
   manifest.status = 'publishing';

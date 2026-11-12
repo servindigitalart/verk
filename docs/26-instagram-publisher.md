@@ -18,14 +18,29 @@ En cada horario (08:00 y 13:00, imagen individual; 19:00, carrusel; hora de Leó
 5. **Imagen** (`IMAGE_MODEL`, 1088×1360, `quality: high`, JPEG): prompt literal más los archivos oficiales de `public/images/` que pide su línea «▶ ADJUNTAR» (§3). El generador integra el logo. Si no hay logo adjunto, se usa `/images/generations`.
 6. Se reduce a 1080×1350 (misma proporción, sin recorte).
 7. **Sin composición posterior:** el logo se verifica con `checkLogo`, nunca se repara (§3).
-8. **Validación, por imagen y en este orden:**
-   - técnica: JPEG, 1080×1350, ≤ 8 MB;
-   - **superficie:** el color dominante debe ser la `SUPERFICIE` declarada (`04` §3, `06` §8). No aplica a T8 (fotografía);
-   - **texto:** `VISION_MODEL` transcribe a ciegas y se compara con el copy aprobado (§4);
-   - **identidad visual:** `VISION_MODEL` evalúa la imagen con `06` §8 y, en carrusel, `04` §3, copiadas literalmente de la biblioteca, frente a la superficie, el territorio y el `LOGO · USO` declarados. Cualquier criterio incumplido rechaza la imagen.
-9. Si falla, se regenera esa imagen (hasta 2 veces). Si sigue fallando, la pieza queda `failed` y no se publica. Cada rechazo queda en `manifest.validation.rejections` con su motivo.
-   - En carrusel, antes de pagar imágenes, se rechaza el maestro si dos slides contiguos comparten superficie (`06` §1).
-   - `01`, `02` y `03` se ejecutan **una sola vez** por pieza: una respuesta fuera de formato detiene la ejecución.
+8. **Autoridad creativa: los prompts.** La imagen publicada es la del generador. Solo se valida lo objetivo; ningún modelo de IA tiene veto por interpretación visual.
+   - **Bloquea y regenera** (máximo 2 veces):
+     - archivo ilegible;
+     - proporción distinta de 4:5 (no se recorta ni se deforma);
+     - no es JPEG 1080×1350 ≤ 8 MB después del procesamiento;
+     - el copy aprobado no aparece en la imagen: comparación letra por letra con la transcripción, normalizando solo espacios.
+   - **Procesamiento determinista:**
+     - reescalado uniforme a 1080×1350 (Lanczos) y JPEG de calidad 95, 4:4:4;
+     - sin recortes, rellenos, repintado ni composición;
+     - si la imagen ya cumple, se conserva byte a byte.
+   - **Solo diagnóstico** (se guarda en `manifest.validation.diagnostics`, nunca rechaza):
+     - medición del logo (`checkLogo`);
+     - superficie dominante;
+     - observaciones de `VISION_MODEL` con `06` §8 y `04` §3, sin exigir precisión de píxeles ni buscar las barras del isotipo en el wordmark.
+9. Si una imagen sigue fallando tras 2 regeneraciones, la pieza queda `failed` y no se publica. Cada rechazo queda en `manifest.validation.rejections` y en `rechazos/` de Drive.
+   - **Antes de pagar imágenes también bloquean** (reglas objetivas de la biblioteca sobre el texto):
+     - formato de `01`/`02`/`03`;
+     - palabras prohibidas, hashtags y cifras en copy y caption (`05`);
+     - CTA solo en el último slide;
+     - superficies contiguas distintas (`06` §1);
+     - que existan los archivos de logo que nombra «▶ ADJUNTAR».
+   - `01`, `02` y `03` se ejecutan **una sola vez** por pieza.
+   - **Antes de publicar:** la secuencia debe estar completa (todas las imágenes, en orden).
 10. **Drive:** se guardan `original/` (salida de OpenAI), `final/` (la imagen publicada), `rechazos/`, `manifest.json` y, en carrusel, `hoja-de-contacto.jpg` (`04` §5).
 11. Espera a la hora exacta del horario.
 12. **Publicación:**
@@ -68,18 +83,14 @@ Sin dependencias nuevas ni cambios en `package.json`. `sharp` llega como depende
 
   Un nombre desconocido detiene la pieza antes de pagar imágenes. El fondo claro de los archivos y el color violeta del isotipo están previstos en FIJO-4: «the background of the reference file … is not part of the logo» y «recolor it to one flat palette color».
 - **Integración:** la imagen publicada es la del generador, solo reducida de 1088×1360 a 1080×1350 (misma proporción). No se compone, repinta ni superpone nada. Así lo pide `04` §6: «Añadir, mover, recolorear o reemplazar el logo a mano … si algo está mal, se regenera el slide».
-- **Verificación (`checkLogo`):** por cada logo de `LOGO · USO` (`left/right edge`, `centered at`, `top/bottom edge`, `inside the area`, `N px wide/tall`, HEX, `no logo`), busca la silueta oficial, extraída del archivo de `public/`, en el color declarado:
-  - escala de 0.75 a 1.3 veces el tamaño declarado;
+- **Medición (`checkLogo`, solo diagnóstico):** por cada logo de `LOGO · USO`, busca la silueta oficial, extraída del archivo de `public/`, en el color declarado:
+  - escala de 0.75 a 1.3 veces;
   - centro a ±max(40 px, 25 %) de la posición declarada.
 
-  Exige:
-  - **coincidencia de silueta (IoU) ≥ 0.75** con la referencia oficial;
-  - **contraste según `06` §10:** ink sobre cream, cream-warm, violet o lime; cream sobre ink o `#0B0B0B`; violeta solo para el isotipo sobre cream; nunca cream sobre lima.
+  Registra la coincidencia (IoU), la caja medida y el contraste según `06` §10. **No rechaza ni modifica la imagen** (decisión del 2026-11-11: los prompts son la autoridad creativa).
+- **Calibración de la medición con muestras sintéticas** (`social.test.mjs`):
 
-  Si no se cumple, la imagen se rechaza y se regenera (hasta 2 veces). La imagen nunca se modifica.
-- **Calibración con muestras sintéticas** (`social.test.mjs`):
-
-  | Muestra | Coincidencia | Resultado |
+  | Muestra | Coincidencia | Medición |
   |---|---|---|
   | Wordmark oficial de 190–270 px, desplazado hasta 30 px | ≥ 0.836 | Acepta |
   | Render fiel no idéntico | 0.938 | Acepta |
@@ -91,7 +102,7 @@ Sin dependencias nuevas ni cambios en `package.json`. `sharp` llega como depende
   | Isotipo con 2 barras | 0.67 | Rechaza |
   | Otro logo, otro color o fuera de zona | — | Rechaza |
   | Cream sobre lima | — | Rechaza por contraste |
-- **Revisión visual:** `VISION_MODEL` recibe la pieza y las mismas referencias oficiales, y evalúa el logo con los criterios literales de `06` §8 y `04` §3.
+- **Revisión visual (solo diagnóstico):** `VISION_MODEL` recibe la pieza, las referencias oficiales y la medición del logo, y anota observaciones con `06` §8 y `04` §3. No exige precisión de píxeles y no busca las barras del isotipo en el wordmark. Nunca rechaza.
 - **Diagnóstico:**
   - las salidas de `01`/`02`/`03`, los prompts finales, `▶ ADJUNTAR` y las referencias quedan en el manifest (`library`) antes de generar imágenes;
   - cada intento rechazado se guarda en `rechazos/` (original y versión evaluada), con su motivo y la medición del logo en `validation.rejections`.
