@@ -14,10 +14,10 @@ En cada horario (08:00 y 13:00, imagen individual; 19:00, carrusel; hora de Leó
    - prompt visual;
    - `LOGO · ADJUNTAR` y `LOGO · USO`.
 
-   La tabla de verificación de `03` se aplica en código: copy, `▶ ADJUNTAR`, `ATTACHED` y `USE IN THIS IMAGE` deben ser literales. Si una respuesta sale fuera de formato, se repite una vez.
-5. **Imagen** (`IMAGE_MODEL`, 1088×1360, `quality: high`, JPEG): prompt literal más los PNG de referencia que pide su línea «▶ ADJUNTAR». Los PNG se renderizan en cada ejecución desde `src/assets/brand/*.svg`, igual que `lab/brand/*.png`. Si no hay logo adjunto, se usa `/images/generations`.
+   La tabla de verificación de `03` se aplica en código: copy, `▶ ADJUNTAR`, `ATTACHED` y `USE IN THIS IMAGE` deben ser literales. Si una respuesta sale fuera de formato, la ejecución se detiene (una sola ejecución editorial) y la respuesta original queda en el manifest.
+5. **Imagen** (`IMAGE_MODEL`, 1088×1360, `quality: high`, JPEG): prompt literal más los archivos oficiales de `public/images/` que pide su línea «▶ ADJUNTAR» (§3). El generador integra el logo. Si no hay logo adjunto, se usa `/images/generations`.
 6. Se reduce a 1080×1350 (misma proporción, sin recorte).
-7. **Logo oficial como capa final** (§3).
+7. **Sin composición posterior:** el logo se verifica con `checkLogo`, nunca se repara (§3).
 8. **Validación, por imagen y en este orden:**
    - técnica: JPEG, 1080×1350, ≤ 8 MB;
    - **superficie:** el color dominante debe ser la `SUPERFICIE` declarada (`04` §3, `06` §8). No aplica a T8 (fotografía);
@@ -26,7 +26,7 @@ En cada horario (08:00 y 13:00, imagen individual; 19:00, carrusel; hora de Leó
 9. Si falla, se regenera esa imagen (hasta 2 veces). Si sigue fallando, la pieza queda `failed` y no se publica. Cada rechazo queda en `manifest.validation.rejections` con su motivo.
    - En carrusel, antes de pagar imágenes, se rechaza el maestro si dos slides contiguos comparten superficie (`06` §1).
    - `01`, `02` y `03` se ejecutan **una sola vez** por pieza: una respuesta fuera de formato detiene la ejecución.
-10. **Drive:** se guardan `original/` (salida de OpenAI), `final/` (con logo), `manifest.json` y, en carrusel, `hoja-de-contacto.jpg` (`04` §5).
+10. **Drive:** se guardan `original/` (salida de OpenAI), `final/` (la imagen publicada), `rechazos/`, `manifest.json` y, en carrusel, `hoja-de-contacto.jpg` (`04` §5).
 11. Espera a la hora exacta del horario.
 12. **Publicación:**
     - comparte `final/*.jpg` («cualquiera con el enlace»);
@@ -42,7 +42,7 @@ En cada horario (08:00 y 13:00, imagen individual; 19:00, carrusel; hora de Leó
 |---|---|
 | `scripts/social/run.mjs` | Orquestador y CLI: `--slot 0800\|1300\|1900 [--dry-run] [--now]` |
 | `scripts/social/library.mjs` | Carga y rellena `01`/`02`/`03`, lee sus salidas y arma el caption |
-| `scripts/social/logo.mjs` | Referencias PNG, lectura de `LOGO · USO`, capa final del logo |
+| `scripts/social/logo.mjs` | Referencias oficiales (`public/images/`), lectura de `LOGO · USO`, `checkLogo` |
 | `scripts/social/validate.mjs` | Imagen, copy, caption, comparación de texto, URL pública |
 | `scripts/social/openai.mjs` | Verificación de modelos, imágenes, Responses, costo por llamada |
 | `scripts/social/instagram.mjs` | Contenedores, estado, individual, carrusel, conciliación |
@@ -57,24 +57,45 @@ En cada horario (08:00 y 13:00, imagen individual; 19:00, carrusel; hora de Leó
 
 Sin dependencias nuevas ni cambios en `package.json`. `sharp` llega como dependencia de Astro: si Astro dejara de traerlo, habría que declararlo.
 
-## 3. Logo: capa final según `LOGO · USO`
+## 3. Logo: integrado por el generador, verificado (nunca reparado)
 
-- **Posición, tamaño y color:** salen del `LOGO · USO` de cada pieza (`USE IN THIS IMAGE` en `01`, campo del slide en `02`). No hay una posición universal.
-- **Formas que se interpretan:**
-  - `left/right edge at x N`, `centered at x N`, `top/bottom edge at y N`, `centered at y N`;
-  - `inside the area x A-B, y C-D` (centrado en el área y nunca más grande que ella);
-  - `N px wide` o `N px tall`;
-  - un HEX de la paleta;
-  - `no logo`.
-- **Si algo no se puede resolver sin adivinar** (falta posición, tamaño o color, o el logo no está adjunto), la pieza falla **antes** de pagar la imagen.
-- **Asset exacto:** se usa el SVG versionado (`src/assets/brand/wordmark.svg` o `isotipo.svg`) con su `viewBox`, a escala uniforme y recoloreado solo con `fill`.
-- **Contraste según 06 §10:**
-  - ink sobre cream, cream-warm, violet o lime;
-  - cream sobre ink, `#1A1A1A` o `#0B0B0B`;
-  - violet solo para el isotipo sobre cream o cream-warm;
-  - nunca cream sobre lime ni lime sobre cream.
-- **Antes de pintar:** el anillo alrededor de la zona (16 px de margen y 10 px de banda) tiene que ser una superficie plana de la paleta, con como máximo 1 % de píxeles distintos. Así se permite una línea de 1 px que llegue al logo.
-- Si la zona está ocupada, la imagen se regenera. Si es plana, se repinta con ese color y se coloca el vector encima. El logo que dibujó el generador nunca llega a publicarse.
+- **Referencias oficiales:** el generador recibe como imagen de referencia, en `/v1/images/edits` (`images[]`), los archivos originales que nombra la línea «▶ ADJUNTAR AL GENERADOR» de cada prompt:
+
+  | Nombre en el prompt (biblioteca, sin cambios) | Archivo enviado, byte a byte |
+  |---|---|
+  | `lab/brand/wordmark-ink.png` / `-on-cream` | `public/images/logo-simple.png` (wordmark) |
+  | `lab/brand/isotipo-ink.png` / `-on-cream` | `public/images/isotipo.png` (isotipo) |
+
+  Un nombre desconocido detiene la pieza antes de pagar imágenes. El fondo claro de los archivos y el color violeta del isotipo están previstos en FIJO-4: «the background of the reference file … is not part of the logo» y «recolor it to one flat palette color».
+- **Integración:** la imagen publicada es la del generador, solo reducida de 1088×1360 a 1080×1350 (misma proporción). No se compone, repinta ni superpone nada. Así lo pide `04` §6: «Añadir, mover, recolorear o reemplazar el logo a mano … si algo está mal, se regenera el slide».
+- **Verificación (`checkLogo`):** por cada logo de `LOGO · USO` (`left/right edge`, `centered at`, `top/bottom edge`, `inside the area`, `N px wide/tall`, HEX, `no logo`), busca la silueta oficial, extraída del archivo de `public/`, en el color declarado:
+  - escala de 0.75 a 1.3 veces el tamaño declarado;
+  - centro a ±max(40 px, 25 %) de la posición declarada.
+
+  Exige:
+  - **coincidencia de silueta (IoU) ≥ 0.75** con la referencia oficial;
+  - **contraste según `06` §10:** ink sobre cream, cream-warm, violet o lime; cream sobre ink o `#0B0B0B`; violeta solo para el isotipo sobre cream; nunca cream sobre lima.
+
+  Si no se cumple, la imagen se rechaza y se regenera (hasta 2 veces). La imagen nunca se modifica.
+- **Calibración con muestras sintéticas** (`social.test.mjs`):
+
+  | Muestra | Coincidencia | Resultado |
+  |---|---|---|
+  | Wordmark oficial de 190–270 px, desplazado hasta 30 px | ≥ 0.836 | Acepta |
+  | Render fiel no idéntico | 0.938 | Acepta |
+  | Isotipo con línea conductora | 0.974 | Acepta |
+  | «verk» tecleado | 0.39 | Rechaza |
+  | «VERK» | 0.50 | Rechaza |
+  | Wordmark deformado | 0.46–0.58 | Rechaza |
+  | Isotipo espejado | 0.45 | Rechaza |
+  | Isotipo con 2 barras | 0.67 | Rechaza |
+  | Otro logo, otro color o fuera de zona | — | Rechaza |
+  | Cream sobre lima | — | Rechaza por contraste |
+- **Revisión visual:** `VISION_MODEL` recibe la pieza y las mismas referencias oficiales, y evalúa el logo con los criterios literales de `06` §8 y `04` §3.
+- **Diagnóstico:**
+  - las salidas de `01`/`02`/`03`, los prompts finales, `▶ ADJUNTAR` y las referencias quedan en el manifest (`library`) antes de generar imágenes;
+  - cada intento rechazado se guarda en `rechazos/` (original y versión evaluada), con su motivo y la medición del logo en `validation.rejections`.
+- **Límite de gasto por ejecución:** `MAX_PIECE_USD` (5 USD por defecto) detiene la ejecución si se supera.
 
 **Tolerancia de formato** (sin relajar el contenido): el lector de `01`/`02`/`03` acepta
 - comillas «», “” o "";

@@ -17,7 +17,7 @@ import { createInstagram } from './instagram.mjs';
 import { createDrive, publicUrl } from './drive.mjs';
 import { createOpenAI, PRICES_DATE } from './openai.mjs';
 import * as lib from './library.mjs';
-import { parseLogoUse, referencePngs, applyLogo, attachedKinds } from './logo.mjs';
+import { parseLogoUse, referencePngs, checkLogo, attachedKinds } from './logo.mjs';
 import { checkCopy, checkCaption, checkImage, checkSurface, compareText, verifyPublicUrl } from './validate.mjs';
 
 export const OBJETIVOS = ['conversión', 'reconocimiento del problema', 'posicionamiento', 'educativa'];
@@ -25,7 +25,8 @@ export const SLOTS = { '0800': 'individual', '1300': 'individual', '1900': 'carr
 const TZ = 'America/Mexico_City';
 const OFFSET = '-06:00'; // ponytail: Mexico has no DST since 2022; derive from tzdata if that changes.
 const IMAGE_ATTEMPTS = 3; // 1 generation + 2 regenerations
-const TEXT_ATTEMPTS = 1; // one editorial execution per piece: a malformed 01/02/03 answer stops the run
+const TEXT_ATTEMPTS = 1;
+const MAX_PIECE_USD = Number(process.env.MAX_PIECE_USD || 5); // per run: stop before more spending once exceeded // one editorial execution per piece: a malformed 01/02/03 answer stops the run
 
 export const localDate = (now) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
 export const slotTime = (date, slot) => new Date(`${date}T${slot.slice(0, 2)}:${slot.slice(2)}:00${OFFSET}`);
@@ -85,17 +86,18 @@ function copyGate(copies, caption) {
  * Visual identity review (vision model) with the library's own checklists, verbatim: 06 §8 for every image and
  * 04 §3 for carousel slides. Copy and logo shape are verified elsewhere. Returns the failed criteria.
  */
-async function reviewIdentity({ ai, models, image, piece, carousel, step }) {
+async function reviewIdentity({ ai, models, image, references, piece, carousel, step }) {
   const lists = [await lib.docSection('06-VISUAL-IDENTITY-GUIDELINES.md', '8. Control de calidad')];
   if (carousel) lists.push(await lib.docSection('04-CAROUSEL-ASSEMBLY-INSTRUCTIONS.md', '3. Revisión de cada slide'));
   const r = await ai.respond({
-    step, model: models.vision, image,
+    step, model: models.vision, image, references,
     schema: {
       type: 'object', additionalProperties: false, required: ['criterios'],
       properties: { criterios: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['criterio', 'cumple', 'motivo'], properties: { criterio: { type: 'string' }, cumple: { type: 'boolean' }, motivo: { type: 'string' } } } } },
     },
     text: `Eres el control de calidad visual de VERK. Evalúa esta imagen con las listas de abajo, copiadas de la biblioteca de VERK, frente a lo declarado para esta pieza. Devuelve un criterio por cada punto de las listas.
-No evalúes el copy ni la ortografía: se verifican aparte. El logotipo ya es el vector oficial colocado en código: evalúa solo que su color contraste con la superficie y que no aparezca ningún otro logo, monograma o símbolo inventado.
+La primera imagen es la pieza. ${references.length ? `Las ${references.length === 1 ? 'siguiente es la referencia oficial' : `${references.length} siguientes son las referencias oficiales`} del logo que recibió el generador (su fondo no forma parte del logo; el color puede cambiar al token indicado en LOGO · USO).` : 'Esta pieza no lleva logo: no debe aparecer ningún logo ni símbolo inventado.'}
+No evalúes el copy ni la ortografía: se verifican aparte.
 Marca un criterio como no cumplido solo si la infracción es clara y visible; ante la duda, márcalo como cumplido y explica la duda en el motivo.
 
 DECLARADO PARA ESTA PIEZA
@@ -117,7 +119,7 @@ export async function contactSheet(finals) {
     .jpeg({ quality: 90 }).toBuffer();
 }
 
-export async function generate({ ai, models, type, history, log, objetivo }) {
+export async function generate({ ai, models, type, history, log, objetivo, onLibrary = async () => {}, onReject = async () => {} }) {
   const dir = await direct({ ai, models, type, history, objetivo });
   log(`director: objetivo=${dir.objetivo}`);
   const vars = { TEMA: dir.tema, OBJETIVO: dir.objetivo, SEGMENTO: dir.segmento };
@@ -150,43 +152,50 @@ export async function generate({ ai, models, type, history, log, objetivo }) {
     visual = m.parsed.slides.map((sl) => `${sl.territorio ?? '?'} ${sl.superficie ?? '?'}`);
   }
 
-  // LOGO · USO must resolve before any image is paid for.
+  // Diagnostics: the library outputs and the final prompts are stored before any image is paid for.
+  await onLibrary({ raw, visual, prompts: pieces.map((p) => p.prompt), logoUse: pieces.map((p) => p.logoUse), attach: pieces.map((p) => p.attach) });
+
+  // LOGO · USO and its references must resolve before any image is paid for.
   for (const pc of pieces) {
     try {
       pc.placements = await parseLogoUse(pc.logoUse);
       const kinds = attachedKinds(pc.attach);
       if (pc.placements.some((pl) => !kinds.has(pl.kind))) throw new Error('LOGO · USO usa un logo que no se adjunta');
+      pc.references = await referencePngs(pc.attach); // the official public/ files named by ▶ ADJUNTAR
     } catch (e) { throw new PieceError('LOGO · USO no válido', e.message); }
   }
 
   const images = [], rejections = [];
   for (const [i, pc] of pieces.entries()) {
-    const refs = (await referencePngs(pc.attach)).map((r) => r.png);
+    const refs = pc.references.map((r) => r.png);
     let last;
     for (let a = 0; a < IMAGE_ATTEMPTS; a++) {
       const step = `imagen ${i + 1}/${pieces.length} intento ${a + 1}`;
       const original = await ai.generateImage({ step, model: models.image, prompt: pc.prompt, references: refs });
       try {
-        const resized = await sharp(original).resize(1080, 1350, { fit: 'fill' }).jpeg({ quality: 95 }).toBuffer();
-        const { buffer } = await applyLogo(resized, pc.placements);
-        const tech = [...await checkImage(buffer), ...await checkSurface(buffer, pc)];
-        if (tech.length) throw new Error(tech.join('; '));
+        // The published image is the generator's own (1088×1360 → 1080×1350, same 4:5); nothing is composited.
+        const buffer = await sharp(original).resize(1080, 1350, { fit: 'fill' }).jpeg({ quality: 92, chromaSubsampling: '4:4:4' }).toBuffer();
+        const logo = await checkLogo(buffer, pc.placements);
+        const tech = [...await checkImage(buffer), ...await checkSurface(buffer, pc), ...logo.problems];
+        if (tech.length) throw Object.assign(new Error(tech.join('; ')), { buffer, logo: logo.found });
         const { blocks } = await ai.respond({
           step: `texto ${i + 1}`, model: models.vision, image: buffer,
           schema: { type: 'object', additionalProperties: false, required: ['blocks'], properties: { blocks: { type: 'array', items: { type: 'string' } } } },
           text: 'Transcribe exactly every text visible in this image, one entry per text block (headline, paragraph, label, button), in reading order. Keep accents, capitalization and punctuation exactly as rendered; do not correct anything. Do not transcribe logos or the brand wordmark.',
         });
         const { missing, extra } = compareText(lib.expectedTexts(pc.copy), blocks);
-        if (missing.length) throw new Error(`texto distinto del copy: ${missing.join(' | ')}`);
-        const identity = await reviewIdentity({ ai, models, image: buffer, piece: pc, carousel: type === 'carrusel', step: `identidad ${i + 1}` });
+        if (missing.length) throw Object.assign(new Error(`texto distinto del copy: ${missing.join(' | ')}`), { buffer });
+        const identity = await reviewIdentity({ ai, models, image: buffer, references: refs, piece: pc, carousel: type === 'carrusel', step: `identidad ${i + 1}` });
         if (identity.length) throw new Error(`identidad visual: ${identity.join(' | ')}`);
-        images.push({ original, final: buffer, extraWords: extra });
+        images.push({ original, final: buffer, extraWords: extra, logo: logo.found });
         log(`imagen ${i + 1}/${pieces.length} válida (intento ${a + 1})`);
         last = null;
         break;
       } catch (e) {
+        if (e instanceof PieceError) throw e; // spending limit: stop the run, it is not a rejection
         last = e;
-        rejections.push({ image: i + 1, attempt: a + 1, reason: e.message });
+        rejections.push({ image: i + 1, attempt: a + 1, reason: e.message, ...(e.logo && { logo: e.logo }) });
+        await onReject(`${String(i + 1).padStart(2, '0')}-intento-${a + 1}`, original, e.buffer);
         log(`imagen ${i + 1}/${pieces.length} inválida (intento ${a + 1})`);
       }
     }
@@ -195,7 +204,7 @@ export async function generate({ ai, models, type, history, log, objetivo }) {
 
   return {
     director: dir,
-    library: { raw, visual, prompts: pieces.map((p) => p.prompt), logoUse: pieces.map((p) => p.logoUse) },
+    library: { raw, visual, prompts: pieces.map((p) => p.prompt), logoUse: pieces.map((p) => p.logoUse), attach: pieces.map((p) => p.attach), references: pieces.map((p) => p.references.map((r) => r.file)) },
     copy: pieces.map((p) => p.copy),
     caption,
     images,
@@ -258,10 +267,21 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
     };
     await save();
     const usage = manifest.usage;
-    ai.onUsage = (u) => usage.push(u);
+    ai.onUsage = (u) => {
+      usage.push(u);
+      const spent = usage.reduce((a, x) => a + (x.costUsd ?? 0), 0);
+      if (spent > MAX_PIECE_USD) throw new PieceError(`límite de gasto por pieza superado (${spent.toFixed(2)} > ${MAX_PIECE_USD} USD)`);
+    };
+    let rejectDir;
+    const onReject = async (name, original, final) => {
+      rejectDir ??= await drive.folder('rechazos', folderId);
+      await drive.upload(`${name}-original.jpg`, rejectDir, original, 'image/jpeg');
+      if (final) await drive.upload(`${name}.jpg`, rejectDir, final, 'image/jpeg');
+    };
+    const onLibrary = async (library) => { manifest.library = library; await save(); };
     try {
       const history = (await drive.recentManifests(12)).filter((m) => m.key !== manifest.key);
-      const g = await generate({ ai, models, type, history, log, objetivo });
+      const g = await generate({ ai, models, type, history, log, objetivo, onLibrary, onReject });
       const sub = async (name) => drive.folder(name, folderId);
       const [origDir, finalDir] = [await sub('original'), await sub('final')];
       const files = { original: [], final: [] };
@@ -273,7 +293,7 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyI
       if (type === 'carrusel') files.contactSheet = await drive.upload('hoja-de-contacto.jpg', folderId, await contactSheet(g.images.map((im) => im.final)), 'image/jpeg');
       Object.assign(manifest, {
         status: 'ready', director: g.director, library: g.library, copy: g.copy, caption: g.caption, files,
-        validation: { extraWords: g.images.map((im) => im.extraWords), rejections: g.rejections },
+        validation: { extraWords: g.images.map((im) => im.extraWords), logo: g.images.map((im) => im.logo), rejections: g.rejections },
       });
     } catch (e) {
       manifest.status = 'failed';

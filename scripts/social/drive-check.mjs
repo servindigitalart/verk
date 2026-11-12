@@ -7,7 +7,7 @@
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 import { createDrive, publicUrl } from './drive.mjs';
-import { parseLogoUse, applyLogo, TOKENS } from './logo.mjs';
+import { markImage, TOKENS } from './logo.mjs';
 import { checkImage } from './validate.mjs';
 
 const env = process.env;
@@ -34,8 +34,8 @@ const auth = { Authorization: `Bearer ${t.access_token}` };
 
 const drive = createDrive({ clientId: env.GOOGLE_OAUTH_CLIENT_ID, clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET, refreshToken: env.GOOGLE_OAUTH_REFRESH_TOKEN, rootId: env.DRIVE_ROOT_FOLDER_ID || undefined });
 
-const base = await sharp({ create: { width: 1080, height: 1350, channels: 3, background: TOKENS.cream } }).jpeg().toBuffer();
-const { buffer: img } = await applyLogo(base, await parseLogoUse('wordmark, left edge at x 48, vertically centered at y 1257, 220 px wide, ink #0F0F0F'));
+const img = await sharp({ create: { width: 1080, height: 1350, channels: 3, background: TOKENS.cream } })
+  .composite([{ input: await markImage('wordmark', TOKENS.ink, 220), left: 48, top: 1230 }]).jpeg({ quality: 92 }).toBuffer();
 check('imagen de prueba válida para Instagram (JPEG 1080×1350, ≤ 8 MB)', (await checkImage(img)).length === 0);
 
 const date = new Date().toISOString().slice(0, 19).replace(/:/g, '-');

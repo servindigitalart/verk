@@ -5,7 +5,8 @@ import sharp from 'sharp';
 import { createInstagram } from './instagram.mjs';
 import { createOpenAI, costUsd } from './openai.mjs';
 import * as lib from './library.mjs';
-import { parseLogoUse, applyLogo, referencePngs, TOKENS } from './logo.mjs';
+import { parseLogoUse, checkLogo, markImage, referencePngs, REFERENCE_FILES, LOGO_CHECK, TOKENS } from './logo.mjs';
+import { readFile } from 'node:fs/promises';
 import { checkCaption, checkCopy, compareText, verifyPublicUrl, checkImage } from './validate.mjs';
 import { runSlot, localDate, slotTime } from './run.mjs';
 
@@ -230,13 +231,13 @@ test('captions: library copy only, no hashtags, structure of 01 and 04', () => {
 // ── Logo ──────────────────────────────────────────────────────────────────
 test('LOGO · USO: placements follow each prompt, never a fixed position', async () => {
   const [wm] = await parseLogoUse('wordmark, bottom-left, left edge at x 48, vertically centered at y 1257, 220 px wide, ink #0F0F0F');
-  assert.deepEqual(wm, { kind: 'wordmark', color: '#0F0F0F', x: 48, y: 1231, w: 220, h: 53 });
+  assert.deepEqual(wm, { kind: 'wordmark', color: '#0F0F0F', x: 48, y: 1230, w: 220, h: 54 }); // ratio of public/images/logo-simple.png
   const both = await parseLogoUse('wordmark, bottom-left, left edge at x 48, vertically centered at y 1257, 220 px wide, ink #0F0F0F; isotipo, inside the area x 760-1032, y 640-990, about 350 px tall, ink #0F0F0F; wordmark and isotipo stay separate elements');
   assert.equal(both.length, 2);
   const iso = both[1];
   assert.equal(iso.kind, 'isotipo');
   assert.equal(iso.h, 350);
-  assert.equal(iso.w, 269); // 350 × 567/739: uniform scale
+  assert.equal(iso.w, 267); // 350 × 558/731 (public/images/isotipo.png): uniform scale
   assert.ok(iso.x >= 760 && iso.x + iso.w <= 1032 && iso.y >= 640 && iso.y + iso.h <= 990);
   const [top] = await parseLogoUse('wordmark, top-right, right edge at x 1032, top edge at y 48, 180 px wide, cream #F0EEE9');
   assert.deepEqual([top.x, top.y, top.w], [852, 48, 180]);
@@ -251,40 +252,67 @@ const flat = (hex, draw = []) => sharp({ create: { width: 1080, height: 1350, ch
   .composite(draw).jpeg({ quality: 95 }).toBuffer();
 const rect = (x, y, w, h, color) => ({ input: { create: { width: w, height: h, channels: 3, background: color } }, left: x, top: y });
 
-test('applyLogo: repaints the zone and composites the official wordmark in the declared color', async () => {
-  const placements = await parseLogoUse('wordmark, left edge at x 48, vertically centered at y 1257, 220 px wide, ink #0F0F0F');
-  // the generator drew "something" in the logo zone: it gets covered
-  const img = await flat(TOKENS.violet, [rect(60, 1240, 150, 30, '#F0EEE9')]);
-  const { buffer, surfaces } = await applyLogo(img, placements);
-  assert.deepEqual(surfaces, ['violet']);
-  assert.deepEqual(await checkImage(buffer), []);
-  const { data } = await sharp(buffer).raw().toBuffer({ resolveWithObject: true });
-  const at = (x, y) => [...data.subarray((y * 1080 + x) * 3, (y * 1080 + x) * 3 + 3)];
-  const ink = (p) => p.every((v) => v < 40);
-  let inkPx = 0;
-  for (let y = 1231; y < 1284; y++) for (let x = 48; x < 268; x++) if (ink(at(x, y))) inkPx++;
-  assert.ok(inkPx > 1500, `wordmark drawn (${inkPx} ink px)`);
-  assert.ok(!ink(at(40, 1257)) && !ink(at(300, 1257)), 'nothing outside the box');
-  const cream = at(205, 1255); // former cream junk is gone or covered
-  assert.ok(!(cream[0] > 220 && cream[1] > 220 && cream[2] > 210));
+// The generator integrates the logo; tests draw the official mark where LOGO · USO says, as a correct image would.
+const mark = async (kind, color, w, x, y) => ({ input: await markImage(kind, color, w), left: x, top: y });
+const WM_USE = 'wordmark, bottom-left, left edge at x 48, vertically centered at y 1257, 220 px wide, ink #0F0F0F';
+/** What a correct generator returns (1088×1360): the surface plus every logo of LOGO · USO drawn where declared. */
+async function generated(bg, logoUse, extra = []) {
+  const layers = [];
+  for (const p of await parseLogoUse(logoUse)) layers.push(await mark(p.kind, p.color, p.w, p.x, p.y));
+  const base = await sharp({ create: { width: 1080, height: 1350, channels: 3, background: bg } }).composite([...layers, ...extra]).png().toBuffer();
+  return sharp(base).resize(1088, 1360, { fit: 'fill' }).jpeg({ quality: 95 }).toBuffer();
+}
+
+test('checkLogo accepts the official mark integrated as declared (incl. generator size/position drift)', async () => {
+  const wm = await parseLogoUse(WM_USE);
+  for (const [bg, w, x, y] of [[TOKENS.violet, 220, 48, 1230], [TOKENS.violet, 247, 48, 1227], [TOKENS.cream, 190, 48, 1234], [TOKENS.lime, 220, 78, 1250]]) {
+    const r = await checkLogo(await flat(bg, [await mark('wordmark', TOKENS.ink, w, x, y)]), wm);
+    assert.deepEqual(r.problems, [], `${w}px at ${x},${y}`);
+    assert.ok(r.found[0].iou >= LOGO_CHECK.minIoU);
+  }
+  const creamOnInk = await parseLogoUse(WM_USE.replace('ink #0F0F0F', 'cream #F0EEE9'));
+  assert.deepEqual((await checkLogo(await flat(TOKENS.ink, [await mark('wordmark', TOKENS.cream, 220, 48, 1230)]), creamOnInk)).problems, []);
+  const iso = await parseLogoUse('isotipo, inside the area x 760-1032, y 640-990, about 350 px tall, ink #0F0F0F');
+  const line = { input: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><line x1="0" y1="400" x2="340" y2="60" stroke="#0F0F0F" stroke-width="1.5"/></svg>'), left: 420, top: 720 };
+  assert.deepEqual((await checkLogo(await flat(TOKENS.lime, [await mark('isotipo', TOKENS.ink, 267, 763, 640), line]), iso)).problems, []);
 });
 
-test('applyLogo: a busy zone or a forbidden color combination is rejected (→ regenerate)', async () => {
-  const wm = await parseLogoUse('wordmark, left edge at x 48, vertically centered at y 1257, 220 px wide, ink #0F0F0F');
-  const busy = await flat(TOKENS.cream, [rect(0, 1190, 1080, 30, '#6B6AF4')]);
-  await assert.rejects(applyLogo(busy, wm), /no es plana/);
-  const creamOnLime = await parseLogoUse('wordmark, left edge at x 48, vertically centered at y 1257, 220 px wide, cream #F0EEE9');
-  await assert.rejects(applyLogo(await flat(TOKENS.lime), creamOnLime), /no está permitido sobre lime/);
-  await assert.rejects(applyLogo(await flat('#FF0000'), wm), /no es de la paleta/);
+test('checkLogo rejects (never repairs): missing, typed text, distorted, wrong logo/color/zone, forbidden contrast', async () => {
+  const wm = await parseLogoUse(WM_USE);
+  const text = (t) => ({ input: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="220" height="54"><text x="0" y="51" font-family="Arial" font-weight="700" font-size="67" textLength="220" lengthAdjust="spacingAndGlyphs" fill="#0F0F0F">${t}</text></svg>`), left: 48, top: 1230 });
+  const stretched = { input: await sharp(await markImage('wordmark', TOKENS.ink, 220)).resize(308, 54, { fit: 'fill' }).toBuffer(), left: 48, top: 1230 };
+  const cases = [
+    ['sin logo', TOKENS.violet, []],
+    ['texto «verk» tipográfico', TOKENS.violet, [text('verk')]],
+    ['texto «VERK»', TOKENS.cream, [text('VERK')]],
+    ['wordmark deformado 1.4× ancho', TOKENS.cream, [stretched]],
+    ['isotipo en lugar del wordmark', TOKENS.cream, [await mark('isotipo', TOKENS.ink, 42, 48, 1230)]],
+    ['color no declarado (violeta)', TOKENS.cream, [await mark('wordmark', TOKENS.violet, 220, 48, 1230)]],
+    ['fuera de la zona (+150 px)', TOKENS.cream, [await mark('wordmark', TOKENS.ink, 220, 198, 1230)]],
+  ];
+  for (const [name, bg, layers] of cases) {
+    const img = await flat(bg, layers);
+    const before = await sharp(img).raw().toBuffer();
+    const r = await checkLogo(img, wm);
+    assert.match(r.problems[0] ?? '', /no se encontró el wordmark oficial/, name);
+    assert.ok(before.equals(await sharp(img).raw().toBuffer()), 'image untouched');
+  }
+  const creamOnLime = await parseLogoUse(WM_USE.replace('ink #0F0F0F', 'cream #F0EEE9'));
+  assert.match((await checkLogo(await flat(TOKENS.lime, [await mark('wordmark', TOKENS.cream, 220, 48, 1230)]), creamOnLime)).problems[0], /no está permitido sobre lime \(06 §10\)/);
+  const iso = await parseLogoUse('isotipo, inside the area x 760-1032, y 640-990, about 350 px tall, ink #0F0F0F');
+  const mirrored = { input: await sharp(await markImage('isotipo', TOKENS.ink, 267)).flop().toBuffer(), left: 763, top: 640 };
+  assert.match((await checkLogo(await flat(TOKENS.lime, [mirrored]), iso)).problems[0], /no se encontró el isotipo oficial/);
+  const twoBars = [await mark('isotipo', TOKENS.ink, 267, 763, 640), rect(763, 860, 267, 130, TOKENS.lime)];
+  assert.match((await checkLogo(await flat(TOKENS.lime, twoBars), iso)).problems[0], /no se encontró el isotipo oficial/);
 });
 
-test('references: rendered from the tracked SVGs with the official ratio', async () => {
-  const refs = await referencePngs('lab/brand/wordmark-ink.png + lab/brand/isotipo-ink-on-cream.png');
-  assert.deepEqual(refs.map((r) => r.kind), ['wordmark', 'isotipo']);
-  const [a, b] = await Promise.all(refs.map((r) => sharp(r.png).metadata()));
-  assert.deepEqual([a.width, a.height, a.hasAlpha], [2048, 493, true]);
-  assert.deepEqual([b.width, b.height], [1571, 2048]);
+test('references: the original public/ files, byte for byte, as named by ▶ ADJUNTAR', async () => {
+  const refs = await referencePngs('lab/brand/wordmark-ink.png + lab/brand/isotipo-ink.png');
+  assert.deepEqual(refs.map((r) => [r.kind, r.file]), [['wordmark', 'public/images/logo-simple.png'], ['isotipo', 'public/images/isotipo.png']]);
+  for (const r of refs) assert.ok(r.png.equals(await readFile(new URL(`../../${REFERENCE_FILES[r.kind]}`, import.meta.url))));
+  assert.deepEqual((await referencePngs('lab/brand/wordmark-ink-on-cream.png')).map((r) => r.file), ['public/images/logo-simple.png']);
   assert.deepEqual(await referencePngs('ninguno'), []);
+  await assert.rejects(referencePngs('lab/brand/otro-logo.png'), /referencia de logo desconocida/);
 });
 
 // ── Validation ────────────────────────────────────────────────────────────
@@ -395,9 +423,9 @@ test('generation (dry run): library literal → image → official logo → text
     async generateImage({ prompt, references }) {
       assert.ok(prompt.startsWith('▶ ADJUNTAR AL GENERADOR: lab/brand/wordmark-ink.png'));
       assert.equal(references.length, 1);
-      // 1st attempt: something crosses the logo zone → rejected; 2nd: clean surface
-      const draw = images++ === 0 ? [rect(0, 1200, 1088, 40, '#0F0F0F')] : [];
-      return sharp({ create: { width: 1088, height: 1360, channels: 3, background: TOKENS.violet } }).composite(draw).jpeg().toBuffer();
+      // 1st attempt: a bar runs through the generated wordmark → checkLogo rejects; 2nd: logo integrated as declared
+      const extra = images++ === 0 ? [rect(0, 1245, 1080, 24, '#0F0F0F')] : [];
+      return generated(TOKENS.violet, lib.parseIndividual(outA).logoUse, extra);
     },
   };
   const drive = fakeDrive(null);
@@ -480,7 +508,7 @@ test('carousel generation: 02 → 03 literal, 5 slides with official logos, iden
       images++;
       const n = Number(prompt.match(/· SLIDE (\d) \/ 5/)[1]);
       assert.equal(references.length, n === 5 ? 2 : 1); // slide 5 attaches wordmark + isotipo
-      return sharp({ create: { width: 1088, height: 1360, channels: 3, background: TOKENS[surf[n - 1]] } }).jpeg().toBuffer();
+      return generated(TOKENS[surf[n - 1]], master.slides[n - 1].logoUse);
     },
   };
   const drive = fakeDrive(null);
@@ -541,7 +569,7 @@ test('scheduled path: one run generates, waits for the exact slot, publishes and
       if (step.startsWith('identidad')) return { criterios: [{ criterio: 'ok', cumple: true, motivo: '' }] };
       throw new Error(step);
     },
-    async generateImage() { order.push('imagen'); return sharp({ create: { width: 1088, height: 1360, channels: 3, background: TOKENS.violet } }).jpeg().toBuffer(); },
+    async generateImage() { order.push('imagen'); return generated(TOKENS.violet, lib.parseIndividual(outA).logoUse); },
   };
   const drive = fakeDrive(null);
   const jpg = await flat(TOKENS.violet);
@@ -634,4 +662,52 @@ test('a failed editorial step keeps the model answer in the manifest; a fixed ob
   assert.equal(m.attempts.length, 1);
   assert.equal(m.attempts[0].cost.usd, 0.0828);
   assert.deepEqual([m.cost.usd, m.cost.slotUsd], [0.08, 0.1628]);
+});
+
+test('diagnostics: library saved before images, rejected attempts uploaded, review gets the official references', async () => {
+  const copyA = lib.parseIndividual(outA).copy;
+  const officialWordmark = await readFile(new URL('../../public/images/logo-simple.png', import.meta.url));
+  let n = 0, reviewRefs;
+  const drive = fakeDrive(null);
+  const events = [];
+  const up = drive.upload, wj = drive.writeJson;
+  drive.upload = async (name, p, buf, mime) => { events.push(`upload ${p}/${name}`); return up(name, p, buf, mime); };
+  drive.writeJson = async (id, d) => { events.push(`manifest library=${Boolean(d.library)} status=${d.status}`); return wj(id, d); };
+  const ai = {
+    async respond({ step, references }) {
+      if (step === 'director') return { tema: 'x', objetivo: 'conversión', segmento: '' };
+      if (step === '01') return outA;
+      if (step.startsWith('texto')) return { blocks: lib.expectedTexts(copyA) };
+      if (step.startsWith('identidad')) { reviewRefs = references; return { criterios: [{ criterio: 'ok', cumple: true, motivo: '' }] }; }
+      throw new Error(step);
+    },
+    async generateImage({ references }) {
+      events.push('imagen');
+      assert.ok(references[0].equals(officialWordmark)); // the generator gets the original file's bytes
+      return generated(TOKENS.violet, lib.parseIndividual(outA).logoUse, n++ === 0 ? [rect(0, 1245, 1080, 24, '#0F0F0F')] : []);
+    },
+  };
+  await runSlot({ slot: '0800', dryRun: true, now: at('2026-11-12T12:35:00Z') }, { drive, ai, ig: boom, models: { image: 'i', text: 't', vision: 'v' }, log: () => {} });
+  assert.ok(events.indexOf('manifest library=true status=generating') < events.indexOf('imagen'));
+  assert.ok(events.includes('upload F/rechazos/01-intento-1-original.jpg') && events.includes('upload F/rechazos/01-intento-1.jpg'));
+  assert.ok(reviewRefs.length === 1 && reviewRefs[0].equals(officialWordmark));
+  const m = drive.files.get('M');
+  assert.match(m.validation.rejections[0].reason, /no se encontró el wordmark oficial/);
+  assert.ok(m.validation.logo[0][0].iou >= LOGO_CHECK.minIoU);
+  assert.equal(m.library.attach[0], 'lab/brand/wordmark-ink.png');
+});
+
+test('spending limit per run stops generation (not counted as a rejection)', async () => {
+  const ai = {
+    async respond({ step }) {
+      if (step === 'director') { this.onUsage({ step, costUsd: 0.01 }); return { tema: 'x', objetivo: 'conversión', segmento: '' }; }
+      this.onUsage({ step, costUsd: 0.05 }); return outA;
+    },
+    async generateImage() { this.onUsage({ step: 'img', costUsd: 9 }); return generated(TOKENS.violet, WM_USE); },
+  };
+  const drive = fakeDrive(null);
+  await assert.rejects(runSlot({ slot: '0800', dryRun: true, now: at('2026-11-12T12:35:00Z') }, { drive, ai, ig: boom, models: { image: 'i', text: 't', vision: 'v' }, log: () => {} }), /límite de gasto por pieza superado/);
+  const m = drive.files.get('M');
+  assert.equal(m.status, 'failed');
+  assert.equal(m.validation, undefined);
 });

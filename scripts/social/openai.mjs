@@ -66,10 +66,12 @@ export function createOpenAI({ apiKey, fetch = globalThis.fetch, wait = sleep, o
         : image(step, '/images/generations', base);
     },
 
-    /** Responses API. `schema` → structured JSON output (parsed). `image` → JPEG Buffer for vision. */
-    async respond({ step, model, text, image: img, schema, effort }) {
+    /** Responses API. `schema` → structured JSON output (parsed). `image` → JPEG Buffer for vision;
+     *  `references` → extra PNG Buffers sent after it (e.g. the official logo files). */
+    async respond({ step, model, text, image: img, references = [], schema, effort }) {
       const content = [{ type: 'input_text', text }];
       if (img) content.push({ type: 'input_image', image_url: `data:image/jpeg;base64,${img.toString('base64')}` });
+      for (const r of references) content.push({ type: 'input_image', image_url: `data:image/png;base64,${r.toString('base64')}` });
       const r = await call('/responses', {
         model,
         input: [{ role: 'user', content }],
