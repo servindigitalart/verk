@@ -201,9 +201,18 @@ El cron, todavía comentado, arranca 90 min antes (12:30, 17:30 y 23:30 UTC), y 
 3. Actions → `social-publish-ready` → la misma fecha y horario, y en `confirm`: `PUBLICAR 2026-11-12 1900`.
 4. El manifest queda `published`, con `mediaId`, `containerIds`, `permalink` y `verification`.
 
-**Operación diaria (activa desde 2026-11-11):** cron en `social.yml` (`30 12`, `30 17` y `30 23` UTC) y variable `SOCIAL_ENABLED=true`.
+**Operación diaria (activa desde 2026-11-11):** cron en `social.yml` (`30 12`, `30 17` y `30 23` UTC, más los respaldos `0 13`, `0 18` y `0 0`) y variable `SOCIAL_ENABLED=true`.
 - **Apagar todo al instante:** `gh variable set SOCIAL_ENABLED --body false`. Las ejecuciones programadas terminan sin hacer nada.
 - **Comprobar credenciales gratis:** Actions → `social` → `check_only`. Valida la cuenta @verk.digital, los modelos de OpenAI y Drive; no genera ni publica.
+- **Respaldo:** GitHub puede retrasar o descartar un cron. El 2026-11-11 no disparó el de las 17:30, así que no hubo ejecución ni publicación. Por eso cada horario tiene un segundo cron 30 min después del arranque:
+
+  | Respaldo (UTC) | León | Horario |
+  |---|---|---|
+  | `0 13` | 07:00 | 08:00 |
+  | `0 18` | 12:00 | 13:00 |
+  | `0 0` | 18:00, mismo día en León | 19:00 |
+
+  Corre con `--only-if-missing`: solo actúa si ese día y horario todavía no tienen `manifest.json`. Con cualquier manifest (`published`, `failed`, `generating`, `ready` o `publishing`) termina sin hacer nada. Nunca genera una segunda pieza ni reintenta una fallida. Los dos crons de un horario comparten grupo de concurrencia, así que nunca corren a la vez.
 - **Sin retroactivos:** GitHub no ejecuta horarios que ya pasaron. Un horario ya `published` nunca se repite.
 - **Retrasos:** si GitHub arranca tarde y la hora ya pasó, se publica en cuanto la pieza está validada.
 - **Riesgo:** GitHub desactiva los cron de repositorios públicos tras 60 días sin actividad en el repositorio (avisa por correo). Un commit o reactivarlo en Actions los restablece.

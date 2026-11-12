@@ -2,6 +2,7 @@
 // VERK Instagram publisher. One run = one slot of one local day (America/Mexico_City).
 //   node scripts/social/run.mjs --slot 0800|1300|1900 [--dry-run] [--now]
 //   node scripts/social/run.mjs --slot 0800|1300|1900 --publish-ready --date AAAA-MM-DD
+//   node scripts/social/run.mjs --slot … --only-if-missing   (backup trigger: acts only if the slot has no manifest yet)
 //   node scripts/social/run.mjs --check   (free preflights only: Instagram account, OpenAI models, Drive)
 // --dry-run: generates, validates and stores in Drive; never shares files or publishes.
 // --publish-ready: publishes a piece already «ready» in Drive, now; never generates. It is the manual,
@@ -201,7 +202,7 @@ export async function generate({ ai, models, type, history, log }) {
 }
 
 // ── Slot run ─────────────────────────────────────────────────────────────
-export async function runSlot({ slot, dryRun = false, publishOnly = false, date: forcedDate, now = () => new Date(), waitForSlot = true }, { drive, ai, ig, models, log = console.log, wait = sleep, fetch = globalThis.fetch }) {
+export async function runSlot({ slot, dryRun = false, publishOnly = false, onlyIfMissing = false, date: forcedDate, now = () => new Date(), waitForSlot = true }, { drive, ai, ig, models, log = console.log, wait = sleep, fetch = globalThis.fetch }) {
   const type = SLOTS[slot];
   if (!type) throw new Error(`slot inválido: ${slot}`);
   if (forcedDate && !/^\d{4}-\d{2}-\d{2}$/.test(forcedDate)) throw new Error(`fecha inválida: ${forcedDate}`);
@@ -216,6 +217,10 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, date:
     else manifestId = await drive.upload('manifest.json', folderId, Buffer.from(JSON.stringify(manifest, null, 2)), 'application/json');
   };
   log(`slot ${date} ${slot} (${type}) · estado previo: ${manifest?.status ?? 'ninguno'}`);
+
+  // Backup trigger: any manifest (published, failed, generating, ready, publishing) means the primary run
+  // already took this slot → never a second piece, never a retry of a failed one.
+  if (onlyIfMissing && manifest) { log('respaldo: el horario ya tiene manifest; no se hace nada'); return { status: 'skipped' }; }
 
   if (manifest?.status === 'published') { log('ya publicado: no se hace nada'); return { status: 'skipped' }; }
 
@@ -319,7 +324,7 @@ export async function runSlot({ slot, dryRun = false, publishOnly = false, date:
 
 // ── CLI ──────────────────────────────────────────────────────────────────
 async function main() {
-  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' }, check: { type: 'boolean' } } });
+  const { values } = parseArgs({ options: { slot: { type: 'string' }, 'dry-run': { type: 'boolean' }, now: { type: 'boolean' }, 'publish-ready': { type: 'boolean' }, date: { type: 'string' }, check: { type: 'boolean' }, 'only-if-missing': { type: 'boolean' } } });
   const env = process.env;
   const check = Boolean(values.check);
   const dryRun = Boolean(values['dry-run']);
@@ -352,7 +357,7 @@ async function main() {
     console.log(`openai: modelos disponibles (${[...new Set(Object.values(models))].join(', ')})\ndrive: conexión y carpeta raíz correctas\ncheck: todo correcto (SOCIAL_ENABLED=${env.SOCIAL_ENABLED === 'true' ? 'true' : 'false'})`);
     return;
   }
-  const r = await runSlot({ slot: values.slot, dryRun, publishOnly, date: values.date, waitForSlot: !values.now }, { drive, ai, ig, models });
+  const r = await runSlot({ slot: values.slot, dryRun, publishOnly, onlyIfMissing: Boolean(values['only-if-missing']), date: values.date, waitForSlot: !values.now }, { drive, ai, ig, models });
   if (r.status === 'published' && r.verified === false) {
     console.error('aviso: publicado, pero la verificación posterior no se superó; revisa el manifest. No se republica.');
     process.exitCode = 1;

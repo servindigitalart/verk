@@ -31,15 +31,20 @@ on:
     - cron: '30 12 * * *' # 06:30 León → publica 08:00 (imagen individual)
     - cron: '30 17 * * *' # 11:30 León → publica 13:00 (imagen individual)
     - cron: '30 23 * * *' # 17:30 León → publica 19:00 (carrusel)
+  # Respaldo 30 min después de cada arranque (GitHub puede retrasar o descartar un cron): solo actúa si el horario
+  # todavía no tiene manifest (--only-if-missing); nunca genera una segunda pieza ni reintenta una fallida.
+    - cron: '0 13 * * *'  # 07:00 León → respaldo del horario 0800
+    - cron: '0 18 * * *'  # 12:00 León → respaldo del horario 1300
+    - cron: '0 0 * * *'   # 18:00 León (00:00 UTC del día siguiente) → respaldo del horario 1900
 
 permissions:
   contents: read
 
 env:
-  SLOT: ${{ inputs.slot || (github.event.schedule == '30 12 * * *' && '0800') || (github.event.schedule == '30 17 * * *' && '1300') || '1900' }}
+  SLOT: ${{ inputs.slot || ((github.event.schedule == '30 12 * * *' || github.event.schedule == '0 13 * * *') && '0800') || ((github.event.schedule == '30 17 * * *' || github.event.schedule == '0 18 * * *') && '1300') || '1900' }}
 
 concurrency:
-  group: social-${{ inputs.slot || (github.event.schedule == '30 12 * * *' && '0800') || (github.event.schedule == '30 17 * * *' && '1300') || '1900' }}
+  group: social-${{ inputs.slot || ((github.event.schedule == '30 12 * * *' || github.event.schedule == '0 13 * * *') && '0800') || ((github.event.schedule == '30 17 * * *' || github.event.schedule == '0 18 * * *') && '1300') || '1900' }}
   cancel-in-progress: false
 
 jobs:
@@ -57,7 +62,7 @@ jobs:
       - run: npm ci --omit=dev
       - run: node --test scripts/social/*.test.mjs
       - name: Generar y publicar
-        run: node scripts/social/run.mjs --slot "$SLOT" ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.now && '--now' || '' }} ${{ inputs.check_only && '--check' || '' }}
+        run: node scripts/social/run.mjs --slot "$SLOT" ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.now && '--now' || '' }} ${{ inputs.check_only && '--check' || '' }} ${{ contains(fromJSON('["0 13 * * *","0 18 * * *","0 0 * * *"]'), github.event.schedule) && '--only-if-missing' || '' }}
         env:
           SOCIAL_ENABLED: ${{ vars.SOCIAL_ENABLED }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

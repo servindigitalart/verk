@@ -567,3 +567,23 @@ test('cron (UTC) → León slot on the same local date, 90 min ahead', () => {
     assert.equal(slotTime(date, slot).getTime() - Date.parse(cron), 90 * 60 * 1000);
   }
 });
+
+test('backup trigger (--only-if-missing): any existing manifest → nothing; no manifest → normal run', async () => {
+  for (const status of ['published', 'failed', 'generating', 'ready', 'publishing']) {
+    const drive = fakeDrive({ status, key: '2026-11-12-1900', errors: [], caption: 'C', publication: { startedAt: '2026-11-12T01:00:00Z' } });
+    const before = JSON.stringify(drive.files.get('M'));
+    const r = await runSlot({ slot: '1900', onlyIfMissing: true, now: at('2026-11-13T00:05:00Z') }, { drive, ai: boom, ig: boom, models: {}, log: () => {} });
+    assert.deepEqual(r, { status: 'skipped' }, status);
+    assert.equal(JSON.stringify(drive.files.get('M')), before, `${status} untouched`);
+  }
+  // no manifest: the backup does the slot's normal work (here it reaches generation)
+  await assert.rejects(runSlot({ slot: '1900', onlyIfMissing: true, now: at('2026-11-13T00:05:00Z') }, { drive: fakeDrive(null), ai: boom, ig: boom, models: {}, log: () => {} }), /must not be called/);
+});
+
+test('backup crons map to the same León date and slot, before the publication time', () => {
+  for (const [cron, slot] of [['2026-11-12T13:00:00Z', '0800'], ['2026-11-12T18:00:00Z', '1300'], ['2026-11-13T00:00:00Z', '1900']]) {
+    const date = localDate(new Date(cron));
+    assert.equal(date, '2026-11-12', cron); // 00:00 UTC is still 18:00 of the previous day in León
+    assert.equal(slotTime(date, slot).getTime() - Date.parse(cron), 60 * 60 * 1000);
+  }
+});
